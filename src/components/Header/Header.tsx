@@ -1,6 +1,6 @@
 import { Button, Typography } from "antd";
 
-export default function Header() {
+const Header = () =>  {
   return (
     <header className="bg-white shadow-md p-4 flex justify-between items-center">
       <Typography.Title level={3} style={{ margin: 0, color: "#1677ff" }}>
@@ -16,3 +16,5 @@ export default function Header() {
     </header>
   );
 }
+
+export default Header;
