@@ -1,8 +1,8 @@
-import { Button, Typography, Row, Col, Card } from 'antd';
-import Footer from './Footer';
-import Header from './Header';
+import { Button, Typography, Row, Col } from 'antd';
+import Footer from '@/components/Footer/Footer';
+import Header from '@/components/Header/Header';
 
-export default function HomePage() {
+const HomePage = () => {
   return (
     <div className="min-h-screen bg-white text-gray-800 flex flex-col">
       {/* Header Section */}
@@ -42,3 +42,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+export default HomePage;

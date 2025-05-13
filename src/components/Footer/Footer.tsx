@@ -1,6 +1,6 @@
 import {  Typography, Row, Col, Card } from 'antd';
 import { PlayCircleOutlined, FireOutlined, TrophyOutlined } from '@ant-design/icons';
-export default function Footer() {
+const Footer = () => {
     return (
               <div className="mt-16">
         <Typography.Title level={2} style={{ textAlign: 'center' }}>
@@ -38,3 +38,5 @@ export default function Footer() {
       </div>
     );
 }
+
+export default Footer;
