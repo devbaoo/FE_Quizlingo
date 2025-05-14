@@ -6,7 +6,7 @@ const Header = () => {
       <Typography.Title level={3} style={{ margin: 0, color: "#1677ff" }}>
         Quizlingo
       </Typography.Title>
-      <a href="/login">
+      <a href="/register">
         <button
           className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-3 font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200"
         >
