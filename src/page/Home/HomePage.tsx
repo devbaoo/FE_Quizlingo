@@ -18,8 +18,8 @@ const HomePage = () => {
 
         {/* Nội dung bên phải */}
         <div className="w-full md:w-1/2 flex flex-col items-center">
-          <h1 className="text-center text-[22px] md:text-[26px] font-bold text-gray-800 leading-snug mb-6 font-sans">
-            Cách học ngôn ngữ miễn phí, vui nhộn và&nbsp;hiệu&nbsp;quả!
+          <h1 className="text-center text-[22px] md:text-[26px] font-bold text-gray-700 leading-snug mb-6 font-baloo">
+            Vừa học vừa chơi, ngoại ngữ&nbsp;lên&nbsp;đời!
           </h1>
 
           <div className="flex flex-col gap-4 w-full max-w-xs items-center">
