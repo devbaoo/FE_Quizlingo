@@ -20,7 +20,7 @@ const Footer = () => {
           {/* Right Image */}
           <div className="flex-1 flex justify-center">
             <img
-              src="https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/23ab11cb1e1a9aff54facdf57833373d.svg"
+              src="https://media.giphy.com/media/gtgdV9KXZpgUjswDS6/giphy.gif"
               alt="Quizlingo Characters"
               className="w-full max-w-sm"
             />
@@ -32,7 +32,7 @@ const Footer = () => {
           {/* Left Image */}
           <div className="flex-1 flex justify-center">
             <img
-              src="https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/08ec8d0260c55c054e1b97bcbc96ea0f.svg"
+              src="https://media.giphy.com/media/cDvnVlETDQUl8xh5jK/giphy.gif"
               alt="Scientific Illustration"
               className="w-full max-w-md"
             />
@@ -54,7 +54,7 @@ const Footer = () => {
           {/* Image on the right */}
           <div className="flex-1 flex justify-center">
             <img
-              src="https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/833a22b2834050d139f266a29899bb00.svg"
+              src="https://media.giphy.com/media/kQulaQZ8vc6UUkBS6O/giphy.gif"
               alt="Duo Motivation"
               className="w-full max-w-md"
             />
@@ -76,7 +76,7 @@ const Footer = () => {
         {/* Image section */}
         <div className="flex-1 flex justify-center">
           <img
-            src="https://d35aaqx5ub95lt.cloudfront.net/images/splash/lottie/23ab11cb1e1a9aff54facdf57833373d.svg"
+            src="https://media.giphy.com/media/TkQAT5kmemGUp5Ok4U/giphy.gif"
             alt="Personalized learning"
             className="w-full max-w-md"
           />
