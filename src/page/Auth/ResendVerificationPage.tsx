@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAppDispatch } from "@/services/store/store";
-import { resendVerification } from "@/services/features/auth/authSlice";
+import { resendVerification, logout } from "@/services/features/auth/authSlice";
 
 const ResendVerificationPage = () => {
     const location = useLocation();
@@ -48,6 +48,11 @@ const ResendVerificationPage = () => {
         }
     };
 
+    const handleBackToLogin = () => {
+        dispatch(logout());
+        navigate("/login");
+    };
+
     return (
         <main className="relative min-h-screen w-full bg-white">
             <div className="p-4 sm:p-6">
@@ -68,13 +73,7 @@ const ResendVerificationPage = () => {
                             ></path>
                         </svg>
                     </Link>
-                    <div>
-                        <Link to="/login">
-                            <button className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo">
-                                Đăng Nhập
-                            </button>
-                        </Link>
-                    </div>
+
                 </header>
 
                 <div className="w-full px-4 sm:px-0 mx-auto max-w-sm mt-16 sm:mt-0 sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:transform space-y-4 text-center">
@@ -112,7 +111,7 @@ const ResendVerificationPage = () => {
                             </header>
 
                             <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 font-baloo">
-                                Tài khoản của bạn cần được xác thực. Vui lòng nhập email để nhận liên kết xác thực mới.
+                                Chúng tôi đã gửi email xác thực. Vui lòng kiểm tra hộp thư đến hoặc thư rác.
                             </p>
 
                             {message && !isSuccess && (
@@ -121,7 +120,7 @@ const ResendVerificationPage = () => {
                                 </div>
                             )}
 
-                            <div className="w-full rounded-2xl bg-gray-50 px-3 sm:px-4 ring-2 ring-gray-200 focus-within:ring-blue-400">
+                            <div className="w-full rounded-2xl bg-gray-100 px-3 sm:px-4 ring-2 ring-gray-200 focus-within:ring-blue-400">
                                 <input
                                     type="email"
                                     name="email"
@@ -130,6 +129,7 @@ const ResendVerificationPage = () => {
                                     placeholder="Email"
                                     className="my-3 w-full border-none bg-transparent outline-none focus:outline-none text-sm sm:text-base font-baloo"
                                     required
+                                    disabled
                                 />
                             </div>
 
@@ -144,7 +144,7 @@ const ResendVerificationPage = () => {
                             <div className="text-center">
                                 <button
                                     type="button"
-                                    onClick={() => navigate("/login")}
+                                    onClick={handleBackToLogin}
                                     className="text-sm font-medium text-blue-500 hover:text-blue-700 font-baloo"
                                 >
                                     Quay lại đăng nhập

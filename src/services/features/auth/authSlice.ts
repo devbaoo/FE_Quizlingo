@@ -217,40 +217,30 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(verifyEmail.fulfilled, (state, action) => {
+      .addCase(verifyEmail.fulfilled, (state) => {
         state.loading = false;
         if (state.user) {
           state.user.isVerify = true;
         }
         state.error = null;
-
-        toast.success(action.payload.message || "Email xác thực thành công");
       })
       .addCase(verifyEmail.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Xác thực email thất bại";
-
-        toast.error(state.error);
       })
       // Resend verification cases
       .addCase(resendVerification.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(resendVerification.fulfilled, (state, action) => {
+      .addCase(resendVerification.fulfilled, (state) => {
         state.loading = false;
         state.error = null;
-
-        toast.success(
-          action.payload.message || "Email xác thực đã được gửi lại"
-        );
       })
       .addCase(resendVerification.rejected, (state, action) => {
         state.loading = false;
         state.error =
           action.payload?.message || "Gửi lại email xác thực thất bại";
-
-        toast.error(state.error);
       });
   },
 });
