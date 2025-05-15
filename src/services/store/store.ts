@@ -13,6 +13,7 @@ const presistConfig = {
 // Create a hook for using TypedUseSelectorHook
 const rootReducer = combineReducers({
   auth: authReducer,
+  // Add other reducers here as needed
 });
 
 const persistedReducer = persistReducer(presistConfig, rootReducer);
@@ -22,7 +23,9 @@ export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false,
+      serializableCheck: {
+        ignoredActions: ["persist/PERSIST"],
+      },
     }),
 });
 
@@ -30,7 +33,7 @@ export const store = configureStore({
 export const persistor = persistStore(store);
 
 // Export types
-export type RootState = ReturnType<typeof store.getState>;
+export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;
 
 // Export hooks for using TypedUseSelectorHook

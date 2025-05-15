@@ -1,7 +1,9 @@
 import LoginForm from "@/components/Auth/LoginForm/LoginForm";
 import RegisterForm from "@/components/Auth/RegisterForm/RegisterForm";
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "@/services/store/store";
 
 interface LoginPageProps {
     isRegister?: boolean;
@@ -10,10 +12,21 @@ interface LoginPageProps {
 const LoginPage = ({ isRegister = false }: LoginPageProps) => {
     const [isLoginPage, setIsLoginPage] = useState(!isRegister);
     const navigate = useNavigate();
+    const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
     useEffect(() => {
         setIsLoginPage(!isRegister);
     }, [isRegister]);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            if (user?.role === "admin") {
+                navigate("/admin", { replace: true });
+            } else {
+                navigate("/home", { replace: true });
+            }
+        }
+    }, [isAuthenticated, user, navigate]);
 
     const handleLoginClick = () => {
         navigate("/login");
@@ -73,29 +86,29 @@ const LoginPage = ({ isRegister = false }: LoginPageProps) => {
 
                     <footer>
                         <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                            <a
-                                href="#"
+                            <Link
+                                to="#"
                                 className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-2 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base font-bold text-blue-700 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
                             >
                                 FACEBOOK
-                            </a>
-                            <a
-                                href="#"
+                            </Link>
+                            <Link
+                                to="#"
                                 className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-2 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
                             >
                                 GOOGLE
-                            </a>
+                            </Link>
                         </div>
 
                         <div className="mt-6 sm:mt-8 text-xs sm:text-sm text-gray-400 font-baloo">
                             By signing in to Quizlingo, you agree to our{" "}
-                            <a href="#" className="font-medium text-gray-500 ">
+                            <Link to="#" className="font-medium text-gray-500 ">
                                 Terms
-                            </a>{" "}
+                            </Link>{" "}
                             and{" "}
-                            <a href="#" className="font-medium text-gray-500">
+                            <Link to="#" className="font-medium text-gray-500">
                                 Privacy Policy
-                            </a>
+                            </Link>
                         </div>
                     </footer>
                 </div>
