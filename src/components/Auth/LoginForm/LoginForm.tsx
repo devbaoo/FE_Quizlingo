@@ -27,7 +27,11 @@ const LoginForm = () => {
         try {
             const result = await dispatch(loginUser(credentials)).unwrap();
             if (result.success) {
-                navigate("/home");
+                if (result.needVerification) {
+                    navigate("/resend-verification", { state: { email: credentials.email } });
+                } else {
+                    navigate("/home");
+                }
             }
         } catch (error) {
             console.error("Login failed:", error);
