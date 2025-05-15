@@ -13,4 +13,10 @@ export interface User {
   email: string;
   role: string;
   isVerify: boolean;
+  avatar: string;
+  streak: number;
+  lives: number;
+  xp: number;
+  userLevel: number;
+  level: string;
 }
