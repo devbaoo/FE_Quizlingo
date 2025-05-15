@@ -8,6 +8,7 @@ import {
   FORGOT_PASSWORD_ENDPOINT,
   VERIFY_EMAIL_ENDPOINT,
   RESEND_VERIFICATION_ENDPOINT,
+  RESET_PASSWORD_ENDPOINT,
 } from "@/services/constant/apiConfig";
 
 export interface AuthState {
@@ -40,6 +41,11 @@ interface RegisterCredentials {
 
 interface ForgotPasswordRequest {
   email: string;
+}
+
+interface ResetPasswordRequest {
+  token: string;
+  password: string;
 }
 
 interface ResendVerificationRequest {
@@ -90,6 +96,24 @@ export const forgotPassword = createAsyncThunk<
   } catch (err: unknown) {
     const error = err as ApiError;
     const message = error.message || "Yêu cầu đặt lại mật khẩu thất bại";
+    return rejectWithValue({ message });
+  }
+});
+
+export const resetPassword = createAsyncThunk<
+  { success: boolean; message: string },
+  ResetPasswordRequest,
+  { rejectValue: { message: string } }
+>("auth/resetPassword", async (request, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post(
+      `${RESET_PASSWORD_ENDPOINT}/${request.token}`,
+      { password: request.password }
+    );
+    return response.data;
+  } catch (err: unknown) {
+    const error = err as ApiError;
+    const message = error.message || "Đặt lại mật khẩu thất bại";
     return rejectWithValue({ message });
   }
 });
@@ -209,6 +233,29 @@ const authSlice = createSlice({
         state.loading = false;
         state.error =
           action.payload?.message || "Yêu cầu đặt lại mật khẩu thất bại";
+
+        toast.error(state.error);
+      })
+      // Reset password cases
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+
+        if (action.payload.success) {
+          toast.success(
+            action.payload.message || "Mật khẩu đã được đặt lại thành công"
+          );
+        } else {
+          toast.error(action.payload.message || "Đặt lại mật khẩu thất bại");
+        }
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Đặt lại mật khẩu thất bại";
 
         toast.error(state.error);
       })
