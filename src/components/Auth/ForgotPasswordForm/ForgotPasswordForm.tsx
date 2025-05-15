@@ -32,21 +32,21 @@ const ForgotPasswordForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <header className="mb-3 text-2xl font-bold font-baloo">Quên mật khẩu</header>
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <header className="mb-2 sm:mb-3 text-xl sm:text-2xl font-bold font-baloo">Quên mật khẩu</header>
 
-            <p className="text-gray-600 mb-4 font-baloo">
+            <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 font-baloo">
                 Nhập email của bạn và chúng tôi sẽ gửi cho bạn hướng dẫn để đặt lại mật khẩu.
             </p>
 
-            <div className="w-full rounded-2xl bg-gray-50 px-4 ring-2 ring-gray-200 focus-within:ring-blue-400">
+            <div className="w-full rounded-2xl bg-gray-50 px-3 sm:px-4 ring-2 ring-gray-200 focus-within:ring-blue-400">
                 <input
                     type="email"
                     name="email"
                     value={email}
                     onChange={handleChange}
                     placeholder="Email"
-                    className="my-3 w-full border-none bg-transparent outline-none focus:outline-none font-baloo"
+                    className="my-3 w-full border-none bg-transparent outline-none focus:outline-none text-sm sm:text-base font-baloo"
                     required
                 />
             </div>
@@ -54,7 +54,7 @@ const ForgotPasswordForm = () => {
             <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full rounded-2xl border-b-4 border-b-blue-600 bg-blue-500 py-3 font-bold text-white hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-400 disabled:opacity-70 disabled:cursor-not-allowed font-baloo"
+                className="w-full rounded-2xl border-b-4 border-b-blue-600 bg-blue-500 py-2.5 sm:py-3 text-sm sm:text-base font-bold text-white hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-400 disabled:opacity-70 disabled:cursor-not-allowed font-baloo"
             >
                 {isLoading ? "Đang xử lý..." : "Gửi yêu cầu"}
             </button>
@@ -63,7 +63,7 @@ const ForgotPasswordForm = () => {
                 <button
                     type="button"
                     onClick={() => navigate("/login")}
-                    className="font-medium text-blue-500 hover:text-blue-700 font-baloo"
+                    className="text-sm font-medium text-blue-500 hover:text-blue-700 font-baloo"
                 >
                     Quay lại đăng nhập
                 </button>

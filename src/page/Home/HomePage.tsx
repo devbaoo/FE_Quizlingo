@@ -6,19 +6,18 @@ const HomePage = () => {
     <div className="flex flex-col min-h-screen bg-white text-gray-800">
       <Header />
 
-      <main className="flex flex-row items-center justify-center gap-12 md:gap-[80px] px-6 h-screen max-w-[988px] mx-auto">
-
-        <div className="w-full md:w-1/2 flex justify-center">
+      <main className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 lg:gap-[80px] px-4 sm:px-6 py-12 md:py-0 md:h-screen max-w-[988px] mx-auto">
+        <div className="w-full md:w-1/2 flex justify-center mb-8 md:mb-0">
           <img
             src="https://media.giphy.com/media/5me0l9ZR8SpG0N1UxZ/giphy.gif"
             alt="Quizlingo Characters"
-            className="w-64 h-64 mx-auto"
+            className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 mx-auto"
           />
         </div>
 
         {/* Nội dung bên phải */}
         <div className="w-full md:w-1/2 flex flex-col items-center">
-          <h1 className="text-center text-[22px] md:text-[26px] font-bold text-gray-700 leading-snug mb-6 font-baloo">
+          <h1 className="text-center text-[20px] sm:text-[22px] md:text-[26px] font-bold text-gray-700 leading-snug mb-4 sm:mb-6 font-baloo px-2">
             Vừa học vừa chơi, ngoại ngữ&nbsp;lên&nbsp;đời!
           </h1>
 
@@ -34,8 +33,13 @@ const HomePage = () => {
           </div>
         </div>
       </main>
-      <section className="absolute top-[867px] left-0 w-[1900px] h-20 flex items-center justify-center border-y-2 border-[#e5e5e5] px-10">
+
+      <section className="w-full border-y-2 border-[#e5e5e5] mt-12 md:mt-0 py-5">
+        <div className="max-w-[1200px] mx-auto px-4">
+          {/* Content for this section */}
+        </div>
       </section>
+
       {/* Footer */}
       <Footer />
     </div>

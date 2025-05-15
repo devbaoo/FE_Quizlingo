@@ -25,11 +25,11 @@ const LoginPage = ({ isRegister = false }: LoginPageProps) => {
 
     return (
         <main className="relative min-h-screen w-full bg-white">
-            <div className="p-6">
-                <header className="flex w-full justify-between">
+            <div className="p-4 sm:p-6">
+                <header className="flex w-full justify-between items-center">
                     <Link to="/home">
                         <svg
-                            className="h-7 w-7 cursor-pointer text-gray-400 hover:text-gray-300"
+                            className="h-6 w-6 sm:h-7 sm:w-7 cursor-pointer text-gray-400 hover:text-gray-300"
                             fill="currentColor"
                             viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg"
@@ -47,14 +47,14 @@ const LoginPage = ({ isRegister = false }: LoginPageProps) => {
                         {isLoginPage ? (
                             <button
                                 onClick={handleRegisterClick}
-                                className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-3 font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
+                                className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
                             >
                                 Đăng Ký
                             </button>
                         ) : (
                             <button
                                 onClick={handleLoginClick}
-                                className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-3 font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
+                                className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
                             >
                                 Đăng Nhập
                             </button>
@@ -62,7 +62,7 @@ const LoginPage = ({ isRegister = false }: LoginPageProps) => {
                     </div>
                 </header>
 
-                <div className="absolute left-1/2 top-1/2 mx-auto max-w-sm -translate-x-1/2 -translate-y-1/2 transform space-y-4 text-center">
+                <div className="w-full px-4 sm:px-0 mx-auto max-w-sm mt-16 sm:mt-0 sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:transform space-y-4 text-center">
                     {isLoginPage ? <LoginForm /> : <RegisterForm />}
 
                     <div className="flex items-center space-x-4">
@@ -72,22 +72,22 @@ const LoginPage = ({ isRegister = false }: LoginPageProps) => {
                     </div>
 
                     <footer>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-3 sm:gap-4">
                             <a
                                 href="#"
-                                className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-2.5 font-bold text-blue-700 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
+                                className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-2 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base font-bold text-blue-700 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
                             >
                                 FACEBOOK
                             </a>
                             <a
                                 href="#"
-                                className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-2.5 font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
+                                className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-2 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
                             >
                                 GOOGLE
                             </a>
                         </div>
 
-                        <div className="mt-8 text-sm text-gray-400 font-baloo">
+                        <div className="mt-6 sm:mt-8 text-xs sm:text-sm text-gray-400 font-baloo">
                             By signing in to Quizlingo, you agree to our{" "}
                             <a href="#" className="font-medium text-gray-500 ">
                                 Terms
@@ -96,7 +96,6 @@ const LoginPage = ({ isRegister = false }: LoginPageProps) => {
                             <a href="#" className="font-medium text-gray-500">
                                 Privacy Policy
                             </a>
-
                         </div>
                     </footer>
                 </div>
