@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch } from "@/services/store/store";
 import { resendVerification, logout } from "@/services/features/auth/authSlice";
 
@@ -34,6 +34,7 @@ const ResendVerificationPage = () => {
             if (result.success) {
                 setTimeout(() => {
                     navigate("/login");
+                    dispatch(logout());
                 }, 5000);
             }
         } catch (error) {
@@ -57,7 +58,7 @@ const ResendVerificationPage = () => {
         <main className="min-h-screen flex items-center justify-center bg-white px-2 py-6">
             <div className="w-full max-w-md mx-auto p-4 sm:p-8 bg-white rounded-xl shadow-md space-y-6">
                 <header className="flex w-full justify-between items-center mb-2">
-                    <Link to="/login">
+                    <a href="/login" onClick={handleBackToLogin}>
                         <svg
                             className="h-6 w-6 sm:h-7 sm:w-7 cursor-pointer text-gray-400 hover:text-gray-300"
                             fill="currentColor"
@@ -72,7 +73,7 @@ const ResendVerificationPage = () => {
                                 clipRule="evenodd"
                             ></path>
                         </svg>
-                    </Link>
+                    </a>
                 </header>
 
                 <div className="space-y-4 text-center">

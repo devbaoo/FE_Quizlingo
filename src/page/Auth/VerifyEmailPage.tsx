@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { useAppDispatch } from "@/services/store/store";
-import { verifyEmail } from "@/services/features/auth/authSlice";
+import { logout, verifyEmail } from "@/services/features/auth/authSlice";
 
 const VerifyEmailPage = () => {
     const { token } = useParams<{ token: string }>();
@@ -12,7 +12,6 @@ const VerifyEmailPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-
         const verify = async () => {
             if (!token) {
                 setIsVerifying(false);
@@ -27,10 +26,11 @@ const VerifyEmailPage = () => {
                 if (result.success) {
                     setTimeout(() => {
                         navigate("/home");
+                        dispatch(logout());
                     }, 3000);
                 }
             } catch (error) {
-                if (error && typeof error === 'object' && 'message' in error) {
+                if (error && typeof error === "object" && "message" in error) {
                     setMessage((error as { message: string }).message);
                 } else {
                     setMessage("Xác thực email thất bại");
@@ -43,11 +43,16 @@ const VerifyEmailPage = () => {
         verify();
     }, [dispatch, navigate, token]);
 
+    const handleBackToLogin = () => {
+        dispatch(logout());
+        navigate("/login");
+    };
+
     return (
         <main className="min-h-screen flex items-center justify-center bg-white px-2 py-6">
             <div className="w-full max-w-md mx-auto p-4 sm:p-8 bg-white rounded-xl shadow-md space-y-6">
                 <header className="flex w-full justify-between items-center mb-2">
-                    <Link to="/home">
+                    <a href="/login" onClick={handleBackToLogin}>
                         <svg
                             className="h-6 w-6 sm:h-7 sm:w-7 cursor-pointer text-gray-400 hover:text-gray-300"
                             fill="currentColor"
@@ -62,8 +67,7 @@ const VerifyEmailPage = () => {
                                 clipRule="evenodd"
                             ></path>
                         </svg>
-                    </Link>
-
+                    </a>
                 </header>
 
                 <div className="space-y-4 text-center">
@@ -74,7 +78,9 @@ const VerifyEmailPage = () => {
                     {isVerifying ? (
                         <div className="text-center">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                            <p className="mt-4 text-gray-600 font-baloo text-sm sm:text-base">Đang xác thực email của bạn...</p>
+                            <p className="mt-4 text-gray-600 font-baloo text-sm sm:text-base">
+                                Đang xác thực email của bạn...
+                            </p>
                         </div>
                     ) : (
                         <div className="text-center">
@@ -91,8 +97,12 @@ const VerifyEmailPage = () => {
                                             clipRule="evenodd"
                                         />
                                     </svg>
-                                    <p className="mt-4 text-gray-700 font-baloo text-base sm:text-lg">{message}</p>
-                                    <p className="mt-2 text-xs sm:text-sm text-gray-500 font-baloo">Bạn sẽ được chuyển hướng đến trang chủ trong vài giây...</p>
+                                    <p className="mt-4 text-gray-700 font-baloo text-base sm:text-lg">
+                                        {message}
+                                    </p>
+                                    <p className="mt-2 text-xs sm:text-sm text-gray-500 font-baloo">
+                                        Bạn sẽ được chuyển hướng đến trang chủ trong vài giây...
+                                    </p>
                                 </div>
                             ) : (
                                 <div>
@@ -107,15 +117,15 @@ const VerifyEmailPage = () => {
                                             clipRule="evenodd"
                                         />
                                     </svg>
-                                    <p className="mt-4 text-gray-700 font-baloo text-base sm:text-lg">{message}</p>
+                                    <p className="mt-4 text-gray-700 font-baloo text-base sm:text-lg">
+                                        {message}
+                                    </p>
                                     <div className="mt-6">
-                                        <Link to="/login">
-                                            <button
-                                                className="w-full rounded-2xl border-b-4 border-b-blue-600 bg-blue-500 px-6 py-2.5 text-sm sm:text-base font-bold text-white hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-400 font-baloo"
-                                            >
+                                        <a href="/login" onClick={handleBackToLogin}>
+                                            <button className="w-full rounded-2xl border-b-4 border-b-blue-600 bg-blue-500 px-6 py-2.5 text-sm sm:text-base font-bold text-white hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-400 font-baloo">
                                                 Quay lại đăng nhập
                                             </button>
-                                        </Link>
+                                        </a>
                                     </div>
                                 </div>
                             )}
@@ -127,4 +137,4 @@ const VerifyEmailPage = () => {
     );
 };
 
-export default VerifyEmailPage; 
+export default VerifyEmailPage;
