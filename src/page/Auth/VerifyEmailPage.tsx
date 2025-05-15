@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch } from "@/services/store/store";
 import { logout, verifyEmail } from "@/services/features/auth/authSlice";
 
