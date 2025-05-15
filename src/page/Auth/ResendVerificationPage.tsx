@@ -54,9 +54,9 @@ const ResendVerificationPage = () => {
     };
 
     return (
-        <main className="relative min-h-screen w-full bg-white">
-            <div className="p-4 sm:p-6">
-                <header className="flex w-full justify-between items-center">
+        <main className="min-h-screen flex items-center justify-center bg-white px-2 py-6">
+            <div className="w-full max-w-md mx-auto p-4 sm:p-8 bg-white rounded-xl shadow-md space-y-6">
+                <header className="flex w-full justify-between items-center mb-2">
                     <Link to="/login">
                         <svg
                             className="h-6 w-6 sm:h-7 sm:w-7 cursor-pointer text-gray-400 hover:text-gray-300"
@@ -73,10 +73,9 @@ const ResendVerificationPage = () => {
                             ></path>
                         </svg>
                     </Link>
-
                 </header>
 
-                <div className="w-full px-4 sm:px-0 mx-auto max-w-sm mt-16 sm:mt-0 sm:absolute sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:transform space-y-4 text-center">
+                <div className="space-y-4 text-center">
                     {isSuccess ? (
                         <div className="space-y-6">
                             <svg
@@ -91,15 +90,15 @@ const ResendVerificationPage = () => {
                                 />
                             </svg>
                             <div>
-                                <h2 className="text-xl font-bold text-gray-800 font-baloo">Email đã được gửi!</h2>
-                                <p className="mt-2 text-gray-600 font-baloo">{message}</p>
-                                <p className="mt-4 text-sm text-gray-500 font-baloo">
+                                <h2 className="text-xl sm:text-2xl font-bold text-gray-800 font-baloo">Email đã được gửi!</h2>
+                                <p className="mt-2 text-gray-600 font-baloo text-sm sm:text-base">{message}</p>
+                                <p className="mt-4 text-xs sm:text-sm text-gray-500 font-baloo">
                                     Bạn sẽ được chuyển hướng đến trang đăng nhập trong vài giây...
                                 </p>
                             </div>
                             <button
                                 onClick={() => navigate("/login")}
-                                className="rounded-2xl border-b-4 border-b-blue-600 bg-blue-500 px-6 py-2.5 text-sm font-bold text-white hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-400 font-baloo"
+                                className="w-full rounded-2xl border-b-4 border-b-blue-600 bg-blue-500 px-6 py-2.5 text-sm sm:text-base font-bold text-white hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-400 font-baloo"
                             >
                                 Quay lại đăng nhập
                             </button>
