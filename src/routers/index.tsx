@@ -39,6 +39,8 @@ const AppRouter = () => {
 
     return (
         <Routes>
+            <Route path="/resend-verification" element={<ResendVerificationPage />} />
+
             {/* Guest Routes - Only accessible when not authenticated */}
             <Route element={!isAuthenticated ? <GuestLayout /> : <Navigate to={getInitialRoute()} />}>
                 <Route path="/" element={<HomePage />} />
@@ -51,7 +53,6 @@ const AppRouter = () => {
                 <Route path="/register" element={<LoginPage isRegister={true} />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
-                <Route path="/resend-verification" element={<ResendVerificationPage />} />
                 <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
             </Route>
 
