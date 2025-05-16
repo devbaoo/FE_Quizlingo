@@ -35,7 +35,7 @@ const HomePage = () => {
 
             {isAuthenticated ? (
               <>
-                <Link to="/choose-level" className="w-full">
+                <Link to="/choose-topic" className="w-full">
                   <button className="rounded-2xl border-b-2 border-b-blue-300 bg-blue-500 px-4 py-3 font-bold text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200 font-baloo w-full">
                     Tiếp Tục Học
                   </button>
