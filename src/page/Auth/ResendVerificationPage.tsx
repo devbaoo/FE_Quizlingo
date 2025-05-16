@@ -7,7 +7,6 @@ import { Link } from "react-router-dom";
 const ResendVerificationPage = () => {
     const location = useLocation();
     const initialEmail = location.state?.email || "";
-    const [email, setEmail] = useState(initialEmail);
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState("");
     const [isSuccess, setIsSuccess] = useState(false);
@@ -20,24 +19,17 @@ const ResendVerificationPage = () => {
         }
     }, [initialEmail, navigate]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(e.target.value);
-    };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
         try {
-            const result = await dispatch(resendVerification({ email })).unwrap();
+            const result = await dispatch(resendVerification({ email: initialEmail })).unwrap();
             setIsSuccess(result.success);
             setMessage(result.message || "Email xác thực đã được gửi lại");
-            if (result.success) {
-                setTimeout(() => {
-                    navigate("/login");
-                    dispatch(logout());
-                }, 5000);
-            }
+
         } catch (error) {
             if (error && typeof error === 'object' && 'message' in error) {
                 setMessage((error as { message: string }).message);
@@ -94,12 +86,14 @@ const ResendVerificationPage = () => {
                             <div>
                                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800 font-baloo">Email đã được gửi!</h2>
                                 <p className="mt-2 text-gray-600 font-baloo text-sm sm:text-base">{message}</p>
-                                <p className="mt-4 text-xs sm:text-sm text-gray-500 font-baloo">
-                                    Bạn sẽ được chuyển hướng đến trang đăng nhập trong vài giây...
-                                </p>
+
                             </div>
                             <button
-                                onClick={() => navigate("/login")}
+                                onClick={() => {
+                                    navigate("/login");
+                                    dispatch(logout());
+                                }}
+
                                 className="w-full rounded-2xl border-b-4 border-b-blue-600 bg-blue-500 px-6 py-2.5 text-sm sm:text-base font-bold text-white hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-400 font-baloo"
                             >
                                 Quay lại đăng nhập
@@ -125,8 +119,7 @@ const ResendVerificationPage = () => {
                                 <input
                                     type="email"
                                     name="email"
-                                    value={email}
-                                    onChange={handleChange}
+                                    value={initialEmail}
                                     placeholder="Email"
                                     className="my-3 w-full border-none bg-transparent outline-none focus:outline-none text-sm sm:text-base font-baloo"
                                     required
