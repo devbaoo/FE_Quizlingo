@@ -31,7 +31,7 @@ const LoginForm = () => {
                 if (result.needVerification) {
                     navigate("/resend-verification", { state: { email: credentials.email } });
                 } else {
-                    navigate("/home");
+                    navigate("/learn");
                 }
             }
         } catch (error) {

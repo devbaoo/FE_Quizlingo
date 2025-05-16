@@ -3,16 +3,18 @@ import { TypedUseSelectorHook, useSelector, useDispatch } from "react-redux";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import authReducer from "../features/auth/authSlice";
+import userReducer from "../features/user/userSlice";
 
 const presistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth"],
+  whitelist: ["auth", "user"],
 };
 
 // Create a hook for using TypedUseSelectorHook
 const rootReducer = combineReducers({
   auth: authReducer,
+  user: userReducer,
   // Add other reducers here as needed
 });
 
