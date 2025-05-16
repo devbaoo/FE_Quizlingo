@@ -10,6 +10,7 @@ import { BASE_URL } from "./apiConfig";
 // Type Definitions
 // ========================
 export interface ApiResponse<T = unknown> {
+  user: T;
   success: boolean;
   message: string;
   data?: T;
