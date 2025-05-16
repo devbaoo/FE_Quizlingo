@@ -9,8 +9,12 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isAuthenticated && user?.role === "admin") {
-      navigate("/admin", { replace: true });
+    if (isAuthenticated) {
+      if (user?.role === "admin") {
+        navigate("/admin", { replace: true });
+      } else {
+        navigate("/learn", { replace: true });
+      }
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -32,31 +36,16 @@ const HomePage = () => {
           </h1>
 
           <div className="flex flex-col gap-4 w-full max-w-xs items-center">
-
-            {isAuthenticated ? (
-              <>
-                <Link to="/choose-level" className="w-full">
-                  <button className="rounded-2xl border-b-2 border-b-blue-300 bg-blue-500 px-4 py-3 font-bold text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200 font-baloo w-full">
-                    Tiếp Tục Học
-                  </button>
-                </Link>
-
-              </>
-            ) : (
-              <>
-                <Link to="/register" className="w-full">
-                  <button className="rounded-2xl border-b-2 border-b-blue-300 bg-blue-500 px-4 py-3 font-bold text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200 font-baloo w-full">
-                    Bắt Đầu
-                  </button>
-                </Link>
-                <Link to="/login" className="w-full">
-                  <button className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-3 font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo w-full">
-                    Tôi Đã Có Tài Khoản
-                  </button>
-                </Link>
-              </>
-            )}
-
+            <Link to="/register" className="w-full">
+              <button className="rounded-2xl border-b-2 border-b-blue-300 bg-blue-500 px-4 py-3 font-bold text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200 font-baloo w-full">
+                Bắt Đầu
+              </button>
+            </Link>
+            <Link to="/login" className="w-full">
+              <button className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-3 font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo w-full">
+                Tôi Đã Có Tài Khoản
+              </button>
+            </Link>
           </div>
         </div>
       </main>
