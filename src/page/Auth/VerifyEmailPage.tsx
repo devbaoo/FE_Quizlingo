@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppDispatch } from "@/services/store/store";
 import { logout, verifyEmail } from "@/services/features/auth/authSlice";
+import { Link } from "react-router-dom";
 
 const VerifyEmailPage = () => {
     const { token } = useParams<{ token: string }>();
@@ -52,7 +53,7 @@ const VerifyEmailPage = () => {
         <main className="min-h-screen flex items-center justify-center bg-white px-2 py-6">
             <div className="w-full max-w-md mx-auto p-4 sm:p-8 bg-white rounded-xl shadow-md space-y-6">
                 <header className="flex w-full justify-between items-center mb-2">
-                    <a href="/login" onClick={handleBackToLogin}>
+                    <Link to="/login" onClick={handleBackToLogin}>
                         <svg
                             className="h-6 w-6 sm:h-7 sm:w-7 cursor-pointer text-gray-400 hover:text-gray-300"
                             fill="currentColor"
@@ -67,7 +68,7 @@ const VerifyEmailPage = () => {
                                 clipRule="evenodd"
                             ></path>
                         </svg>
-                    </a>
+                    </Link>
                 </header>
 
                 <div className="space-y-4 text-center">
@@ -121,11 +122,11 @@ const VerifyEmailPage = () => {
                                         {message}
                                     </p>
                                     <div className="mt-6">
-                                        <a href="/login" onClick={handleBackToLogin}>
+                                        <Link to="/login" onClick={handleBackToLogin}>
                                             <button className="w-full rounded-2xl border-b-4 border-b-blue-600 bg-blue-500 px-6 py-2.5 text-sm sm:text-base font-bold text-white hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-400 font-baloo">
                                                 Quay lại đăng nhập
                                             </button>
-                                        </a>
+                                        </Link>
                                     </div>
                                 </div>
                             )}

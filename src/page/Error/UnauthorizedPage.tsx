@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 
 const UnauthorizedPage = () => {
     return (
@@ -13,11 +14,11 @@ const UnauthorizedPage = () => {
             <p className="text-gray-600 mb-8 text-center max-w-md font-baloo">
                 Bạn không có quyền truy cập vào trang này. Vui lòng quay lại trang chủ hoặc liên hệ với quản trị viên.
             </p>
-            <a href="/">
+            <Link to="/">
                 <button className="rounded-2xl border-b-2 border-b-blue-300 bg-blue-500 px-6 py-3 font-bold text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200 font-baloo">
                     Về Trang Chủ
                 </button>
-            </a>
+            </Link>
         </div>
     );
 };
