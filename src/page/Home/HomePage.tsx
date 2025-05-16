@@ -32,6 +32,7 @@ const HomePage = () => {
           </h1>
 
           <div className="flex flex-col gap-4 w-full max-w-xs items-center">
+
             {isAuthenticated ? (
               <>
                 <Link to="/choose-level" className="w-full">
@@ -55,6 +56,7 @@ const HomePage = () => {
                 </Link>
               </>
             )}
+
           </div>
         </div>
       </main>
