@@ -1,12 +1,22 @@
-import Header from '@/components/Header/Header';
-import Footer from '@/components/Footer/Footer';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/services/store/store';
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated && user?.role === "admin") {
+      navigate("/admin", { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
+
   return (
     <div className="flex flex-col min-h-screen bg-white text-gray-800">
-      <Header />
-
-      <main className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 lg:gap-[80px] px-4 sm:px-6 py-12 md:py-0 md:h-screen max-w-[988px] mx-auto">
+      <main className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 lg:gap-[80px] px-4 sm:px-6 h-screen max-w-[988px] mx-auto">
         <div className="w-full md:w-1/2 flex justify-center mb-8 md:mb-0">
           <img
             src="https://media.giphy.com/media/5me0l9ZR8SpG0N1UxZ/giphy.gif"
@@ -22,28 +32,34 @@ const HomePage = () => {
           </h1>
 
           <div className="flex flex-col gap-4 w-full max-w-xs items-center">
-            <a href="/choose-topic" className="w-full">
-            <button className="rounded-2xl border-b-2 border-b-blue-300 bg-blue-500 px-4 py-3 font-bold text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200 font-baloo w-full">
-              Bắt Đầu
-            </button>
-            </a>
-            <a href="/login" className="w-full">
-              <button className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-3 font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo w-full">
-                Tôi Đã Có Tài Khoản
-              </button>
-            </a>
+
+            {isAuthenticated ? (
+              <>
+                <Link to="/choose-level" className="w-full">
+                  <button className="rounded-2xl border-b-2 border-b-blue-300 bg-blue-500 px-4 py-3 font-bold text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200 font-baloo w-full">
+                    Tiếp Tục Học
+                  </button>
+                </Link>
+
+              </>
+            ) : (
+              <>
+                <Link to="/register" className="w-full">
+                  <button className="rounded-2xl border-b-2 border-b-blue-300 bg-blue-500 px-4 py-3 font-bold text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200 font-baloo w-full">
+                    Bắt Đầu
+                  </button>
+                </Link>
+                <Link to="/login" className="w-full">
+                  <button className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-3 font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo w-full">
+                    Tôi Đã Có Tài Khoản
+                  </button>
+                </Link>
+              </>
+            )}
+
           </div>
         </div>
       </main>
-
-      <section className="w-full border-y-2 border-[#e5e5e5] mt-12 md:mt-0 py-5">
-        <div className="max-w-[1200px] mx-auto px-4">
-          {/* Content for this section */}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };

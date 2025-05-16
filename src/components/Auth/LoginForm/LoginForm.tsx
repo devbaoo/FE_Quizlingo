@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/services/store/store";
 import { loginUser } from "@/services/features/auth/authSlice";
+import { Link } from "react-router-dom";
 
 const LoginForm = () => {
     const [credentials, setCredentials] = useState({
@@ -27,7 +28,11 @@ const LoginForm = () => {
         try {
             const result = await dispatch(loginUser(credentials)).unwrap();
             if (result.success) {
-                navigate("/home");
+                if (result.needVerification) {
+                    navigate("/resend-verification", { state: { email: credentials.email } });
+                } else {
+                    navigate("/home");
+                }
             }
         } catch (error) {
             console.error("Login failed:", error);

@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/services/store/store";
 import { forgotPassword } from "@/services/features/auth/authSlice";
 
 const ForgotPasswordForm = () => {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,9 +18,11 @@ const ForgotPasswordForm = () => {
         try {
             const result = await dispatch(forgotPassword({ email })).unwrap();
             if (result.success) {
-                setTimeout(() => {
-                    navigate("/login");
-                }, 3000);
+                // setTimeout(() => {
+                //     navigate("/login");
+                // }, 3000);
+                console.log("Email đã được gửi thành công!");
+
             }
         } catch {
             // error
@@ -62,7 +62,6 @@ const ForgotPasswordForm = () => {
             <div className="text-center">
                 <button
                     type="button"
-                    onClick={() => navigate("/login")}
                     className="text-sm font-medium text-blue-500 hover:text-blue-700 font-baloo"
                 >
                     Quay lại đăng nhập
