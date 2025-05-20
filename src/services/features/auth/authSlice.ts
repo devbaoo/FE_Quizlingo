@@ -11,6 +11,8 @@ import {
   RESET_PASSWORD_ENDPOINT,
 } from "@/services/constant/apiConfig";
 
+const AVATAR_STORAGE_KEY = "quizlingo_user_avatar"; 
+
 export interface AuthState {
   user: User | null;
   token: string | null;
@@ -164,6 +166,11 @@ const authSlice = createSlice({
       state.error = null;
       localStorage.removeItem("token");
     },
+    setAvatar: (state, action) => {
+      if (state.user) {
+        state.user.avatar = action.payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -178,6 +185,11 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.error = null;
         localStorage.setItem("token", action.payload.token);
+
+        const savedAvatar = localStorage.getItem(AVATAR_STORAGE_KEY);
+        if (savedAvatar && state.user) {
+          state.user.avatar = savedAvatar;
+        }
 
         toast.success(action.payload.message);
       })
@@ -292,5 +304,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, setAvatar } = authSlice.actions;
 export default authSlice.reducer;
