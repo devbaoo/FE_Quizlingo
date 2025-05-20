@@ -22,7 +22,10 @@ const DonePage = () => {
         </button>
       </div>
     </div>
+<<<<<<< HEAD
     
+=======
+>>>>>>> 32dc4e4 (Api get choose)
   );
 };
 

@@ -3,6 +3,13 @@ import { TypedUseSelectorHook, useSelector, useDispatch } from "react-redux";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import authReducer from "../features/auth/authSlice";
+<<<<<<< HEAD
+=======
+import userReducer from "../features/user/userSlice";
+import topicReducer from "../features/topic/topicSlice";
+import levelReducer from "../features/level/levelSlice"; 
+import skillReducer from "../features/skill/skillSlice"; 
+>>>>>>> 32dc4e4 (Api get choose)
 
 const presistConfig = {
   key: "root",
@@ -13,6 +20,13 @@ const presistConfig = {
 // Create a hook for using TypedUseSelectorHook
 const rootReducer = combineReducers({
   auth: authReducer,
+<<<<<<< HEAD
+=======
+  user: userReducer,
+  topic: topicReducer,
+  level: levelReducer,
+  skill: skillReducer,
+>>>>>>> 32dc4e4 (Api get choose)
   // Add other reducers here as needed
 });
 
