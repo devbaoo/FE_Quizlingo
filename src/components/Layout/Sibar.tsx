@@ -36,7 +36,7 @@ export default function Sidebar() {
     };
 
     return (
-        <aside className="fixed top-0 left-0 h-screen w-[280px] bg-white border-r-2 border-gray-200 px-4 py-6 overflow-y-auto z-[210]">
+        <aside className="fixed top-0 left-0 h-screen w-[224px] bg-white border-r-2 border-gray-200 px-4 py-6 overflow-y-auto z-[210]">
             <nav className="flex flex-col gap-3">
                 <Link
                     to="/learn"

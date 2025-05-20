@@ -1,21 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiMethods } from "@/services/constant/axiosInstance";
 import { GET_PROFILE_TOKEN_ENDPOINT } from "@/services/constant/apiConfig";
-
-interface UserProfile {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  level: string;
-  avatar: string;
-  userLevel: number;
-  xp: number;
-  lives: number;
-  completedBasicVocab: string[];
-  preferredSkills: string[];
-}
+import { UserProfile } from "@/interfaces/IUser";
 
 interface UserState {
   profile: UserProfile | null;
