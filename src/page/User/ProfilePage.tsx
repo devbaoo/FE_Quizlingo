@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
 import { fetchUserProfile } from "@/services/features/user/userSlice";
-import Sidebar from "@/components/Layout/Sibar";
+import Sidebar from "@/components/Layout/SidebarUser";
 import { FaPlus, FaMedal, FaStar, FaBullseye, FaUserGraduate, FaHeart } from "react-icons/fa";
 import { TbVocabulary } from "react-icons/tb";
 import { BsStars } from "react-icons/bs";
