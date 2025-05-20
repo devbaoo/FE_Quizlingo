@@ -19,8 +19,9 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import Process from "@/components/Process/Process";
 import DonePage from "@/page/Choose/DoneChoose";
 import LearnPage from "@/page/User/LearnPage";
-import ProfilePage from "@/page/User/ProfilePage";
 import LessonPage from "@/page/User/LessonPage";
+import LessonSubmitPage from "@/page/User/LessonSubmitPage";
+import ProfilePage from "@/page/User/ProfilePage";
 import { useSelector } from "react-redux";
 import { RootState } from "@/services/store/store";
 import ManageUserPage from "@/page/Admin/ManageUserPage";
@@ -66,8 +67,9 @@ const AppRouter = () => {
             <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
                 <Route element={<UserLayout />}>
                     <Route path="/learn" element={<LearnPage />} />
-                    <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/lesson/:id" element={<LessonPage />} />
+                    <Route path="/lesson/submit" element={<LessonSubmitPage />} />
+                    <Route path="/profile" element={<ProfilePage />} />
                 </Route>
 
                 {/* Choose Process Routes */}
@@ -85,7 +87,7 @@ const AppRouter = () => {
                     <Route path="lesson/listening" element={<ListeningLessonPage />} />
                     <Route path="lesson/reading" element={<ReadingLessonPage />} />
                     <Route path="lesson/writing" element={<WritingLessonPage />} />
-                    <Route path="lesson/speaking" element={<SpeakingLessonPage/>} />
+                    <Route path="lesson/speaking" element={<SpeakingLessonPage />} />
                 </Route>
             </Route>
 
