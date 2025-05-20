@@ -5,6 +5,7 @@ import storage from "redux-persist/lib/storage";
 import authReducer from "../features/auth/authSlice";
 import userReducer from "../features/user/userSlice";
 import topicReducer from "../features/topic/topicSlice";
+import lessonReducer from "../features/lesson/lessonSlice";
 
 const presistConfig = {
   key: "root",
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   user: userReducer,
   topic: topicReducer,
+  lesson: lessonReducer,
   // Add other reducers here as needed
 });
 

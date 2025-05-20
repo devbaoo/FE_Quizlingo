@@ -20,6 +20,7 @@ import Process from "@/components/Process/Process";
 import DonePage from "@/page/Choose/DoneChoose";
 import LearnPage from "@/page/User/LearnPage";
 import ProfilePage from "@/page/User/ProfilePage";
+import LessonPage from "@/page/User/LessonPage";
 import { useSelector } from "react-redux";
 import { RootState } from "@/services/store/store";
 
@@ -61,6 +62,7 @@ const AppRouter = () => {
                 <Route element={<UserLayout />}>
                     <Route path="/learn" element={<LearnPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/lesson/:id" element={<LessonPage />} />
                 </Route>
 
                 {/* Choose Process Routes */}

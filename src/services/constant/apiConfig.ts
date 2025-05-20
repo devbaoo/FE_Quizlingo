@@ -15,3 +15,10 @@ export const UPDATE_AVATAR_PROFILE_ENDPOINT = `${BASE_URL}/users/avatar`;
 
 //topic
 export const GET_TOPICS_ENDPOINT = `${BASE_URL}/topics`;
+
+//lesson
+export const GET_LESSONS_ENDPOINT = `${BASE_URL}/lessons`;
+export const GET_LESSON_BY_ID_ENDPOINT = (id: string) =>
+  `${BASE_URL}/lessons/${id}`;
+export const COMPLETE_LESSON_ENDPOINT = `${BASE_URL}/progress`;
+export const RETRY_LESSON_ENDPOINT = `${BASE_URL}/lessons/retry`;
