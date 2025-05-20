@@ -31,6 +31,7 @@ export interface UserProfile {
   userLevel: number;
   xp: number;
   lives: number;
+  streak: number;
   completedBasicVocab: string[];
   preferredSkills: string[];
 }

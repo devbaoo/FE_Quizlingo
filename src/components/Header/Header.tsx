@@ -1,15 +1,25 @@
 import { Typography, Dropdown, Avatar } from "antd";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/services/store/store";
 import { logout } from "@/services/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import type { MenuProps } from "antd";
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { fetchUserProfile } from "@/services/features/user/userSlice";
+import { useAppDispatch } from "@/services/store/store";
 
 const Header = () => {
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-  const dispatch = useDispatch();
+  const { isAuthenticated, user: authUser } = useSelector((state: RootState) => state.auth);
+  const { profile: userProfile } = useSelector((state: RootState) => state.user);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchUserProfile());
+    }
+  }, [isAuthenticated, dispatch]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -27,7 +37,7 @@ const Header = () => {
       label: <span className="font-baloo">Cài đặt</span>,
       onClick: () => navigate("/settings"),
     },
-    ...(user?.role === "admin" ? [{
+    ...(authUser?.role === "admin" ? [{
       key: "3",
       label: <span className="font-baloo">Admin Dashboard</span>,
       onClick: () => navigate("/admin"),
@@ -55,11 +65,11 @@ const Header = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                <span className="font-baloo text-gray-600">XP: {user?.xp || 0}</span>
+                <span className="font-baloo text-gray-600">XP: {userProfile?.xp || 0}</span>
               </div>
               <div className="flex items-center gap-2">
                 <img src="https://d35aaqx5ub95lt.cloudfront.net/images/hearts/8fdba477c56a8eeb23f0f7e67fdec6d9.svg" />
-                <span className="font-baloo text-gray-600">Lives: {user?.lives || 0}</span>
+                <span className="font-baloo text-gray-600">Lives: {userProfile?.lives || 0}</span>
               </div>
               <div className="flex items-center gap-2">
                 <svg width="24" height="24" viewBox="-33 0 255 255" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid" fill="#000000">
@@ -80,17 +90,17 @@ const Header = () => {
                     </g>
                   </g>
                 </svg>
-                <span className="font-baloo text-gray-600">Streak: {user?.streak || 0}</span>
+                <span className="font-baloo text-gray-600">Streak: {userProfile?.streak || 0}</span>
               </div>
             </div>
 
             <Dropdown menu={{ items }} placement="bottomRight">
               <div className="flex items-center gap-2 cursor-pointer">
                 <Avatar
-                  src={user?.avatar || "https://api.dicebear.com/6.x/fun-emoji/svg?seed=" + user?.firstName}
-                  alt={user?.firstName}
+                  src={userProfile?.avatar || "https://api.dicebear.com/6.x/fun-emoji/svg?seed=" + userProfile?.firstName}
+                  alt={userProfile?.firstName}
                 />
-                <span className="font-baloo hidden md:inline">Hi, {user?.firstName} {user?.lastName}</span>
+                <span className="font-baloo hidden md:inline">Hi, {userProfile?.firstName} {userProfile?.lastName}</span>
               </div>
             </Dropdown>
           </>
