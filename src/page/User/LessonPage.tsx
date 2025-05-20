@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "@/services/store/store";
 import { LessonTopBarHeart, LessonTopBarEmptyHeart } from "@/components/ui/Svgs";
 import confetti from "canvas-confetti";
 import { fetchLessonById, completeLesson, retryLesson, clearCurrentLesson } from "@/services/features/lesson/lessonSlice";
+import { updateUserProfileFromLesson } from "@/services/features/user/userSlice";
 
 interface QuestionResult {
     questionId: string;
@@ -117,9 +118,18 @@ const LessonPage = () => {
                     isRetried: false
                 };
 
-                await dispatch(completeLesson(submissionData)).unwrap();
+                const result = await dispatch(completeLesson(submissionData)).unwrap();
+                
+                // Also update the user profile state directly
+                if (result.user) {
+                    dispatch(updateUserProfileFromLesson(result.user));
+                }
+                
                 setIsCompleted(true);
                 setShowRetryModal(true);
+                
+                // Dispatch custom event to notify header to refresh user data
+                window.dispatchEvent(new Event('lessonComplete'));
             } catch (error) {
                 console.error("Error completing lesson:", error);
             }
@@ -142,6 +152,9 @@ const LessonPage = () => {
                 setIsCorrect(false);
                 setIsCompleted(false);
                 setShowRetryModal(false);
+                
+                // Dispatch custom event to notify header to refresh user data
+                window.dispatchEvent(new Event('lessonComplete'));
             } catch (error) {
                 console.error("Error retrying lesson:", error);
             }

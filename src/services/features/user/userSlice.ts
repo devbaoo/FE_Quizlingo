@@ -23,8 +23,9 @@ export const fetchUserProfile = createAsyncThunk(
         GET_PROFILE_TOKEN_ENDPOINT
       );
       return response.data.user;
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to fetch profile");
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "Failed to fetch profile";
+      return rejectWithValue(errMsg);
     }
   }
 );
@@ -36,6 +37,14 @@ const userSlice = createSlice({
     clearUserProfile: (state) => {
       state.profile = null;
       state.error = null;
+    },
+    updateUserProfileFromLesson: (state, action) => {
+      if (state.profile && action.payload) {
+        state.profile = {
+          ...state.profile,
+          ...action.payload,
+        };
+      }
     },
   },
   extraReducers: (builder) => {
@@ -55,5 +64,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { clearUserProfile } = userSlice.actions;
+export const { clearUserProfile, updateUserProfileFromLesson } = userSlice.actions;
 export default userSlice.reducer;
