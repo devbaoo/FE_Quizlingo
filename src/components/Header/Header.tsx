@@ -5,7 +5,7 @@ import { logout } from "@/services/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import type { MenuProps } from "antd";
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { fetchUserProfile } from "@/services/features/user/userSlice";
 import { useAppDispatch } from "@/services/store/store";
 
@@ -15,11 +15,39 @@ const Header = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const refreshUserProfile = useCallback(() => {
     if (isAuthenticated) {
+      console.log('Refreshing user profile data...');
       dispatch(fetchUserProfile());
     }
   }, [isAuthenticated, dispatch]);
+
+  // Initial fetch on mount and auth change
+  useEffect(() => {
+    refreshUserProfile();
+  }, [refreshUserProfile]);
+
+  // Set up an interval to periodically refresh the profile and listen for events
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Listen for custom event that can be dispatched when lesson completes
+    const handleLessonComplete = () => {
+      console.log('Lesson complete event received, refreshing profile...');
+      refreshUserProfile();
+    };
+    
+    // Add event listener
+    window.addEventListener('lessonComplete', handleLessonComplete);
+    
+    // Refresh every 30 seconds while user is active
+    const intervalId = setInterval(refreshUserProfile, 30000);
+    
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('lessonComplete', handleLessonComplete);
+    };
+  }, [isAuthenticated, refreshUserProfile]);
 
   const handleLogout = () => {
     dispatch(logout());
