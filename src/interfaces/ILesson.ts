@@ -56,3 +56,10 @@ export interface IQuestion {
   createdAt: string;
   __v: number;
 }
+
+export interface QuestionResult {
+  questionId: string;
+  answer: string;
+  isCorrect: boolean;
+  isTimeout: boolean;
+}
