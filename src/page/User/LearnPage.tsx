@@ -510,26 +510,23 @@ const UnitHeader = ({
     unitNumber,
     description,
     backgroundColor,
-
 }: {
     unitNumber: number;
     description: string;
     backgroundColor: `bg-${string}`;
-
 }) => {
     return (
         <article
             className={[
-                "max-w-2xl w-[calc(100%+40px)] ml-[-20px] text-white sm:rounded-xl",
+                "max-w-2xl w-[calc(100%+20px)] sm:w-[calc(100%+40px)] ml-[-10px] sm:ml-[-20px] text-white sm:rounded-xl",
                 backgroundColor
             ].join(" ")}
         >
-            <header className="flex items-center justify-between gap-4 p-4">
+            <header className="flex items-center justify-between gap-2 sm:gap-4 p-3 sm:p-4">
                 <div className="flex flex-col gap-1">
-                    <h2 className="text-2xl font-bold">Topic {unitNumber}</h2>
-                    <p className="text-lg">{description}</p>
+                    <h2 className="text-xl sm:text-2xl font-bold">Topic {unitNumber}</h2>
+                    <p className="text-base sm:text-lg">{description}</p>
                 </div>
-
             </header>
         </article>
     );
@@ -547,9 +544,7 @@ const LearnPage = () => {
 
     // Map topics to units, lessons to tiles
     const units: Unit[] = topics.map((topic, idx) => {
-        // Lấy các lesson thuộc topic này
         const topicLessons = lessons.filter(lesson => lesson.topic?._id === topic._id);
-        // Map mỗi lesson thành một tile (type 'book')
         const tiles: Tile[] = topicLessons.map(lesson => ({
             type: "book",
             description: lesson.title,
@@ -558,7 +553,7 @@ const LearnPage = () => {
         return {
             unitNumber: idx + 1,
             description: topic.description,
-            backgroundColor: "bg-blue-500", // Có thể custom theo idx nếu muốn
+            backgroundColor: "bg-blue-500",
             textColor: "text-blue-500",
             borderColor: "border-blue-500",
             tiles,
@@ -566,25 +561,25 @@ const LearnPage = () => {
     });
 
     if (topicsLoading || lessonsLoading) {
-        return <div className="text-center p-10">Đang tải dữ liệu...</div>;
+        return <div className="text-center p-4 sm:p-10">Đang tải dữ liệu...</div>;
     }
     if (topicsError || lessonsError) {
-        return <div className="text-red-500 text-center p-10">Lỗi: {topicsError || lessonsError}</div>;
+        return <div className="text-red-500 text-center p-4 sm:p-10">Lỗi: {topicsError || lessonsError}</div>;
     }
 
     return (
-        <div className="flex justify-center items-start pt-14 sm:p-6 sm:pt-10 min-h-screen bg-white">
-            <div className="flex max-w-2xl w-full flex-col items-center mx-auto gap-8">
+        <div className="flex justify-center items-start pt-8 sm:pt-14 px-2 sm:px-6 min-h-screen bg-white">
+            <div className="flex w-full max-w-2xl flex-col items-center mx-auto gap-4 sm:gap-8">
                 {units.map((unit) => (
                     <UnitSection unit={unit} key={unit.unitNumber} />
                 ))}
-                <div className="sticky bottom-28 left-0 right-0 flex items-end justify-between w-full">
+                <div className="sticky bottom-20 sm:bottom-28 left-0 right-0 flex items-end justify-between w-full">
                     <Link
                         to="/lesson?practice"
-                        className="absolute left-4 flex h-16 w-16 items-center justify-center rounded-full border-2 border-b-4 border-gray-200 bg-white transition hover:bg-gray-50 hover:brightness-90 md:left-0"
+                        className="absolute left-2 sm:left-4 flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full border-2 border-b-4 border-gray-200 bg-white transition hover:bg-gray-50 hover:brightness-90 md:left-0"
                     >
                         <span className="sr-only">Practice exercise</span>
-                        <PracticeExerciseSvg className="h-8 w-8" />
+                        <PracticeExerciseSvg className="h-6 w-6 sm:h-8 sm:w-8" />
                     </Link>
                 </div>
             </div>

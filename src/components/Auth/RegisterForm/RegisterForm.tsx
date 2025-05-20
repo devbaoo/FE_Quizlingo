@@ -35,7 +35,7 @@ const RegisterForm = () => {
         try {
             const result = await dispatch(registerUser(formData)).unwrap();
             if (result.success) {
-                navigate("/home");
+                navigate("/login");
             }
         } catch {
             //error

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAppDispatch } from "@/services/store/store";
 import { forgotPassword } from "@/services/features/auth/authSlice";
+import { Link } from "react-router-dom";
 
 const ForgotPasswordForm = () => {
     const [email, setEmail] = useState("");
@@ -60,12 +61,12 @@ const ForgotPasswordForm = () => {
             </button>
 
             <div className="text-center">
-                <button
-                    type="button"
+                <Link
+                    to="/login"
                     className="text-sm font-medium text-blue-500 hover:text-blue-700 font-baloo"
                 >
                     Quay lại đăng nhập
-                </button>
+                </Link>
             </div>
         </form>
     );

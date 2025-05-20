@@ -11,7 +11,7 @@ const UserLayout = () => {
             <Header />
             <div className="flex flex-1">
                 {!hideSidebar && <Sidebar />}
-                <main className={hideSidebar ? "flex-1 ml-0" : "flex-1 ml-[224px]"}>
+                <main className={hideSidebar ? "flex-1 ml-0" : "flex-1 ml-0 lg:ml-[224px]"}>
                     <Outlet />
                 </main>
             </div>
