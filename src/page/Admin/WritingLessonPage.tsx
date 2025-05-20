@@ -1,11 +1,10 @@
-import React from 'react';
 
 
 const WritingLessonPage = () => {
   return (
     <div className="flex">
-        
-      </div>
+
+    </div>
   );
 };
 
