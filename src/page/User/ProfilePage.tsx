@@ -5,6 +5,7 @@ import Sidebar from "@/components/Layout/Sibar";
 import { FaPlus, FaMedal, FaStar } from "react-icons/fa";
 import { BsStars } from "react-icons/bs";
 import { FaUserGraduate, FaHeart } from "react-icons/fa";
+import { setAvatar } from "@/services/features/auth/authSlice";
 
 const AVATAR_STORAGE_KEY = "quizlingo_user_avatar";
 
@@ -30,6 +31,7 @@ const ProfilePage = () => {
                 const result = reader.result as string;
                 setAvatarPreview(result);
                 localStorage.setItem(AVATAR_STORAGE_KEY, result);
+                dispatch(setAvatar(result));
             };
             reader.readAsDataURL(file);
         }
