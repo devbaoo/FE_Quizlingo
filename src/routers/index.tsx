@@ -22,6 +22,11 @@ import LearnPage from "@/page/User/LearnPage";
 import ProfilePage from "@/page/User/ProfilePage";
 import { useSelector } from "react-redux";
 import { RootState } from "@/services/store/store";
+import ManageUserPage from "@/page/Admin/ManageUserPage";
+import ListeningLessonPage from "@/page/Admin/ListeningLessonPage";
+import ReadingLessonPage from "@/page/Admin/ReadingLessonPage";
+import WritingLessonPage from "@/page/Admin/WritingLessonPage";
+import SpeakingLessonPage from "@/page/Admin/SpeakingLessonPage";
 
 const AppRouter = () => {
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -74,10 +79,11 @@ const AppRouter = () => {
             <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
-                    <Route path="users" element={<div>User Management</div>} />
-                    <Route path="content" element={<div>Content Management</div>} />
-                    <Route path="skills" element={<div>Skills Management</div>} />
-                    <Route path="topics" element={<div>Topics Management</div>} />
+                    <Route path="users" element={<ManageUserPage />} />
+                    <Route path="lesson/listening" element={<ListeningLessonPage />} />
+                    <Route path="lesson/reading" element={<ReadingLessonPage />} />
+                    <Route path="lesson/writing" element={<WritingLessonPage />} />
+                    <Route path="lesson/speaking" element={<SpeakingLessonPage/>} />
                 </Route>
             </Route>
 
