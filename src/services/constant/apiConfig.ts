@@ -12,3 +12,6 @@ export const RESET_PASSWORD_ENDPOINT = `${BASE_URL}/auth/reset-password`;
 export const GET_PROFILE_TOKEN_ENDPOINT = `${BASE_URL}/users/profile`;
 export const UPDATE_PROFILE_ENDPOINT = `${BASE_URL}/users/profile`;
 export const UPDATE_AVATAR_PROFILE_ENDPOINT = `${BASE_URL}/users/avatar`;
+
+//topic
+export const GET_TOPICS_ENDPOINT = `${BASE_URL}/topics`;
