@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
 import { fetchUserProfile } from "@/services/features/user/userSlice";
 import Sidebar from "@/components/Layout/Sibar";
-import { FaPlus, FaMedal, FaStar } from "react-icons/fa";
+import { FaPlus, FaMedal, FaStar, FaBullseye, FaUserGraduate, FaHeart } from "react-icons/fa";
+import { TbVocabulary } from "react-icons/tb";
 import { BsStars } from "react-icons/bs";
-import { FaUserGraduate, FaHeart } from "react-icons/fa";
 import { setAvatar } from "@/services/features/auth/authSlice";
 
 const AVATAR_STORAGE_KEY = "quizlingo_user_avatar";
@@ -122,6 +122,28 @@ const ProfilePage = () => {
                                 <h3 className="font-baloo text-orange-500 mb-1 text-xl">Trình độ</h3>
                                 <p className="text-3xl font-extrabold capitalize text-orange-600">{profile.level}</p>
                             </div>
+                            <div className="bg-gradient-to-br from-blue-100 via-blue-50 to-pink-100 rounded-2xl p-8 text-center shadow-lg border-2 border-blue-200">
+                                <div className="flex justify-center mb-2">
+                                    <TbVocabulary className="text-4xl text-blue-400 drop-shadow-glow" />
+                                </div>
+                                <h3 className="font-baloo text-blue-500 mb-1 text-xl">Từ vựng đã hoàn thành</h3>
+                                <p className="text-3xl font-extrabold text-blue-600">
+                                    {profile.completedBasicVocab?.length || 0}
+                                </p>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-purple-100 via-purple-50 to-pink-100 rounded-2xl p-8 text-center shadow-lg border-2 border-purple-200">
+                                <div className="flex justify-center mb-2">
+                                    <FaBullseye className="text-4xl text-purple-400 drop-shadow-glow" />
+                                </div>
+                                <h3 className="font-baloo text-purple-500 mb-1 text-xl">Kỹ năng ưu tiên</h3>
+                                <p className="text-3xl font-extrabold text-purple-600 capitalize">
+                                    {(profile.preferredSkills && profile.preferredSkills.length > 0)
+                                        ? profile.preferredSkills.join(", ")
+                                        : "Chưa chọn"}
+                                </p>
+                            </div>
+
                         </div>
                     </div>
                 )}
