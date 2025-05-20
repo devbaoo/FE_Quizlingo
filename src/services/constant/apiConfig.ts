@@ -22,3 +22,7 @@ export const GET_LESSON_BY_ID_ENDPOINT = (id: string) =>
   `${BASE_URL}/lessons/${id}`;
 export const COMPLETE_LESSON_ENDPOINT = `${BASE_URL}/progress`;
 export const RETRY_LESSON_ENDPOINT = `${BASE_URL}/lessons/retry`;
+
+//admin
+export const GET_USERS_ENDPOINT = `${BASE_URL}/users`;
+export const DELETE_USER_ENDPOINT = (id: string) => `${BASE_URL}/users/${id}`;

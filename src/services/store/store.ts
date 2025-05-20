@@ -6,6 +6,7 @@ import authReducer from "../features/auth/authSlice";
 import userReducer from "../features/user/userSlice";
 import topicReducer from "../features/topic/topicSlice";
 import lessonReducer from "../features/lesson/lessonSlice";
+import adminReducer from "../features/admin/adminSlice";
 
 const presistConfig = {
   key: "root",
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   user: userReducer,
   topic: topicReducer,
   lesson: lessonReducer,
+  admin: adminReducer,
   // Add other reducers here as needed
 });
 
