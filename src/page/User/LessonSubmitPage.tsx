@@ -28,40 +28,6 @@ const LessonSubmitPage = () => {
 
     const state = location.state as LocationState;
 
-    // Prevent direct access to submit page
-    useEffect(() => {
-        if (!state) {
-            navigate("/learn");
-            return;
-        }
-    }, [state, navigate]);
-
-    // Prevent browser back button
-    useEffect(() => {
-        const handlePopState = (e: PopStateEvent) => {
-            e.preventDefault();
-            window.history.pushState(null, '', window.location.href);
-        };
-
-        window.history.pushState(null, '', window.location.href);
-        window.addEventListener('popstate', handlePopState);
-
-        return () => {
-            window.removeEventListener('popstate', handlePopState);
-        };
-    }, []);
-
-    // Prevent URL manipulation
-    useEffect(() => {
-        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-            e.preventDefault();
-            e.returnValue = '';
-        };
-
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, []);
-
     useEffect(() => {
         if (!state) {
             navigate("/learn");
@@ -70,15 +36,18 @@ const LessonSubmitPage = () => {
 
         const submitLesson = async () => {
             try {
-                await dispatch(completeLesson({
+                const result = await dispatch(completeLesson({
                     lessonId: state.lessonId,
                     score: state.score,
                     questionResults: state.questionResults,
                     isRetried: state.isRetried,
                 })).unwrap();
-                setShowConfetti(true);
+
+                if (result.status !== "COMPLETE") {
+                    setShowConfetti(true);
+                }
                 dispatch(fetchUserProfile());
-            } catch (error) {
+            } catch (error: unknown) {
                 console.error("Failed to submit lesson:", error);
             }
         };
@@ -119,30 +88,10 @@ const LessonSubmitPage = () => {
                     await dispatch(retryLesson({
                         lessonId: state.lessonId,
                     })).unwrap();
-                    await dispatch(fetchUserProfile());
-
-                    Modal.success({
-                        title: <span className="font-baloo text-xl">Success</span>,
-                        content: (
-                            <div className="font-baloo text-lg">
-                                <p>Bạn đã sử dụng 1 tim để làm lại bài học.</p>
-                                <p>Số tim còn lại: {userProfile?.lives ? userProfile.lives - 1 : 0}</p>
-                            </div>
-                        ),
-                        centered: true,
-                        okText: <span className="font-baloo">OK</span>,
-                        onOk: () => {
-                            navigate(`/lesson/${state.lessonId}`);
-                        }
-                    });
+                    dispatch(fetchUserProfile());
+                    navigate(`/lesson/${state.lessonId}`);
                 } catch (error) {
                     console.error("Failed to retry lesson:", error);
-                    Modal.error({
-                        title: <span className="font-baloo text-xl">Error</span>,
-                        content: <span className="font-baloo text-lg">Không thể làm lại bài học. Vui lòng thử lại sau!</span>,
-                        centered: true,
-                        okText: <span className="font-baloo">OK</span>,
-                    });
                 }
             },
         });
