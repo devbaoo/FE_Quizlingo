@@ -63,3 +63,22 @@ export interface QuestionResult {
   isCorrect: boolean;
   isTimeout: boolean;
 }
+
+export interface UserProgress {
+  level: string;
+  userLevel: number;
+  xp: number;
+  lives: number;
+  completedBasicVocab: string[];
+  preferredSkills: string[];
+}
+
+export interface LessonProgress {
+  userId: string;
+  lessonId: string;
+  score: number;
+  isRetried: boolean;
+  questionResults: QuestionResult[];
+  _id: string;
+  completedAt: string;
+}

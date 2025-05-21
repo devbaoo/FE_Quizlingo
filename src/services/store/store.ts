@@ -11,7 +11,7 @@ import adminReducer from "../features/admin/adminSlice";
 const presistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "user"],
+  whitelist: ["auth", "user", "lesson", "topic", "admin"],
 };
 
 // Create a hook for using TypedUseSelectorHook

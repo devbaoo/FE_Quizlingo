@@ -6,33 +6,12 @@ import {
   COMPLETE_LESSON_ENDPOINT,
   RETRY_LESSON_ENDPOINT,
 } from "@/services/constant/apiConfig";
-import { ILesson } from "@/interfaces/ILesson";
-
-interface QuestionResult {
-  questionId: string;
-  answer: string;
-  isCorrect: boolean;
-  isTimeout: boolean;
-}
-
-interface LessonProgress {
-  userId: string;
-  lessonId: string;
-  score: number;
-  isRetried: boolean;
-  questionResults: QuestionResult[];
-  _id: string;
-  completedAt: string;
-}
-
-interface UserProgress {
-  level: string;
-  userLevel: number;
-  xp: number;
-  lives: number;
-  completedBasicVocab: string[];
-  preferredSkills: string[];
-}
+import {
+  ILesson,
+  LessonProgress,
+  UserProgress,
+  QuestionResult,
+} from "@/interfaces/ILesson";
 
 interface LessonState {
   lessons: ILesson[];
@@ -41,6 +20,7 @@ interface LessonState {
   error: string | null;
   progress: LessonProgress | null;
   userProgress: UserProgress | null;
+  status: string | null;
 }
 
 const initialState: LessonState = {
@@ -50,6 +30,7 @@ const initialState: LessonState = {
   error: null,
   progress: null,
   userProgress: null,
+  status: null,
 };
 
 export const fetchLessons = createAsyncThunk<
@@ -83,7 +64,7 @@ export const fetchLessonById = createAsyncThunk<
 });
 
 export const completeLesson = createAsyncThunk<
-  { progress: LessonProgress; user: UserProgress },
+  { progress: LessonProgress; user: UserProgress; status: string },
   {
     lessonId: string;
     score: number;
@@ -165,6 +146,7 @@ const lessonSlice = createSlice({
         state.loading = false;
         state.progress = action.payload.progress;
         state.userProgress = action.payload.user;
+        state.status = action.payload.status;
         state.error = null;
       })
       .addCase(completeLesson.rejected, (state, action) => {
