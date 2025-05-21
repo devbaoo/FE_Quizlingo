@@ -21,7 +21,7 @@ export const RETRY_LESSON_ENDPOINT = `${BASE_URL}/lessons/retry`;
 //admin
 export const GET_USERS_ENDPOINT = `${BASE_URL}/users`;
 export const DELETE_USER_ENDPOINT = (id: string) => `${BASE_URL}/users/${id}`;
-=======
+
 export const CHOOSE_TOPICS_ENDPOINT = `${BASE_URL}/user/topic`;
 export const CHOOSE_LEVELS_ENDPOINT = `${BASE_URL}/user/level`;
 export const CHOOSE_SKILLS_ENDPOINT = `${BASE_URL}/user/skill`;
