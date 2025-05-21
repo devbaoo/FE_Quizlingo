@@ -5,6 +5,7 @@ import axios, {
   AxiosRequestConfig,
 } from "axios";
 import { BASE_URL } from "./apiConfig";
+import { message } from "antd";
 
 // ========================
 // Type Definitions
@@ -26,7 +27,12 @@ export interface ApiError {
 // Token Helpers
 // ========================
 const getToken = (): string | null => localStorage.getItem("token");
-const removeToken = (): void => localStorage.removeItem("token");
+const removeToken = (): void => {
+  // Remove all auth related data
+  localStorage.removeItem("token");
+  localStorage.removeItem("quizlingo_user_avatar");
+  localStorage.removeItem("user");
+};
 
 // ========================
 // Create Axios Instance
@@ -78,6 +84,9 @@ axiosInstance.interceptors.response.use(
     // Handle 401: Unauthorized
     if (error.response?.status === 401) {
       removeToken();
+      message.error(
+        "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại."
+      );
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }
