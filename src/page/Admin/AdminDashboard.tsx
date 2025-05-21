@@ -1,5 +1,5 @@
-import { useSelector } from 'react-redux';
-import { Card, Col, Row, Typography, Descriptions, Tag, Statistic } from 'antd';
+// import { useSelector } from 'react-redux';
+import { Card, Col, Row, Typography, Statistic } from 'antd';
 import { Pie, Column } from '@ant-design/plots';
 import {
   UserOutlined,
@@ -7,12 +7,12 @@ import {
   TrophyOutlined,
   AppstoreOutlined,
 } from '@ant-design/icons';
-import { RootState } from '@/services/store/store';
+// import { RootState } from '@/services/store/store';
 
 const { Title, Text } = Typography;
 
 const AdminDashboard = () => {
-  const { user } = useSelector((state: RootState) => state.auth);
+  // const { user } = useSelector((state: RootState) => state.auth);
 
   // Fake data - Pie chart: Tỷ lệ cấp độ người dùng
   const roleData = [
@@ -72,26 +72,26 @@ const AdminDashboard = () => {
     },
   };
   const skillDistribution = [
-  { type: 'Listening', value: 25 },
-  { type: 'Reading', value: 20 },
-  { type: 'Writing', value: 15 },
-  { type: 'Speaking', value: 40 },
-];
+    { type: 'Listening', value: 25 },
+    { type: 'Reading', value: 20 },
+    { type: 'Writing', value: 15 },
+    { type: 'Speaking', value: 40 },
+  ];
 
-const pieSkillConfig = {
-  appendPadding: 10,
-  data: skillDistribution,
-  angleField: 'value',
-  colorField: 'type',
-  radius: 1,
-  label: {
-    type: 'inner',
-    offset: '-30%',
-    content: '{value}',
-    style: { fontSize: 14, textAlign: 'center' },
-  },
-  interactions: [{ type: 'element-active' }],
-};
+  const pieSkillConfig = {
+    appendPadding: 10,
+    data: skillDistribution,
+    angleField: 'value',
+    colorField: 'type',
+    radius: 1,
+    label: {
+      type: 'inner',
+      offset: '-30%',
+      content: '{value}',
+      style: { fontSize: 14, textAlign: 'center' },
+    },
+    interactions: [{ type: 'element-active' }],
+  };
 
 
   return (
@@ -137,14 +137,14 @@ const pieSkillConfig = {
         </Col>
         <Col xs={4} md={4} lg={6}>
           <Card title="Tỷ lệ cấp độ người dùng">
-          <Pie {...pieConfig} height={200} />
-        </Card>
+            <Pie {...pieConfig} height={200} />
+          </Card>
           <Card title="Tỷ lệ kỹ năng người dùng">
-          <Pie {...pieSkillConfig} height={200} />
-        </Card>
+            <Pie {...pieSkillConfig} height={200} />
+          </Card>
         </Col>
       </Row>
-   
+
 
     </div>
   );
