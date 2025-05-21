@@ -610,8 +610,8 @@ const UnitHeader = ({
 
 const LearnPage = () => {
     const dispatch = useAppDispatch();
-    const { topics, loading: topicsLoading, error: topicsError } = useAppSelector((state) => state.topic);
-    const { lessons, loading: lessonsLoading, error: lessonsError, completedLessons } = useAppSelector((state) => state.lesson);
+    const { topics, error: topicsError } = useAppSelector((state) => state.topic);
+    const { lessons, error: lessonsError, completedLessons } = useAppSelector((state) => state.lesson);
 
     useEffect(() => {
         dispatch(fetchTopics());
@@ -663,9 +663,7 @@ const LearnPage = () => {
         );
     }
 
-    if (topicsLoading || lessonsLoading) {
-        return <div className="text-center p-4 sm:p-10">Đang tải dữ liệu...</div>;
-    }
+
     if (topicsError || lessonsError) {
         return <div className="text-red-500 text-center p-4 sm:p-10">Lỗi: {topicsError || lessonsError}</div>;
     }
