@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
 import { completeLesson, retryLesson } from "@/services/features/lesson/lessonSlice";
-import { CheckmarkSvg, StarSvg } from "@/components/ui/Svgs";
+import { CheckmarkSvg, StarSvg, CloseSvg } from "@/components/ui/Svgs";
 import { Modal } from 'antd';
 import { fetchUserProfile } from "@/services/features/user/userSlice";
 
@@ -152,12 +152,13 @@ const LessonSubmitPage = () => {
                                         <span className="font-medium font-baloo">Question {index + 1}</span>
                                         <div className="flex items-center gap-2">
                                             {result.isCorrect ? (
-                                                <CheckmarkSvg />
+                                                <div className="w-7 h-7 flex items-center justify-center">
+                                                    <CheckmarkSvg />
+                                                </div>
                                             ) : (
-                                                <span className="text-red-500">✕</span>
-                                            )}
-                                            {result.isTimeout && (
-                                                <span className="text-xs sm:text-sm text-gray-500">(Timeout)</span>
+                                                <div className="w-7 h-7 flex items-center justify-center text-red-500">
+                                                    <CloseSvg />
+                                                </div>
                                             )}
                                         </div>
                                     </div>

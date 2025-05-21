@@ -120,13 +120,14 @@ const LessonPage = () => {
     const handleNextQuestion = () => {
         if (currentLesson && currentQuestionIndex < shuffledQuestions.length) {
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
-            const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+            const isTimeout = timeLeft === 0;
+            const isCorrect = !isTimeout && selectedAnswer === currentQuestion.correctAnswer;
 
             const result: QuestionResult = {
                 questionId: currentQuestion._id,
                 answer: selectedAnswer,
                 isCorrect,
-                isTimeout: false,
+                isTimeout,
             };
 
             if (isCorrect) {
