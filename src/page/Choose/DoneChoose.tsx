@@ -22,7 +22,6 @@ const DonePage = () => {
         </button>
       </div>
     </div>
-
   );
 };
 

@@ -1,72 +1,85 @@
-import { useState } from "react";
-import {
-  FaHeadphones,
-  FaMicrophone,
-  FaBookOpen,
-  FaPenFancy,
-} from "react-icons/fa";
+import { chooseSkills, fetchSkills } from "@/services/features/skill/skillSlice";
+import { useAppDispatch, useAppSelector } from "@/services/store/store";
+import { useEffect, useState } from "react";
+import { FaBookOpen } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-const sources = [
-  { icon: <FaPenFancy className="text-2xl" />, label: "WRITING" },
-  { icon: <FaBookOpen className="text-2xl" />, label: "READING" },
-  { icon: <FaHeadphones className="text-2xl" />, label: "LISTENING" },
-  { icon: <FaMicrophone className="text-2xl" />, label: "SPEAKING" },
-];
-
 const SkillForm = () => {
-  const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
+  const [selectedIndexes, setSelectedIndexes] = useState<number[]>([]);
+
+  const { skills } = useAppSelector((state) => state.skill);
+
+  const handleNext = async () => {
+      const selectedTopicIds = selectedIndexes.map((i) => skills[i].name);
+  
+      try {
+        await dispatch(chooseSkills(selectedTopicIds)).unwrap(); 
+        navigate("/done-page");
+      } catch (error) {
+        console.error("Failed to choose skills:", error);
+        alert("Có lỗi xảy ra khi lưu lựa chọn. Vui lòng thử lại.");
+      }
+    };
+
+  useEffect(() => {
+    dispatch(fetchSkills());
+  }, [dispatch]);
 
   const toggleSelect = (index: number) => {
     if (selectedIndexes.includes(index)) {
-      setSelectedIndexes(selectedIndexes.filter((i) => i !== index));
+      setSelectedIndexes((prev) => prev.filter((i) => i !== index));
     } else {
-      setSelectedIndexes([...selectedIndexes, index]);
+      setSelectedIndexes((prev) => [...prev, index]);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-8 bg-white text-gray-900">
-      {/* Grid các kỹ năng */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {sources.map((source, index) => {
+    <div className="min-h-screen bg-white py-10 px-6 flex flex-col items-center">
+      <h1 className="text-2xl font-bold mb-6 text-center text-blue-600 font-baloo">
+        Bạn muốn cải thiện kỹ năng nào?
+      </h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-5 w-full max-w-xl">
+        {skills.map((skill, index) => {
           const isSelected = selectedIndexes.includes(index);
           return (
             <div
-              key={index}
+              key={skill._id || index}
               onClick={() => toggleSelect(index)}
-              className={`flex items-center px-4 py-3 border rounded-md cursor-pointer text-sm font-baloo transition 
+              className={`flex items-center gap-4 px-4 py-3 rounded-lg border cursor-pointer shadow-sm transition-all duration-200
                 ${
                   isSelected
-                    ? "bg-gray-300 border-gray-400"
-                    : "border-gray-300 hover:bg-gray-100"
-                }
-              `}
+                    ? "bg-blue-100 border-blue-500"
+                    : "bg-white border-gray-300 hover:bg-gray-50"
+                }`}
             >
-              <div className="mr-4 text-gray-700">{source.icon}</div>
-              <div className="font-semibold">{source.label}</div>
+              <div className="text-blue-500 text-2xl">
+                <FaBookOpen />
+              </div>
+              <div className="text-lg font-semibold text-gray-800 uppercase font-baloo">
+                {skill.name}
+              </div>
             </div>
           );
         })}
       </div>
 
-      {/* Nút Next căn giữa */}
-      <div className="flex justify-end w-full mt-6 px-4">
-        <button
-          onClick={() => navigate("/done-page")}
-          disabled={selectedIndexes.length === 0}
-          className={`px-6 py-2 text-base rounded font-baloo shadow
-            ${
-              selectedIndexes.length === 0
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600"
-            }
-          `}
-        >
-          Next
-        </button>
-      </div>
+      <button
+        onClick={handleNext}
+        disabled={selectedIndexes.length === 0}
+        className={`mt-8 px-6 py-2 rounded-lg font-semibold text-base font-baloo transition
+          ${
+            selectedIndexes.length === 0
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700 shadow"
+          }
+        `}
+      >
+        Tiếp theo
+      </button>
     </div>
   );
 };

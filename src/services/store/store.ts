@@ -3,10 +3,14 @@ import { TypedUseSelectorHook, useSelector, useDispatch } from "react-redux";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import authReducer from "../features/auth/authSlice";
+
 import userReducer from "../features/user/userSlice";
 import topicReducer from "../features/topic/topicSlice";
 import lessonReducer from "../features/lesson/lessonSlice";
 import adminReducer from "../features/admin/adminSlice";
+import levelReducer from "../features/level/levelSlice"; 
+import skillReducer from "../features/skill/skillSlice"; 
+
 
 const presistConfig = {
   key: "root",
@@ -21,6 +25,8 @@ const rootReducer = combineReducers({
   topic: topicReducer,
   lesson: lessonReducer,
   admin: adminReducer,
+  level: levelReducer,
+  skill: skillReducer,
   // Add other reducers here as needed
 });
 
