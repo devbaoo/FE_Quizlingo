@@ -22,11 +22,13 @@ import {
     ActiveDumbbellSvg,
     PracticeExerciseSvg,
 } from "@/components/ui/Svgs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { type Tile, type TileType, type Unit } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
 import { fetchTopics } from "@/services/features/topic/topicSlice";
-import { fetchLessons } from "@/services/features/lesson/lessonSlice";
+import { fetchLessons, retryLesson } from "@/services/features/lesson/lessonSlice";
+import { fetchUserProfile } from "@/services/features/user/userSlice";
+import { Modal } from 'antd';
 
 // Trạng thái của mỗi tile
 // Không dùng useBoundStore, chỉ dùng state cục bộ cho lessonsCompleted
@@ -208,6 +210,9 @@ const TileTooltip = ({
     lessonId?: string;
 }) => {
     const tileTooltipRef = useRef<HTMLDivElement | null>(null);
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+    const { profile: userProfile } = useAppSelector((state) => state.user);
 
     useEffect(() => {
         const containsTileTooltip = (event: MouseEvent) => {
@@ -222,6 +227,51 @@ const TileTooltip = ({
         window.addEventListener("click", containsTileTooltip, true);
         return () => window.removeEventListener("click", containsTileTooltip, true);
     }, [selectedTile, tileTooltipRef, closeTooltip, index]);
+
+    const handlePractice = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!lessonId) return;
+
+        if (userProfile?.lives === 0) {
+            Modal.info({
+                title: <span className="font-baloo text-xl">Out of Lives</span>,
+                content: <span className="font-baloo text-lg">Hiện tại số tim của bạn là 0, bạn không thể làm lại bài này. Hãy chờ hoặc mua thêm tim để tiếp tục!</span>,
+                centered: true,
+                okText: <span className="font-baloo">OK</span>,
+            });
+            return;
+        }
+
+        try {
+            await dispatch(retryLesson({
+                lessonId: lessonId,
+            })).unwrap();
+            await dispatch(fetchUserProfile());
+
+            Modal.success({
+                title: <span className="font-baloo text-xl">Success</span>,
+                content: (
+                    <div className="font-baloo text-lg">
+                        <p>Bạn đã sử dụng 1 tim để làm lại bài học.</p>
+                        <p>Số tim còn lại: {userProfile?.lives ? userProfile.lives - 1 : 0}</p>
+                    </div>
+                ),
+                centered: true,
+                okText: <span className="font-baloo">OK</span>,
+                onOk: () => {
+                    navigate(`/lesson/${lessonId}`);
+                }
+            });
+        } catch (error) {
+            console.error("Failed to retry lesson:", error);
+            Modal.error({
+                title: <span className="font-baloo text-xl">Error</span>,
+                content: <span className="font-baloo text-lg">Không thể làm lại bài học. Vui lòng thử lại sau!</span>,
+                centered: true,
+                okText: <span className="font-baloo">OK</span>,
+            });
+        }
+    };
 
     const activeBackgroundColor = backgroundColor ?? "bg-green-500";
     const activeTextColor = textColor ?? "text-green-500";
@@ -271,31 +321,44 @@ const TileTooltip = ({
                 >
                     {description}
                 </div>
-                {status === "ACTIVE" ? (
-                    <Link
-                        to={lessonId ? `/lesson/${lessonId}` : "/learn"}
-                        className={[
-                            "flex w-full items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
-                            activeTextColor,
-                        ].join(" ")}
-                    >
-                        Start +10 XP
-                    </Link>
-                ) : status === "LOCKED" ? (
-                    <button
-                        className="w-full rounded-xl bg-gray-200 p-3 uppercase text-gray-400"
-                        disabled
-                    >
-                        Locked
-                    </button>
-                ) : (
-                    <Link
-                        to={lessonId ? `/lesson/${lessonId}` : "/learn"}
-                        className="flex w-full items-center justify-center rounded-xl border-b-4 border-yellow-200 bg-white p-3 uppercase text-yellow-400"
-                    >
-                        Practice +5 XP
-                    </Link>
-                )}
+                <div className="flex gap-2">
+                    {status === "ACTIVE" ? (
+                        <>
+                            <Link
+                                to={lessonId ? `/lesson/${lessonId}` : "/learn"}
+                                className={[
+                                    "flex flex-1 items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
+                                    activeTextColor,
+                                ].join(" ")}
+                            >
+                                Start
+                            </Link>
+                            <button
+                                onClick={handlePractice}
+                                className={[
+                                    "flex flex-1 items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
+                                    activeTextColor,
+                                ].join(" ")}
+                            >
+                                Practice
+                            </button>
+                        </>
+                    ) : status === "LOCKED" ? (
+                        <button
+                            className="w-full rounded-xl bg-gray-200 p-3 uppercase text-gray-400"
+                            disabled
+                        >
+                            Locked
+                        </button>
+                    ) : (
+                        <Link
+                            to={lessonId ? `/lesson/${lessonId}` : "/learn"}
+                            className="flex w-full items-center justify-center rounded-xl border-b-4 border-yellow-200 bg-white p-3 uppercase text-yellow-400"
+                        >
+                            Practice +5 XP
+                        </Link>
+                    )}
+                </div>
             </div>
         </div>
     );
