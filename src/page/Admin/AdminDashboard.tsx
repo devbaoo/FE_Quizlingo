@@ -1,46 +1,195 @@
 import { useSelector } from 'react-redux';
+import { Card, Col, Row, Typography, Descriptions, Tag, Statistic } from 'antd';
+import { Pie, Column } from '@ant-design/plots';
+import {
+  UserOutlined,
+  BookOutlined,
+  TrophyOutlined,
+  AppstoreOutlined,
+} from '@ant-design/icons';
 import { RootState } from '@/services/store/store';
 
+const { Title, Text } = Typography;
+
 const AdminDashboard = () => {
-    const { user } = useSelector((state: RootState) => state.auth);
+  const { user } = useSelector((state: RootState) => state.auth);
 
-    return (
-        <div>
-            <h1 className="text-2xl font-bold mb-6 font-baloo">Dashboard</h1>
+  // Fake data - Pie chart: Tỷ lệ cấp độ người dùng
+  const roleData = [
+    { type: 'Level 1', value: 2 },
+    { type: 'Level 2', value: 12 },
+    { type: 'Level 3', value: 12 },
+    { type: 'Level 4', value: 12 },
+    { type: 'Level 5', value: 12 },
+  ];
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <SummaryCard title="Người dùng" count="1,234" color="blue" subtitle="Tổng số người dùng" />
-                <SummaryCard title="Bài học" count="320" color="purple" subtitle="Tổng số bài học" />
-                <SummaryCard title="Cấp độ" count="6" color="red" subtitle="Tổng số cấp độ" />
-                <SummaryCard title="Kỹ năng" count="24" color="green" subtitle="Tổng số kỹ năng" />
-            </div>
+  const pieConfig = {
+    appendPadding: 10,
+    data: roleData,
+    angleField: 'value',
+    colorField: 'type',
+    radius: 1,
+    label: {
+      type: 'inner',
+      offset: '-30%',
+      content: '{value}',
+      style: { fontSize: 14, textAlign: 'center' },
+    },
+    interactions: [{ type: 'element-active' }],
+  };
 
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
-                <h2 className="text-xl font-bold mb-4 font-baloo">Thông tin tài khoản</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <InfoRow label="Tên" value={`${user?.firstName} ${user?.lastName}`} />
-                    <InfoRow label="Email" value={user?.email} />
-                    <InfoRow label="Vai trò" value={user?.role?.toUpperCase()} />
-                    <InfoRow label="Trạng thái xác thực" value={user?.isVerify ? 'Đã xác thực' : 'Chưa xác thực'} />
-                </div>
-            </div>
-        </div>
-    );
+  // Fake data - Column chart: Người đăng ký theo tháng
+  const monthlyUserData = [
+    { month: 'Tháng 1', value: 120 },
+    { month: 'Tháng 2', value: 98 },
+    { month: 'Tháng 3', value: 150 },
+    { month: 'Tháng 4', value: 180 },
+    { month: 'Tháng 5', value: 130 },
+    { month: 'Tháng 6', value: 165 },
+  ];
+
+  const columnConfig = {
+    data: monthlyUserData,
+    xField: 'month',
+    yField: 'value',
+    color: '#1890ff',
+    label: {
+      position: 'middle',
+      style: {
+        fill: '#fff',
+        fontSize: 12,
+        textAlign: 'center',
+      },
+    },
+    xAxis: {
+      label: {
+        autoRotate: false,
+      },
+    },
+    meta: {
+      month: { alias: 'Tháng' },
+      value: { alias: 'Số người đăng ký' },
+    },
+  };
+  const skillDistribution = [
+  { type: 'Listening', value: 25 },
+  { type: 'Reading', value: 20 },
+  { type: 'Writing', value: 15 },
+  { type: 'Speaking', value: 40 },
+];
+
+const pieSkillConfig = {
+  appendPadding: 10,
+  data: skillDistribution,
+  angleField: 'value',
+  colorField: 'type',
+  radius: 1,
+  label: {
+    type: 'inner',
+    offset: '-30%',
+    content: '{value}',
+    style: { fontSize: 14, textAlign: 'center' },
+  },
+  interactions: [{ type: 'element-active' }],
 };
 
-const SummaryCard = ({ title, count, color, subtitle }: { title: string, count: string, color: string, subtitle: string }) => (
-    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className={`text-xl font-bold mb-2 text-${color}-600 font-baloo`}>{title}</div>
-        <div className="text-3xl font-bold">{count}</div>
-        <div className="text-sm text-gray-500 mt-2">{subtitle}</div>
-    </div>
-);
 
-const InfoRow = ({ label, value }: { label: string, value?: string }) => (
-    <div>
-        <div className="text-sm text-gray-500 mb-1">{label}</div>
-        <div className="font-medium">{value || '-'}</div>
+  return (
+    <div style={{ padding: 24 }}>
+      <Title level={2} style={{ fontFamily: "'Baloo 2', cursive" }}>Dashboard</Title>
+
+      <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
+        <SummaryCard
+          title="Người dùng"
+          count={1234}
+          icon={<UserOutlined />}
+          color="blue"
+          subtitle="Tổng số người dùng"
+        />
+        <SummaryCard
+          title="Bài học"
+          count={320}
+          icon={<BookOutlined />}
+          color="purple"
+          subtitle="Tổng số bài học"
+        />
+        <SummaryCard
+          title="Cấp độ"
+          count={6}
+          icon={<TrophyOutlined />}
+          color="red"
+          subtitle="Tổng số cấp độ"
+        />
+        <SummaryCard
+          title="Kỹ năng"
+          count={4}
+          icon={<AppstoreOutlined />}
+          color="green"
+          subtitle="Tổng số kỹ năng"
+        />
+      </Row>
+
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={16}>
+          <Card title="Số lượng người đăng ký theo tháng">
+            <Column {...columnConfig} height={500} />
+          </Card>
+        </Col>
+        <Col xs={4} md={4} lg={6}>
+          <Card title="Tỷ lệ cấp độ người dùng">
+          <Pie {...pieConfig} height={200} />
+        </Card>
+          <Card title="Tỷ lệ kỹ năng người dùng">
+          <Pie {...pieSkillConfig} height={200} />
+        </Card>
+        </Col>
+      </Row>
+   
+
     </div>
-);
+  );
+};
+
+const SummaryCard = ({
+  title,
+  count,
+  subtitle,
+  color,
+  icon,
+}: {
+  title: string;
+  count: number;
+  subtitle: string;
+  color: string;
+  icon: React.ReactNode;
+}) => {
+  return (
+    <Col xs={24} sm={12} md={6}>
+      <Card bordered>
+        <Row align="middle" justify="space-between">
+          <Col>
+            <Text style={{ color: colorMap[color], fontFamily: "'Baloo 2', cursive", fontSize: 16 }}>
+              {title}
+            </Text>
+            <Statistic
+              value={count}
+              valueStyle={{ fontSize: 28, fontWeight: 'bold' }}
+              groupSeparator="."
+            />
+            <div style={{ color: '#888' }}>{subtitle}</div>
+          </Col>
+          <Col style={{ fontSize: 32, color: colorMap[color] }}>{icon}</Col>
+        </Row>
+      </Card>
+    </Col>
+  );
+};
+
+const colorMap: Record<string, string> = {
+  blue: '#1890ff',
+  purple: '#722ed1',
+  red: '#f5222d',
+  green: '#52c41a',
+};
 
 export default AdminDashboard;
