@@ -19,7 +19,7 @@ const LessonPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const { currentLesson, loading, error, progress: lessonProgress } = useAppSelector((state) => state.lesson);
+    const { currentLesson, loading, error } = useAppSelector((state) => state.lesson);
 
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<string>("");
@@ -98,13 +98,6 @@ const LessonPage = () => {
         setQuestionResults([]);
         setScore(0);
     }, [id]);
-
-    // Check if lesson is already completed
-    useEffect(() => {
-        if (lessonProgress && lessonProgress.lessonId === id) {
-            navigate("/learn");
-        }
-    }, [lessonProgress, id, navigate]);
 
     const handleTimeout = () => {
         if (currentLesson && currentQuestionIndex < shuffledQuestions.length) {
