@@ -10,6 +10,9 @@ export const RESET_PASSWORD_ENDPOINT = `${BASE_URL}/auth/reset-password`;
 export const GET_PROFILE_TOKEN_ENDPOINT = `${BASE_URL}/users/profile`;
 export const UPDATE_PROFILE_ENDPOINT = `${BASE_URL}/users/profile`;
 export const UPDATE_AVATAR_PROFILE_ENDPOINT = `${BASE_URL}/users/avatar`;
+export const CHOOSE_TOPICS_ENDPOINT = `${BASE_URL}/user/topic`;
+export const CHOOSE_LEVELS_ENDPOINT = `${BASE_URL}/user/level`;
+export const CHOOSE_SKILLS_ENDPOINT = `${BASE_URL}/user/skill`;
 
 //lesson
 export const GET_LESSONS_ENDPOINT = `${BASE_URL}/lessons`;
@@ -22,9 +25,7 @@ export const RETRY_LESSON_ENDPOINT = `${BASE_URL}/lessons/retry`;
 export const GET_USERS_ENDPOINT = `${BASE_URL}/users`;
 export const DELETE_USER_ENDPOINT = (id: string) => `${BASE_URL}/users/${id}`;
 
-export const CHOOSE_TOPICS_ENDPOINT = `${BASE_URL}/user/topic`;
-export const CHOOSE_LEVELS_ENDPOINT = `${BASE_URL}/user/level`;
-export const CHOOSE_SKILLS_ENDPOINT = `${BASE_URL}/user/skill`;
+export const NOTIFICATIONS_ALL_ENDPOINT = `${BASE_URL}/admin/notifications/all`;
 
 //topic
 export const GET_TOPICS_ENDPOINT = `${BASE_URL}/topics`;
