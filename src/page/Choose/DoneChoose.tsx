@@ -10,22 +10,18 @@ const DonePage = () => {
           className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 mx-auto"
         />
         <div className="ml-4 text-base bg-blue-100 text-blue-900 px-4 py-2 rounded-lg shadow font-baloo">
-          Bạn đã hoàn thành rất tốt những câu hỏi rồi !!! 
+          Bạn đã hoàn thành rất tốt những câu hỏi rồi !!!
         </div>
       </div>
       <div className="flex justify-end mt-4">
         <button
-          onClick={() => navigate("/home-screen")}
+          onClick={() => navigate("/learn")}
           className="bg-blue-500 text-white px-4 py-2 text-base rounded hover:bg-blue-600 font-baloo"
         >
           Đến với bài học nào ^^
         </button>
       </div>
     </div>
-<<<<<<< HEAD
-    
-=======
->>>>>>> 32dc4e4 (Api get choose)
   );
 };
 

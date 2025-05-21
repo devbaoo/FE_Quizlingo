@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { LoginResponse, User } from "@/interfaces/IUser";
 import axiosInstance, { ApiError } from "@/services/constant/axiosInstance";
-import { toast } from "react-toastify";
+import { message } from "antd";
 import {
   LOGIN_ENDPOINT,
   REGISTER_ENDPOINT,
@@ -10,6 +10,8 @@ import {
   RESEND_VERIFICATION_ENDPOINT,
   RESET_PASSWORD_ENDPOINT,
 } from "@/services/constant/apiConfig";
+
+const AVATAR_STORAGE_KEY = "quizlingo_user_avatar";
 
 export interface AuthState {
   user: User | null;
@@ -164,6 +166,11 @@ const authSlice = createSlice({
       state.error = null;
       localStorage.removeItem("token");
     },
+    setAvatar: (state, action) => {
+      if (state.user) {
+        state.user.avatar = action.payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -179,14 +186,19 @@ const authSlice = createSlice({
         state.error = null;
         localStorage.setItem("token", action.payload.token);
 
-        toast.success(action.payload.message);
+        const savedAvatar = localStorage.getItem(AVATAR_STORAGE_KEY);
+        if (savedAvatar && state.user) {
+          state.user.avatar = savedAvatar;
+        }
+
+        message.success(action.payload.message);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.isAuthenticated = false;
         state.error = action.payload?.message || "Đăng nhập thất bại";
 
-        toast.error(state.error);
+        message.error(state.error);
       })
       // Register cases
       .addCase(registerUser.pending, (state) => {
@@ -195,20 +207,15 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.isAuthenticated = true;
         state.error = null;
-        localStorage.setItem("token", action.payload.token);
-
-        toast.success(action.payload.message || "Đăng ký thành công");
+        message.success(action.payload.message || "Đăng ký thành công");
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.isAuthenticated = false;
         state.error = action.payload?.message || "Đăng ký thất bại";
 
-        toast.error(state.error);
+        message.error(state.error);
       })
       // Forgot password cases
       .addCase(forgotPassword.pending, (state) => {
@@ -220,11 +227,11 @@ const authSlice = createSlice({
         state.error = null;
 
         if (action.payload.success) {
-          toast.success(
+          message.success(
             action.payload.message || "Email đặt lại mật khẩu đã được gửi"
           );
         } else {
-          toast.error(
+          message.error(
             action.payload.message || "Yêu cầu đặt lại mật khẩu thất bại"
           );
         }
@@ -234,7 +241,7 @@ const authSlice = createSlice({
         state.error =
           action.payload?.message || "Yêu cầu đặt lại mật khẩu thất bại";
 
-        toast.error(state.error);
+        message.error(state.error);
       })
       // Reset password cases
       .addCase(resetPassword.pending, (state) => {
@@ -246,18 +253,18 @@ const authSlice = createSlice({
         state.error = null;
 
         if (action.payload.success) {
-          toast.success(
+          message.success(
             action.payload.message || "Mật khẩu đã được đặt lại thành công"
           );
         } else {
-          toast.error(action.payload.message || "Đặt lại mật khẩu thất bại");
+          message.error(action.payload.message || "Đặt lại mật khẩu thất bại");
         }
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Đặt lại mật khẩu thất bại";
 
-        toast.error(state.error);
+        message.error(state.error);
       })
       // Verify email cases
       .addCase(verifyEmail.pending, (state) => {
@@ -292,5 +299,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, setAvatar } = authSlice.actions;
 export default authSlice.reducer;

@@ -10,6 +10,7 @@ import { BASE_URL } from "./apiConfig";
 // Type Definitions
 // ========================
 export interface ApiResponse<T = unknown> {
+  user: T;
   success: boolean;
   message: string;
   data?: T;
@@ -66,13 +67,7 @@ axiosInstance.interceptors.response.use(
     // Optional: measure duration
     const config = response.config as any;
     if (config.metadata?.startTime) {
-      const duration =
-        new Date().getTime() - config.metadata.startTime.getTime();
-      console.log(
-        `[${response.config.method?.toUpperCase()}] ${
-          response.config.url
-        } - ${duration}ms`
-      );
+      // Đã bỏ log duration
     }
 
     return response;

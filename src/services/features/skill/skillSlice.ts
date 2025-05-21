@@ -1,3 +1,5 @@
+
+//skill
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance, { ApiError } from "@/services/constant/axiosInstance";
 import { CHOOSE_SKILLS_ENDPOINT, GET_SKILLS_ENDPOINT } from "@/services/constant/apiConfig";

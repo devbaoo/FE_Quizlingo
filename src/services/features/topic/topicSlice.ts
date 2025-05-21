@@ -49,7 +49,6 @@ export const chooseTopics = createAsyncThunk<
   }
 });
 
-
 const topicSlice = createSlice({
   name: "topic",
   initialState,
