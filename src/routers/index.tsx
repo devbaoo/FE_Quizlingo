@@ -30,6 +30,7 @@ import ReadingLessonPage from "@/page/Admin/ReadingLessonPage";
 import WritingLessonPage from "@/page/Admin/WritingLessonPage";
 import SpeakingLessonPage from "@/page/Admin/SpeakingLessonPage";
 import TopicsLesson from "@/page/Admin/TopicsLesson";
+import AdminPackage from "@/page/Admin/AdminPackage";
 
 import NotificationsAllPage from "@/page/Admin/NotificationsAllPage";
 
@@ -87,6 +88,7 @@ const AppRouter = () => {
             <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
+                    <Route path="packages" element={<AdminPackage />} />
                     <Route path="users" element={<ManageUserPage />} />
                     <Route path="notifications/all" element={<NotificationsAllPage />} />
                     <Route path="lesson/listening" element={<ListeningLessonPage />} />

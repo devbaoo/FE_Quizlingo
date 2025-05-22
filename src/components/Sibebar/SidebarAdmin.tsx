@@ -119,6 +119,9 @@ const Sidebar = () => {
               <Link to="/admin/notifications/all" style={{ fontFamily: "'Baloo 2', cursive" }}>All User</Link>
             </Menu.Item>
           </Menu.SubMenu>
+          <Menu.Item key="packages" icon={<TeamOutlined />}>
+            <Link to="/admin/packages" style={{ fontFamily: "'Baloo 2', cursive" }}>Manage Package</Link>
+          </Menu.Item>
         </Menu>
       </div>
 
