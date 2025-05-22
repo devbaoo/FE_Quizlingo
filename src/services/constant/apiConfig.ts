@@ -29,6 +29,12 @@ export const DELETE_USER_ENDPOINT = (id: string) => `${BASE_URL}/users/${id}`;
 
 export const NOTIFICATIONS_ALL_ENDPOINT = `${BASE_URL}/admin/notifications/all`;
 
+//package
+export const GET_PACKAGES_ENDPOINT = `${BASE_URL}/admin/packages`;
+export const DELETE_PACKAGES_ENDPOINT = (id: string) => `${BASE_URL}/admin/packages/${id}`;
+export const CREATE_PACKAGES_ENDPOINT = `${BASE_URL}/admin/packages`;
+export const UPDATE_PACKAGES_ENDPOINT = (id: string) => `${BASE_URL}/admin/packages/${id}`;
+
 //topic
 export const GET_TOPICS_ENDPOINT = `${BASE_URL}/topics`;
 export const CREATE_TOPIC_ENDPOINT = `${BASE_URL}/topics`;
