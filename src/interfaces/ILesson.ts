@@ -1,7 +1,7 @@
 export interface ILessonResponse {
   success: boolean;
   message: string;
-  lessons: ILesson[];
+  lesson: ILesson;
 }
 
 export interface ILesson {
@@ -14,7 +14,9 @@ export interface ILesson {
   maxScore: number;
   timeLimit: number;
   questions: IQuestion[];
+  isActive: boolean;
   createdAt: string;
+  __v: number;
 }
 
 export interface ITopicDetail {
@@ -31,6 +33,10 @@ export interface ILevel {
   name: string;
   maxScore: number;
   timeLimit: number;
+  minUserLevel: number;
+  minLessonPassed: number;
+  minScoreRequired: number;
+  order: number;
   isActive: boolean;
   createdAt: string;
   __v: number;

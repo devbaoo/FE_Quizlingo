@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
-import { completeLesson, retryLesson } from "@/services/features/lesson/lessonSlice";
+import { completeLesson, retryLesson, fetchLessons } from "@/services/features/lesson/lessonSlice";
 import { CheckmarkSvg, StarSvg, CloseSvg } from "@/components/ui/Svgs";
 import { Modal } from 'antd';
 import { fetchUserProfile } from "@/services/features/user/userSlice";
@@ -24,7 +24,9 @@ const LessonSubmitPage = () => {
     const dispatch = useAppDispatch();
     const { user } = useAppSelector((state) => state.auth);
     const { profile: userProfile } = useAppSelector((state) => state.user);
+    const { lessons } = useAppSelector((state) => state.lesson);
     const [showConfetti, setShowConfetti] = useState(false);
+    const [nextLessonId, setNextLessonId] = useState<string | null>(null);
 
     const state = location.state as LocationState;
 
@@ -46,7 +48,8 @@ const LessonSubmitPage = () => {
                 if (result.status !== "COMPLETE") {
                     setShowConfetti(true);
                 }
-                dispatch(fetchUserProfile());
+                await dispatch(fetchUserProfile());
+                await dispatch(fetchLessons());
             } catch (error: unknown) {
                 console.error("Failed to submit lesson:", error);
             }
@@ -55,15 +58,31 @@ const LessonSubmitPage = () => {
         submitLesson();
     }, [dispatch, state, navigate]);
 
-    const handleExit = () => {
-        Modal.confirm({
-            title: <span className="font-baloo text-xl">Exit Lesson</span>,
-            content: <span className="font-baloo text-lg">Your progress will be lost.</span>,
-            okText: <span className="font-baloo">Yes, exit</span>,
-            cancelText: <span className="font-baloo">Cancel</span>,
-            centered: true,
-            onOk: () => navigate("/learn"),
-        });
+    useEffect(() => {
+        if (lessons.length > 0 && state) {
+            const currentLesson = lessons.find(lesson => lesson._id === state.lessonId);
+            if (!currentLesson) return;
+
+            const lessonsInTopic = lessons.filter(lesson => lesson.topic._id === currentLesson.topic._id);
+
+            lessonsInTopic.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+            const currentIndex = lessonsInTopic.findIndex(lesson => lesson._id === state.lessonId);
+
+            if (
+                currentIndex !== -1 &&
+                currentIndex < lessonsInTopic.length - 1 &&
+                state.score >= (currentLesson.level?.minScoreRequired ?? 0)
+            ) {
+                setNextLessonId(lessonsInTopic[currentIndex + 1]._id);
+            }
+        }
+    }, [lessons, state]);
+
+    const handleNextLesson = () => {
+        if (nextLessonId) {
+            navigate(`/lesson/${nextLessonId}`);
+        }
     };
 
     const handleRetry = async () => {
@@ -172,11 +191,19 @@ const LessonSubmitPage = () => {
 
                     <div className="mt-6 sm:mt-8 flex justify-center gap-3 sm:gap-4">
                         <button
-                            onClick={handleExit}
+                            onClick={() => navigate("/learn")}
                             className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 rounded-lg sm:rounded-xl hover:bg-gray-300 transition-colors text-sm sm:text-base font-baloo"
                         >
-                            Exit Lesson
+                            Back to Lessons
                         </button>
+                        {nextLessonId && (
+                            <button
+                                onClick={handleNextLesson}
+                                className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-500 text-white rounded-lg sm:rounded-xl hover:bg-blue-600 transition-colors text-sm sm:text-base font-baloo"
+                            >
+                                Next Lesson
+                            </button>
+                        )}
                         <button
                             onClick={handleRetry}
                             className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-colors text-sm sm:text-base font-baloo ${userProfile?.lives === 0 ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}

@@ -221,6 +221,23 @@ const TileTooltip = ({
         return () => window.removeEventListener("click", containsTileTooltip, true);
     }, [selectedTile, tileTooltipRef, closeTooltip, index]);
 
+    const handleStart = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!lessonId) return;
+
+        if (userProfile?.lives === 0) {
+            Modal.info({
+                title: <span className="font-baloo text-xl">Out of Lives</span>,
+                content: <span className="font-baloo text-lg">Hiện tại số tim của bạn là 0, bạn không thể bắt đầu bài học này. Hãy chờ hoặc mua thêm tim để tiếp tục!</span>,
+                centered: true,
+                okText: <span className="font-baloo">OK</span>,
+            });
+            return;
+        }
+
+        navigate(`/lesson/${lessonId}`);
+    };
+
     const handlePractice = async (e: React.MouseEvent) => {
         e.preventDefault();
         if (!lessonId) return;
@@ -235,35 +252,35 @@ const TileTooltip = ({
             return;
         }
 
-        try {
-            await dispatch(retryLesson({
-                lessonId: lessonId,
-            })).unwrap();
-            await dispatch(fetchUserProfile());
+        Modal.confirm({
+            title: <span className="font-baloo text-xl">Try this lesson again?</span>,
+            content: <span className="font-baloo text-lg">Your previous result will be reset.</span>,
+            okText: <span className="font-baloo">Yes, try again</span>,
+            cancelText: <span className="font-baloo">Cancel</span>,
+            centered: true,
+            onOk: async () => {
+                try {
+                    // Gọi API retry trước
+                    await dispatch(retryLesson({
+                        lessonId: lessonId,
+                    })).unwrap();
 
-            Modal.success({
-                title: <span className="font-baloo text-xl">Success</span>,
-                content: (
-                    <div className="font-baloo text-lg">
-                        <p>Bạn đã sử dụng 1 tim để làm lại bài học.</p>
-                        <p>Số tim còn lại: {userProfile?.lives ? userProfile.lives - 1 : 0}</p>
-                    </div>
-                ),
-                centered: true,
-                okText: <span className="font-baloo">OK</span>,
-                onOk: () => {
+                    // Cập nhật profile sau khi retry thành công
+                    await dispatch(fetchUserProfile());
+
+                    // Chỉ chuyển hướng sau khi retry thành công
                     navigate(`/lesson/${lessonId}`);
+                } catch (error) {
+                    console.error("Failed to retry lesson:", error);
+                    Modal.error({
+                        title: <span className="font-baloo text-xl">Error</span>,
+                        content: <span className="font-baloo text-lg">Không thể làm lại bài học. Vui lòng thử lại sau!</span>,
+                        centered: true,
+                        okText: <span className="font-baloo">OK</span>,
+                    });
                 }
-            });
-        } catch (error) {
-            console.error("Failed to retry lesson:", error);
-            Modal.error({
-                title: <span className="font-baloo text-xl">Error</span>,
-                content: <span className="font-baloo text-lg">Không thể làm lại bài học. Vui lòng thử lại sau!</span>,
-                centered: true,
-                okText: <span className="font-baloo">OK</span>,
-            });
-        }
+            },
+        });
     };
 
     const activeBackgroundColor = backgroundColor ?? "bg-green-500";
@@ -318,19 +335,22 @@ const TileTooltip = ({
                     {status === "ACTIVE" ? (
                         <>
                             {!isCompleted && (
-                                <Link
-                                    to={lessonId ? `/lesson/${lessonId}` : "/learn"}
+                                <button
+                                    onClick={handleStart}
                                     className={[
                                         "flex flex-1 items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
                                         activeTextColor,
                                     ].join(" ")}
                                 >
                                     Start
-                                </Link>
+                                </button>
                             )}
                             {isCompleted && (
                                 <button
-                                    onClick={handlePractice}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handlePractice(e);
+                                    }}
                                     className={[
                                         "flex flex-1 items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
                                         activeTextColor,
@@ -348,12 +368,15 @@ const TileTooltip = ({
                             Locked
                         </button>
                     ) : (
-                        <Link
-                            to={lessonId ? `/lesson/${lessonId}` : "/learn"}
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handlePractice(e);
+                            }}
                             className="flex w-full items-center justify-center rounded-xl border-b-4 border-yellow-200 bg-white p-3 uppercase text-yellow-400"
                         >
                             Practice +5 XP
-                        </Link>
+                        </button>
                     )}
                 </div>
             </div>
