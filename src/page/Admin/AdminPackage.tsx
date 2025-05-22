@@ -23,6 +23,10 @@ const AdminPackage = () => {
   const [form] = Form.useForm();
 
   useEffect(() => {
+    dispatch(fetchPackages());
+  }, [dispatch]);
+
+  useEffect(() => {
     if (shouldReload) {
       dispatch(fetchPackages());
       setShouldReload(false);
