@@ -633,13 +633,20 @@ const UnitHeader = ({
 
 const LearnPage = () => {
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+    const { profile } = useAppSelector((state) => state.user);
     const { topics, error: topicsError } = useAppSelector((state) => state.topic);
     const { lessons, error: lessonsError, completedLessons } = useAppSelector((state) => state.lesson);
 
     useEffect(() => {
+        // Check if user has completed profile setup
+        if (!profile?.level || !profile?.preferredSkills || profile.preferredSkills.length === 0) {
+            navigate("/choose-topic");
+            return;
+        }
         dispatch(fetchTopics());
         dispatch(fetchLessons());
-    }, [dispatch]);
+    }, [dispatch, profile, navigate]);
 
     // Check completion status for each lesson
     useEffect(() => {

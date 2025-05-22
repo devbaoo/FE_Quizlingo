@@ -1,4 +1,4 @@
-export const BASE_URL = "https://quizlingo-mb7fv.ondigitalocean.app/api";
+export const BASE_URL = "http://localhost:8080/api";
 
 export const LOGIN_ENDPOINT = `${BASE_URL}/auth/login`;
 export const REGISTER_ENDPOINT = `${BASE_URL}/auth/register`;
@@ -46,4 +46,3 @@ export const GET_SKILLS_ENDPOINT = `${BASE_URL}/skills`;
 
 //level
 export const GET_LEVELS_ENDPOINT = `${BASE_URL}/levels`;
-
