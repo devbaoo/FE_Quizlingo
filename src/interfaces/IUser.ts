@@ -20,6 +20,7 @@ export interface User {
   userLevel: number;
   level: string;
 }
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -34,4 +35,5 @@ export interface UserProfile {
   streak: number;
   completedBasicVocab: string[];
   preferredSkills: string[];
+  preferredTopics: string[];
 }

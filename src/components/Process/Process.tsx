@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { IoClose, IoChevronBack  } from "react-icons/io5";
+import { IoChevronBack } from "react-icons/io5";
 
 type ProcessProps = {
   currentStep: number;
@@ -15,25 +15,25 @@ const Process = ({ currentStep, Page }: ProcessProps) => {
 
   return (
     <div className="flex flex-col items-center w-full max-w-3xl mx-auto px-4">
-      <div className="flex items-center w-full mb-4">
-         <button
+      <div className="flex items-center w-full mb-8">
+        <button
           onClick={() => navigate(-1)}
-          className="text-gray-600 hover:text-blue-500 transition"
+          className="text-gray-600 hover:text-green-500 transition mr-4"
         >
-          <IoChevronBack size={24} />
+          <IoChevronBack size={28} />
         </button>
-        <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+        <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden shadow-inner">
           <div
-            className="bg-green-500 h-4 rounded-full transition-all duration-500"
+            className="bg-gradient-to-r from-green-500 to-green-600 h-6 rounded-full transition-all duration-500 shadow-lg"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
-        <button
+        {/* <button
           onClick={() => navigate("/")}
           className="text-gray-600 hover:text-red-500 transition"
         >
           <IoClose size={24} />
-        </button>
+        </button> */}
       </div>
       <div className="w-full">{Page}</div>
     </div>
