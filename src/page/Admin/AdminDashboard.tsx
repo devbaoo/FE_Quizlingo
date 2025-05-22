@@ -1,5 +1,5 @@
-import { useSelector } from 'react-redux';
-import { Card, Col, Row, Typography, Descriptions, Tag, Statistic } from 'antd';
+// import { useSelector } from 'react-redux';
+import { Card, Col, Row, Typography, Statistic } from 'antd';
 import { Pie, Column } from '@ant-design/plots';
 import {
   UserOutlined,
@@ -7,12 +7,12 @@ import {
   TrophyOutlined,
   AppstoreOutlined,
 } from '@ant-design/icons';
-import { RootState } from '@/services/store/store';
+// import { RootState } from '@/services/store/store';
 
 const { Title, Text } = Typography;
 
 const AdminDashboard = () => {
-  const { user } = useSelector((state: RootState) => state.auth);
+  // const { user } = useSelector((state: RootState) => state.auth);
 
   // Fake data - Pie chart: Tỷ lệ cấp độ người dùng
   const roleData = [

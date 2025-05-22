@@ -11,6 +11,7 @@ import {
   ReadOutlined,
   EditOutlined,
   AudioOutlined,
+  TagsOutlined,
 } from '@ant-design/icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -92,6 +93,9 @@ const Sidebar = () => {
           </Menu.Item>
 
           <Menu.SubMenu key="lesson" icon={<BookOutlined />} title={<span style={{ fontFamily: "'Baloo 2', cursive" }}>Manage Lesson</span>}>
+             <Menu.Item key="/admin/lesson/topics" icon={<TagsOutlined />}>
+                <Link to="/admin/lesson/topics" style={{ fontFamily: "'Baloo 2', cursive" }}> Topics</Link>
+            </Menu.Item>
             <Menu.Item key="/admin/lesson/listening" icon={<SoundOutlined />}>
               <Link to="/admin/lesson/listening" style={{ fontFamily: "'Baloo 2', cursive" }}>Listening</Link>
             </Menu.Item>

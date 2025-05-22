@@ -28,6 +28,9 @@ export const CHOOSE_SKILLS_ENDPOINT = `${BASE_URL}/user/skill`;
 
 //topic
 export const GET_TOPICS_ENDPOINT = `${BASE_URL}/topics`;
+export const CREATE_TOPIC_ENDPOINT = `${BASE_URL}/topics`;
+export const UPDATE_TOPIC_ENDPOINT = (id: string) => `${BASE_URL}/topics/${id}`;
+export const DELETE_TOPIC_ENDPOINT = (id: string) => `${BASE_URL}/topics/${id}`;
 
 //skill
 export const GET_SKILLS_ENDPOINT = `${BASE_URL}/skills`;
