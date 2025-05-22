@@ -7,3 +7,10 @@ export interface IAdmin {
   createdAt: string;
   lastLoginDate: string;
 }
+
+export interface INoticationAll {
+  title: string;
+  message: string;
+  type: string;
+  link: string;
+}

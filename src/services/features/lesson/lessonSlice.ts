@@ -5,34 +5,15 @@ import {
   GET_LESSON_BY_ID_ENDPOINT,
   COMPLETE_LESSON_ENDPOINT,
   RETRY_LESSON_ENDPOINT,
+  GET_CHECK_COMPLETED_LESSON_ENDPOINT,
 } from "@/services/constant/apiConfig";
-import { ILesson } from "@/interfaces/ILesson";
-
-interface QuestionResult {
-  questionId: string;
-  answer: string;
-  isCorrect: boolean;
-  isTimeout: boolean;
-}
-
-interface LessonProgress {
-  userId: string;
-  lessonId: string;
-  score: number;
-  isRetried: boolean;
-  questionResults: QuestionResult[];
-  _id: string;
-  completedAt: string;
-}
-
-interface UserProgress {
-  level: string;
-  userLevel: number;
-  xp: number;
-  lives: number;
-  completedBasicVocab: string[];
-  preferredSkills: string[];
-}
+import {
+  ILesson,
+  LessonProgress,
+  UserProgress,
+  QuestionResult,
+} from "@/interfaces/ILesson";
+import { message as antMessage } from "antd";
 
 interface LessonState {
   lessons: ILesson[];
@@ -41,6 +22,8 @@ interface LessonState {
   error: string | null;
   progress: LessonProgress | null;
   userProgress: UserProgress | null;
+  status: string | null;
+  completedLessons: { [key: string]: boolean };
 }
 
 const initialState: LessonState = {
@@ -50,6 +33,8 @@ const initialState: LessonState = {
   error: null,
   progress: null,
   userProgress: null,
+  status: null,
+  completedLessons: {},
 };
 
 export const fetchLessons = createAsyncThunk<
@@ -83,7 +68,7 @@ export const fetchLessonById = createAsyncThunk<
 });
 
 export const completeLesson = createAsyncThunk<
-  { progress: LessonProgress; user: UserProgress },
+  { progress: LessonProgress; user: UserProgress; status: string },
   {
     lessonId: string;
     score: number;
@@ -97,8 +82,15 @@ export const completeLesson = createAsyncThunk<
     return response.data;
   } catch (err: unknown) {
     const error = err as ApiError;
-    const message = error.message || "Failed to complete lesson";
-    return rejectWithValue({ message });
+    const errorMessage = error.message || "Failed to complete lesson";
+    if (errorMessage === "Bài học đã được hoàn thành trước đó") {
+      antMessage.info({
+        content: "Bài học đã được hoàn thành trước đó",
+        className: "font-baloo",
+        duration: 3,
+      });
+    }
+    return rejectWithValue({ message: errorMessage });
   }
 });
 
@@ -112,6 +104,23 @@ export const retryLesson = createAsyncThunk<
   } catch (err: unknown) {
     const error = err as ApiError;
     const message = error.message || "Failed to retry lesson";
+    return rejectWithValue({ message });
+  }
+});
+
+export const checkLessonCompletion = createAsyncThunk<
+  { completed: boolean; progress: LessonProgress },
+  string,
+  { rejectValue: { message: string } }
+>("lesson/checkCompletion", async (lessonId, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.get(
+      GET_CHECK_COMPLETED_LESSON_ENDPOINT(lessonId)
+    );
+    return response.data;
+  } catch (err: unknown) {
+    const error = err as ApiError;
+    const message = error.message || "Failed to check lesson completion";
     return rejectWithValue({ message });
   }
 });
@@ -165,6 +174,7 @@ const lessonSlice = createSlice({
         state.loading = false;
         state.progress = action.payload.progress;
         state.userProgress = action.payload.user;
+        state.status = action.payload.status;
         state.error = null;
       })
       .addCase(completeLesson.rejected, (state, action) => {
@@ -184,6 +194,22 @@ const lessonSlice = createSlice({
       .addCase(retryLesson.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to retry lesson";
+      })
+      // Check Lesson Completion
+      .addCase(checkLessonCompletion.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(checkLessonCompletion.fulfilled, (state, action) => {
+        state.loading = false;
+        if (!state.completedLessons) state.completedLessons = {};
+        state.completedLessons[action.meta.arg] = action.payload.completed;
+        state.error = null;
+      })
+      .addCase(checkLessonCompletion.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.payload?.message || "Failed to check lesson completion";
       });
   },
 });

@@ -22,26 +22,19 @@ import {
     ActiveDumbbellSvg,
     PracticeExerciseSvg,
 } from "@/components/ui/Svgs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { type Tile, type TileType, type Unit } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
 import { fetchTopics } from "@/services/features/topic/topicSlice";
-import { fetchLessons } from "@/services/features/lesson/lessonSlice";
+import { fetchLessons, retryLesson, checkLessonCompletion } from "@/services/features/lesson/lessonSlice";
+import { fetchUserProfile } from "@/services/features/user/userSlice";
+import { Modal } from 'antd';
 
 // Trạng thái của mỗi tile
 // Không dùng useBoundStore, chỉ dùng state cục bộ cho lessonsCompleted
 
 type TileStatus = "LOCKED" | "ACTIVE" | "COMPLETE";
 // (Bạn có thể thay đổi logic này nếu muốn lưu lessonsCompleted vào localStorage hoặc backend)| "ACTIVE" | "COMPLETE";
-
-const tileStatus = (tile: Tile, lessonsCompleted: number, tiles: Tile[]): TileStatus => {
-    const lessonsPerTile = 4;
-    const tileIndex = tiles.findIndex((t) => t === tile);
-    const tilesCompleted = Math.floor(lessonsCompleted / lessonsPerTile);
-    if (tileIndex < tilesCompleted) return "COMPLETE";
-    if (tileIndex > tilesCompleted) return "LOCKED";
-    return "ACTIVE";
-};
 
 const TileIcon = ({
     tileType,
@@ -195,6 +188,7 @@ const TileTooltip = ({
     backgroundColor,
     textColor,
     lessonId,
+    isCompleted,
 }: {
     selectedTile: number | null;
     index: number;
@@ -206,8 +200,12 @@ const TileTooltip = ({
     backgroundColor: string;
     textColor: string;
     lessonId?: string;
+    isCompleted: boolean;
 }) => {
     const tileTooltipRef = useRef<HTMLDivElement | null>(null);
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+    const { profile: userProfile } = useAppSelector((state) => state.user);
 
     useEffect(() => {
         const containsTileTooltip = (event: MouseEvent) => {
@@ -222,6 +220,68 @@ const TileTooltip = ({
         window.addEventListener("click", containsTileTooltip, true);
         return () => window.removeEventListener("click", containsTileTooltip, true);
     }, [selectedTile, tileTooltipRef, closeTooltip, index]);
+
+    const handleStart = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!lessonId) return;
+
+        if (userProfile?.lives === 0) {
+            Modal.info({
+                title: <span className="font-baloo text-xl">Out of Lives</span>,
+                content: <span className="font-baloo text-lg">Hiện tại số tim của bạn là 0, bạn không thể bắt đầu bài học này. Hãy chờ hoặc mua thêm tim để tiếp tục!</span>,
+                centered: true,
+                okText: <span className="font-baloo">OK</span>,
+            });
+            return;
+        }
+
+        navigate(`/lesson/${lessonId}`);
+    };
+
+    const handlePractice = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (!lessonId) return;
+
+        if (userProfile?.lives === 0) {
+            Modal.info({
+                title: <span className="font-baloo text-xl">Out of Lives</span>,
+                content: <span className="font-baloo text-lg">Hiện tại số tim của bạn là 0, bạn không thể làm lại bài này. Hãy chờ hoặc mua thêm tim để tiếp tục!</span>,
+                centered: true,
+                okText: <span className="font-baloo">OK</span>,
+            });
+            return;
+        }
+
+        Modal.confirm({
+            title: <span className="font-baloo text-xl">Try this lesson again?</span>,
+            content: <span className="font-baloo text-lg">Your previous result will be reset.</span>,
+            okText: <span className="font-baloo">Yes, try again</span>,
+            cancelText: <span className="font-baloo">Cancel</span>,
+            centered: true,
+            onOk: async () => {
+                try {
+                    // Gọi API retry trước
+                    await dispatch(retryLesson({
+                        lessonId: lessonId,
+                    })).unwrap();
+
+                    // Cập nhật profile sau khi retry thành công
+                    await dispatch(fetchUserProfile());
+
+                    // Chỉ chuyển hướng sau khi retry thành công
+                    navigate(`/lesson/${lessonId}`);
+                } catch (error) {
+                    console.error("Failed to retry lesson:", error);
+                    Modal.error({
+                        title: <span className="font-baloo text-xl">Error</span>,
+                        content: <span className="font-baloo text-lg">Không thể làm lại bài học. Vui lòng thử lại sau!</span>,
+                        centered: true,
+                        okText: <span className="font-baloo">OK</span>,
+                    });
+                }
+            },
+        });
+    };
 
     const activeBackgroundColor = backgroundColor ?? "bg-green-500";
     const activeTextColor = textColor ?? "text-green-500";
@@ -271,40 +331,61 @@ const TileTooltip = ({
                 >
                     {description}
                 </div>
-                {status === "ACTIVE" ? (
-                    <Link
-                        to={lessonId ? `/lesson/${lessonId}` : "/learn"}
-                        className={[
-                            "flex w-full items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
-                            activeTextColor,
-                        ].join(" ")}
-                    >
-                        Start +10 XP
-                    </Link>
-                ) : status === "LOCKED" ? (
-                    <button
-                        className="w-full rounded-xl bg-gray-200 p-3 uppercase text-gray-400"
-                        disabled
-                    >
-                        Locked
-                    </button>
-                ) : (
-                    <Link
-                        to={lessonId ? `/lesson/${lessonId}` : "/learn"}
-                        className="flex w-full items-center justify-center rounded-xl border-b-4 border-yellow-200 bg-white p-3 uppercase text-yellow-400"
-                    >
-                        Practice +5 XP
-                    </Link>
-                )}
+                <div className="flex gap-2">
+                    {status === "ACTIVE" ? (
+                        <>
+                            {!isCompleted && (
+                                <button
+                                    onClick={handleStart}
+                                    className={[
+                                        "flex flex-1 items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
+                                        activeTextColor,
+                                    ].join(" ")}
+                                >
+                                    Start
+                                </button>
+                            )}
+                            {isCompleted && (
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handlePractice(e);
+                                    }}
+                                    className={[
+                                        "flex flex-1 items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
+                                        activeTextColor,
+                                    ].join(" ")}
+                                >
+                                    Practice
+                                </button>
+                            )}
+                        </>
+                    ) : status === "LOCKED" ? (
+                        <button
+                            className="w-full rounded-xl bg-gray-200 p-3 uppercase text-gray-400"
+                            disabled
+                        >
+                            Locked
+                        </button>
+                    ) : (
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handlePractice(e);
+                            }}
+                            className="flex w-full items-center justify-center rounded-xl border-b-4 border-yellow-200 bg-white p-3 uppercase text-yellow-400"
+                        >
+                            Practice +5 XP
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );
 };
 
-const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
+const UnitSection = ({ unit, completedLessons, prevUnitCompleted }: { unit: Unit; completedLessons: { [key: string]: boolean }; prevUnitCompleted: boolean }): JSX.Element => {
     const [selectedTile, setSelectedTile] = useState<null | number>(null);
-    // lessonsCompleted chỉ dùng local state demo, bạn có thể thay đổi thành global hoặc lưu localStorage nếu muốn
-    const [lessonsCompleted, setLessonsCompleted] = useState(0);
     const closeTooltip = useCallback(() => setSelectedTile(null), []);
 
     return (
@@ -314,9 +395,27 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
                 description={unit.description}
                 backgroundColor={unit.backgroundColor}
             />
-            <div className="relative mb-8 mt-[67px] flex max-w-2xl flex-col items-center gap-4">
+            <div className="relative mb-8 mt-2 flex max-w-2xl flex-col items-center gap-4">
                 {unit.tiles.map((tile, i): JSX.Element => {
-                    const status = tileStatus(tile, lessonsCompleted, unit.tiles);
+                    // Kiểm tra bài trước đã hoàn thành chưa
+                    const prevTile = unit.tiles[i - 1];
+                    const prevCompleted = prevTile && prevTile.lessonId
+                        ? !!(completedLessons && Object.prototype.hasOwnProperty.call(completedLessons, prevTile.lessonId) && completedLessons[prevTile.lessonId])
+                        : true; // Bài đầu tiên luôn true
+
+                    const isCompleted = tile.lessonId
+                        ? !!(completedLessons && Object.prototype.hasOwnProperty.call(completedLessons, tile.lessonId) && completedLessons[tile.lessonId])
+                        : false;
+
+                    let status: TileStatus = "LOCKED";
+                    if (!prevUnitCompleted) {
+                        status = "LOCKED";
+                    } else if (isCompleted) {
+                        status = "COMPLETE";
+                    } else if (i === 0 || prevCompleted) {
+                        status = "ACTIVE";
+                    }
+
                     return (
                         <Fragment key={i}>
                             {(() => {
@@ -347,7 +446,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
                                                     }),
                                                 ].join(" ")}
                                             >
-                                                {tile.type === "fast-forward" && status === "LOCKED" ? (
+                                                {tile.type === "fast-forward" && status === "ACTIVE" ? (
                                                     <HoverLabel
                                                         text="Jump here?"
                                                         textColor={unit.textColor}
@@ -356,7 +455,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
                                                     <HoverLabel text="Start" textColor={unit.textColor} />
                                                 ) : null}
                                                 <LessonCompletionSvg
-                                                    lessonsCompleted={lessonsCompleted}
+                                                    lessonsCompleted={i}
                                                     status={status}
                                                 />
                                                 <button
@@ -371,9 +470,8 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
                                                     onClick={() => {
                                                         if (
                                                             tile.type === "fast-forward" &&
-                                                            status === "LOCKED"
+                                                            status === "ACTIVE"
                                                         ) {
-                                                            // Chuyển trang hoặc logic khác nếu muốn
                                                             return;
                                                         }
                                                         setSelectedTile(i);
@@ -397,7 +495,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
                                                 ].join(" ")}
                                                 onClick={() => {
                                                     if (status === "ACTIVE") {
-                                                        setLessonsCompleted((c) => c + 4);
+                                                        setSelectedTile(i);
                                                     }
                                                 }}
                                                 role="button"
@@ -425,7 +523,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
                                         case "star":
                                             return tile.description;
                                         case "fast-forward":
-                                            return status === "LOCKED"
+                                            return status === "ACTIVE"
                                                 ? "Jump here?"
                                                 : tile.description;
                                         case "trophy":
@@ -439,6 +537,7 @@ const UnitSection = ({ unit }: { unit: Unit }): JSX.Element => {
                                 backgroundColor={unit.backgroundColor}
                                 textColor={unit.textColor}
                                 lessonId={tile.lessonId}
+                                isCompleted={isCompleted}
                             />
                         </Fragment>
                     );
@@ -534,13 +633,22 @@ const UnitHeader = ({
 
 const LearnPage = () => {
     const dispatch = useAppDispatch();
-    const { topics, loading: topicsLoading, error: topicsError } = useAppSelector((state) => state.topic);
-    const { lessons, loading: lessonsLoading, error: lessonsError } = useAppSelector((state) => state.lesson);
+    const { topics, error: topicsError } = useAppSelector((state) => state.topic);
+    const { lessons, error: lessonsError, completedLessons } = useAppSelector((state) => state.lesson);
 
     useEffect(() => {
         dispatch(fetchTopics());
         dispatch(fetchLessons());
     }, [dispatch]);
+
+    // Check completion status for each lesson
+    useEffect(() => {
+        if (lessons.length > 0) {
+            lessons.forEach(lesson => {
+                dispatch(checkLessonCompletion(lesson._id));
+            });
+        }
+    }, [dispatch, lessons]);
 
     // Map topics to units, lessons to tiles
     const units: Unit[] = topics.map((topic, idx) => {
@@ -560,9 +668,25 @@ const LearnPage = () => {
         };
     });
 
-    if (topicsLoading || lessonsLoading) {
-        return <div className="text-center p-4 sm:p-10">Đang tải dữ liệu...</div>;
+    // Tìm index của topic đầu tiên chưa hoàn thành hết
+    const firstUncompletedUnitIdx = units.findIndex(unit =>
+        unit.tiles.some(tile => tile.lessonId && !completedLessons[tile.lessonId])
+    );
+
+    const maxVisible = 3;
+    let visibleUnits;
+    if (firstUncompletedUnitIdx === -1) {
+        // Đã hoàn thành hết, hiển thị hết
+        visibleUnits = units;
+    } else {
+        // Hiển thị tối đa 3 topic liên tiếp
+        visibleUnits = units.slice(
+            Math.max(0, firstUncompletedUnitIdx - maxVisible + 2),
+            firstUncompletedUnitIdx + 3
+        );
     }
+
+
     if (topicsError || lessonsError) {
         return <div className="text-red-500 text-center p-4 sm:p-10">Lỗi: {topicsError || lessonsError}</div>;
     }
@@ -570,9 +694,24 @@ const LearnPage = () => {
     return (
         <div className="flex justify-center items-start pt-8 sm:pt-14 px-2 sm:px-6 min-h-screen bg-white">
             <div className="flex w-full max-w-2xl flex-col items-center mx-auto gap-4 sm:gap-8">
-                {units.map((unit) => (
-                    <UnitSection unit={unit} key={unit.unitNumber} />
-                ))}
+                {visibleUnits.map((unit, unitIdx) => {
+                    // Kiểm tra topic trước đã hoàn thành hết chưa
+                    let prevUnitCompleted = true;
+                    if (unitIdx > 0) {
+                        const prevUnit = units[unitIdx - 1];
+                        prevUnitCompleted = prevUnit.tiles.every(
+                            tile => tile.lessonId && completedLessons && completedLessons[tile.lessonId]
+                        );
+                    }
+                    return (
+                        <UnitSection
+                            unit={unit}
+                            key={unit.unitNumber}
+                            completedLessons={completedLessons}
+                            prevUnitCompleted={prevUnitCompleted}
+                        />
+                    );
+                })}
                 <div className="sticky bottom-20 sm:bottom-28 left-0 right-0 flex items-end justify-between w-full">
                     <Link
                         to="/lesson?practice"

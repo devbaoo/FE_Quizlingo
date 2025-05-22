@@ -31,6 +31,9 @@ import WritingLessonPage from "@/page/Admin/WritingLessonPage";
 import SpeakingLessonPage from "@/page/Admin/SpeakingLessonPage";
 import TopicsLesson from "@/page/Admin/TopicsLesson";
 
+import NotificationsAllPage from "@/page/Admin/NotificationsAllPage";
+
+
 const AppRouter = () => {
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
@@ -85,6 +88,7 @@ const AppRouter = () => {
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
                     <Route path="users" element={<ManageUserPage />} />
+                    <Route path="notifications/all" element={<NotificationsAllPage />} />
                     <Route path="lesson/listening" element={<ListeningLessonPage />} />
                     <Route path="lesson/topics" element={<TopicsLesson />} />
                     <Route path="lesson/reading" element={<ReadingLessonPage />} />

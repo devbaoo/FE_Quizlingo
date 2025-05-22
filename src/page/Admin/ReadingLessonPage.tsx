@@ -1,5 +1,4 @@
 import { useState } from 'react';
-
 import {
   Table,
   Button,
@@ -25,6 +24,7 @@ interface Question {
   correctAnswer: string;
   score: number;
 }
+
 
 interface Lesson {
   _id: string;

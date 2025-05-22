@@ -113,6 +113,12 @@ const Sidebar = () => {
           <Menu.Item key="/admin/users" icon={<TeamOutlined />}>
             <Link to="/admin/users" style={{ fontFamily: "'Baloo 2', cursive" }}>Manage User</Link>
           </Menu.Item>
+
+          <Menu.SubMenu key="notifications" icon={<BookOutlined />} title={<span style={{ fontFamily: "'Baloo 2', cursive" }}>Manage Notification</span>}>
+            <Menu.Item key="/admin/notifications/all" icon={<TeamOutlined />}>
+              <Link to="/admin/notifications/all" style={{ fontFamily: "'Baloo 2', cursive" }}>All User</Link>
+            </Menu.Item>
+          </Menu.SubMenu>
         </Menu>
       </div>
 
