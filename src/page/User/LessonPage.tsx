@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
 import { fetchLessonById } from "@/services/features/lesson/lessonSlice";
-import { Modal } from 'antd';
 import NotFoundPage from "@/page/Error/NotFoundPage";
 import { IQuestion, QuestionResult } from "@/interfaces/ILesson";
 
@@ -153,17 +152,6 @@ const LessonPage = () => {
         }
     };
 
-    const handleExit = () => {
-        Modal.confirm({
-            title: <span className="font-baloo text-xl">Are you sure you want to exit?</span>,
-            content: <span className="font-baloo text-lg">Your progress will be lost.</span>,
-            okText: <span className="font-baloo">Yes, exit</span>,
-            cancelText: <span className="font-baloo">Cancel</span>,
-            centered: true,
-            onOk: () => navigate("/learn"),
-        });
-    };
-
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen font-">
@@ -216,13 +204,7 @@ const LessonPage = () => {
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between">
-                    <button
-                        onClick={handleExit}
-                        className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 rounded-lg sm:rounded-xl hover:bg-gray-300 transition-colors text-sm sm:text-base"
-                    >
-                        Exit Lesson
-                    </button>
+                <div className="flex justify-end">
                     <button
                         onClick={handleNextQuestion}
                         disabled={!selectedAnswer}
