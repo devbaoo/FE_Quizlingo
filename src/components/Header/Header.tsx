@@ -2,9 +2,8 @@ import { Typography, Dropdown, Avatar } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "@/services/store/store";
 import { logout } from "@/services/features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import type { MenuProps } from "antd";
-import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { fetchUserProfile } from "@/services/features/user/userSlice";
 import { useAppDispatch } from "@/services/store/store";
@@ -14,6 +13,9 @@ const Header = () => {
   const { profile: userProfile } = useSelector((state: RootState) => state.user);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isInLesson = location.pathname.startsWith('/lesson/') && !location.pathname.startsWith('/lesson/submit');
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -21,26 +23,43 @@ const Header = () => {
     }
   }, [isAuthenticated, dispatch]);
 
+  const handleNavigation = (path: string) => {
+    if (isInLesson) {
+      if (window.confirm('Bạn có chắc chắn muốn rời khỏi trang? Tiến độ bài học của bạn sẽ không được lưu.')) {
+        navigate(path);
+      }
+    } else {
+      navigate(path);
+    }
+  };
+
   const handleLogout = () => {
-    dispatch(logout());
-    navigate("/");
+    if (isInLesson) {
+      if (window.confirm('Bạn có chắc chắn muốn rời khỏi trang? Tiến độ bài học của bạn sẽ không được lưu.')) {
+        dispatch(logout());
+        navigate("/");
+      }
+    } else {
+      dispatch(logout());
+      navigate("/");
+    }
   };
 
   const items: MenuProps["items"] = [
     {
       key: "1",
       label: <span className="font-baloo">Hồ sơ</span>,
-      onClick: () => navigate("/profile"),
+      onClick: () => handleNavigation("/profile"),
     },
     {
       key: "2",
       label: <span className="font-baloo">Cài đặt</span>,
-      onClick: () => navigate("/settings"),
+      onClick: () => handleNavigation("/settings"),
     },
     ...(authUser?.role === "admin" ? [{
       key: "3",
       label: <span className="font-baloo">Admin Dashboard</span>,
-      onClick: () => navigate("/admin"),
+      onClick: () => handleNavigation("/admin"),
     }] : []),
     {
       key: "4",
@@ -51,11 +70,11 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md p-4 flex justify-between items-center">
-      <Link to="/" className="flex items-center gap-2">
+      <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavigation("/")}>
         <Typography.Title level={2} style={{ margin: 0, color: "#1677ff" }} className="font-baloo">
           Quizlingo
         </Typography.Title>
-      </Link>
+      </div>
 
       <div className="flex items-center gap-4">
         {isAuthenticated ? (
@@ -106,16 +125,18 @@ const Header = () => {
           </>
         ) : (
           <div className="flex items-center gap-2">
-            <Link to="/login">
-              <button className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-2 font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo">
-                Đăng nhập
-              </button>
-            </Link>
-            <Link to="/register">
-              <button className="rounded-2xl border-b-2 border-b-blue-300 bg-blue-500 px-4 py-2 font-bold text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200 font-baloo">
-                Đăng ký
-              </button>
-            </Link>
+            <button
+              onClick={() => handleNavigation("/login")}
+              className="rounded-2xl border-b-2 border-b-gray-300 bg-white px-4 py-2 font-bold text-blue-500 ring-2 ring-gray-300 hover:bg-gray-200 active:translate-y-[0.125rem] active:border-b-gray-200 font-baloo"
+            >
+              Đăng nhập
+            </button>
+            <button
+              onClick={() => handleNavigation("/register")}
+              className="rounded-2xl border-b-2 border-b-blue-300 bg-blue-500 px-4 py-2 font-bold text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200 font-baloo"
+            >
+              Đăng ký
+            </button>
           </div>
         )}
       </div>

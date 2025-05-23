@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
-import { completeLesson, retryLesson, fetchLessons } from "@/services/features/lesson/lessonSlice";
+import { completeLesson, retryLesson } from "@/services/features/lesson/lessonSlice";
 import { CheckmarkSvg, StarSvg, CloseSvg } from "@/components/ui/Svgs";
 import { Modal } from 'antd';
 import { fetchUserProfile } from "@/services/features/user/userSlice";
+import Confetti from 'react-confetti';
 
 interface LocationState {
     lessonId: string;
@@ -45,11 +46,10 @@ const LessonSubmitPage = () => {
                     isRetried: state.isRetried,
                 })).unwrap();
 
-                if (result.status !== "COMPLETE") {
+                if (result.status === "COMPLETE") {
                     setShowConfetti(true);
                 }
                 await dispatch(fetchUserProfile());
-                await dispatch(fetchLessons());
             } catch (error: unknown) {
                 console.error("Failed to submit lesson:", error);
             }
@@ -130,7 +130,16 @@ const LessonSubmitPage = () => {
                 <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-8 mb-4 sm:mb-8">
                     {showConfetti && (
                         <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                            {/* Add confetti animation here if desired */}
+                            <Confetti
+                                width={window.innerWidth}
+                                height={window.innerHeight}
+                                recycle={false}
+                                numberOfPieces={500}
+                                gravity={0.2}
+                                colors={['#FFD700', '#FFA500', '#FF69B4', '#87CEEB', '#98FB98']}
+                                initialVelocityY={10}
+                                tweenDuration={5000}
+                            />
                         </div>
                     )}
 

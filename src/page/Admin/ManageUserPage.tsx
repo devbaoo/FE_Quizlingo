@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Table, Button, Space, Popconfirm, message } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DashOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/services/store/store';
 import { fetchUsers, deleteUser } from '@/services/features/admin/adminSlice';
@@ -48,16 +48,10 @@ const ManageUserPage = () => {
       key: 'role',
     },
     {
-      title: <span style={{ fontFamily: "'Baloo 2', cursive" }}>Created At</span>,
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      render: (date: string) => new Date(date).toLocaleDateString(),
-    },
-    {
       title: <span style={{ fontFamily: "'Baloo 2', cursive" }}>Last Login</span>,
       dataIndex: 'lastLoginDate',
       key: 'lastLoginDate',
-      render: (date: string) => new Date(date).toLocaleDateString(),
+      render: (date: string | null) => date ? new Date(date).toLocaleDateString() : <DashOutlined />,
     },
     {
       title: <span style={{ fontFamily: "'Baloo 2', cursive" }}>Actions</span>,
