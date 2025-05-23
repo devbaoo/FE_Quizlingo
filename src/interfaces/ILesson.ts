@@ -85,26 +85,26 @@ export interface QuestionResult {
   isTimeout: boolean;
 }
 
-export interface ServerQuestionResult extends QuestionResult {
+export interface QuestionResultWithScore extends QuestionResult {
   score: number;
   feedback: string | null;
   transcription: string | null;
   _id: string;
 }
 
-export interface ServerProgress {
+export interface LessonProgress {
   userId: string;
   lessonId: string;
   score: number;
   status: string;
   isRetried: boolean;
-  questionResults: ServerQuestionResult[];
+  questionResults: QuestionResultWithScore[];
   _id: string;
   completedAt: string;
   __v: number;
 }
 
-export interface ServerUserProgress {
+export interface UserProgress {
   level: string;
   userLevel: number;
   xp: number;
@@ -118,6 +118,6 @@ export interface CompleteLessonResponse {
   success: boolean;
   message: string;
   status: string;
-  progress: ServerProgress;
-  user: ServerUserProgress;
+  progress: LessonProgress;
+  user: UserProgress;
 }
