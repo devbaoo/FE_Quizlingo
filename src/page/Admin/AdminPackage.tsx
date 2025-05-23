@@ -84,7 +84,7 @@ const AdminPackage = () => {
       form.resetFields();
       setEditingPackage(null);
       setShouldReload(true);
-    } catch (error) {
+    } catch {
       message.error("Lỗi khi lưu package");
     }
   };
