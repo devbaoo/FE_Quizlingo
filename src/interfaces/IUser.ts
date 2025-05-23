@@ -21,6 +21,14 @@ export interface User {
   level: string;
 }
 
+export interface ActivePackage {
+  name: string;
+  startDate: string;
+  endDate: string;
+  daysRemaining: number;
+  isExpiringSoon: boolean;
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -31,9 +39,10 @@ export interface UserProfile {
   avatar: string;
   userLevel: number;
   xp: number;
-  lives: number;
   streak: number;
+  lives: number;
   completedBasicVocab: string[];
   preferredSkills: string[];
   preferredTopics: string[];
+  activePackage?: ActivePackage;
 }
