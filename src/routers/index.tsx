@@ -25,11 +25,12 @@ import ProfilePage from "@/page/User/ProfilePage";
 import { useSelector } from "react-redux";
 import { RootState } from "@/services/store/store";
 import ManageUserPage from "@/page/Admin/ManageUserPage";
-import ListeningLessonPage from "@/page/Admin/ListeningLessonPage";
-import ReadingLessonPage from "@/page/Admin/ReadingLessonPage";
-import WritingLessonPage from "@/page/Admin/WritingLessonPage";
+import SkillsPage from "@/page/Admin/SkillsPage";
+import LessonsPage from "@/page/Admin/LessonsPage";
+import LevelsPage from "@/page/Admin/LevelsPage";
 import SpeakingLessonPage from "@/page/Admin/SpeakingLessonPage";
 import TopicsLesson from "@/page/Admin/TopicsLesson";
+import AdminPackage from "@/page/Admin/AdminPackage";
 
 import NotificationsAllPage from "@/page/Admin/NotificationsAllPage";
 
@@ -51,6 +52,7 @@ const AppRouter = () => {
     return (
         <Routes>
             <Route path="/resend-verification" element={<ResendVerificationPage />} />
+            <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
             {/* Guest Routes - Only accessible when not authenticated */}
             <Route element={!isAuthenticated ? <GuestLayout /> : <Navigate to={getInitialRoute()} />}>
@@ -63,7 +65,6 @@ const AppRouter = () => {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<LoginPage isRegister={true} />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
                 <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
             </Route>
 
@@ -87,12 +88,13 @@ const AppRouter = () => {
             <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
                 <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<AdminDashboard />} />
+                    <Route path="packages" element={<AdminPackage />} />
                     <Route path="users" element={<ManageUserPage />} />
                     <Route path="notifications/all" element={<NotificationsAllPage />} />
-                    <Route path="lesson/listening" element={<ListeningLessonPage />} />
+                    <Route path="lesson/skills" element={<SkillsPage />} />
                     <Route path="lesson/topics" element={<TopicsLesson />} />
-                    <Route path="lesson/reading" element={<ReadingLessonPage />} />
-                    <Route path="lesson/writing" element={<WritingLessonPage />} />
+                    <Route path="lesson/create" element={<LessonsPage />} />
+                    <Route path="lesson/levels" element={<LevelsPage />} />
                     <Route path="lesson/speaking" element={<SpeakingLessonPage />} />
                 </Route>
             </Route>

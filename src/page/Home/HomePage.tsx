@@ -13,7 +13,11 @@ const HomePage = () => {
       if (user?.role === "admin") {
         navigate("/admin", { replace: true });
       } else {
-        navigate("/learn", { replace: true });
+        if (user?.level === null) {
+          navigate("/choose-topic", { replace: true });
+        } else {
+          navigate("/learn", { replace: true });
+        }
       }
     }
   }, [isAuthenticated, user, navigate]);

@@ -1,4 +1,3 @@
-
 import { INoticationAll } from "@/interfaces/IAdmin";
 import { NOTIFICATIONS_ALL_ENDPOINT } from "@/services/constant/apiConfig";
 import { Input, Button, Typography, Card, Form, message } from "antd";
@@ -11,28 +10,29 @@ const NotificationsAllPage = () => {
   const [form] = Form.useForm();
 
   const handleSubmit = async (values: INoticationAll) => {
-  try {
-    const token = localStorage.getItem("token"); // hoặc từ nơi bạn lưu token
+    try {
+      const token = localStorage.getItem("token"); // hoặc từ nơi bạn lưu token
 
-    if (!token) {
-      message.error("Không tìm thấy token đăng nhập. Vui lòng đăng nhập lại.");
-      return;
+      if (!token) {
+        message.error(
+          "Không tìm thấy token đăng nhập. Vui lòng đăng nhập lại."
+        );
+        return;
+      }
+
+      await axios.post(NOTIFICATIONS_ALL_ENDPOINT, values, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      message.success("Đã gửi thông báo đến tất cả người dùng!");
+      form.resetFields();
+    } catch (error) {
+      console.error("Lỗi gửi thông báo:", error);
+      message.error("Gửi thông báo thất bại. Vui lòng kiểm tra lại.");
     }
-
-    await axios.post(NOTIFICATIONS_ALL_ENDPOINT, values, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    message.success("Đã gửi thông báo đến tất cả người dùng!");
-    form.resetFields();
-  } catch (error) {
-    console.error("Lỗi gửi thông báo:", error);
-    message.error("Gửi thông báo thất bại. Vui lòng kiểm tra lại.");
-  }
-};
-
+  };
 
   return (
     <div className="p-6 flex justify-center items-start min-h-screen bg-gray-100">
@@ -58,7 +58,12 @@ const NotificationsAllPage = () => {
         }}
         bodyStyle={{ padding: 24 }}
       >
-        <Form form={form} layout="vertical" onFinish={handleSubmit} autoComplete="off">
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+          autoComplete="off"
+        >
           <Form.Item
             label="Tiêu đề"
             name="title"
@@ -72,13 +77,20 @@ const NotificationsAllPage = () => {
             name="message"
             rules={[{ required: true, message: "Vui lòng nhập nội dung!" }]}
           >
-            <TextArea maxLength={300} showCount autoSize={{ minRows: 3 }} placeholder="Nội dung thông báo..." />
+            <TextArea
+              maxLength={300}
+              showCount
+              autoSize={{ minRows: 3 }}
+              placeholder="Nội dung thông báo..."
+            />
           </Form.Item>
 
           <Form.Item
             label="Loại thông báo"
             name="type"
-            rules={[{ required: true, message: "Vui lòng nhập loại thông báo!" }]}
+            rules={[
+              { required: true, message: "Vui lòng nhập loại thông báo!" },
+            ]}
           >
             <Input placeholder="Ví dụ: system" />
           </Form.Item>
@@ -86,7 +98,7 @@ const NotificationsAllPage = () => {
           <Form.Item
             label="Liên kết"
             name="link"
-            rules={[{ required: true, message: "Vui lòng nhập link!" }]}
+            normalize={(value) => (value === "" ? null : value)}
           >
             <Input placeholder="Ví dụ: /home" />
           </Form.Item>

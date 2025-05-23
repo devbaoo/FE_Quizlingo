@@ -1,12 +1,18 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance, { ApiError } from "@/services/constant/axiosInstance";
-import { GET_TOPICS_ENDPOINT, CHOOSE_TOPICS_ENDPOINT, CREATE_TOPIC_ENDPOINT, UPDATE_TOPIC_ENDPOINT, DELETE_TOPIC_ENDPOINT } from "@/services/constant/apiConfig";
+import {
+  GET_TOPICS_ENDPOINT,
+  CHOOSE_TOPICS_ENDPOINT,
+  CREATE_TOPIC_ENDPOINT,
+  UPDATE_TOPIC_ENDPOINT,
+  DELETE_TOPIC_ENDPOINT,
+} from "@/services/constant/apiConfig";
 
 export interface Topic {
   _id: string;
   name: string;
   description: string;
-} 
+}
 
 interface TopicState {
   topics: Topic[];
@@ -21,7 +27,7 @@ const initialState: TopicState = {
 };
 
 export const fetchTopics = createAsyncThunk<
-  { topics: Topic[] }, 
+  { topics: Topic[] },
   void,
   { rejectValue: { message: string } }
 >("topic/fetchTopics", async (_, { rejectWithValue }) => {
@@ -82,11 +88,11 @@ export const deleteTopic = createAsyncThunk<
 
 export const chooseTopics = createAsyncThunk<
   void,
-  string[], 
+  string[],
   { rejectValue: { message: string } }
->("topic/chooseTopics", async (selectedTopicIds, { rejectWithValue }) => {
+>("topic/chooseTopics", async (selectedTopic, { rejectWithValue }) => {
   try {
-    await axiosInstance.post(CHOOSE_TOPICS_ENDPOINT, { topicIds: selectedTopicIds });
+    await axiosInstance.post(CHOOSE_TOPICS_ENDPOINT, { topics: selectedTopic });
   } catch (err: unknown) {
     const error = err as ApiError;
     const message = error.message || "Failed to choose topics";
@@ -132,7 +138,9 @@ const topicSlice = createSlice({
       })
       .addCase(updateTopic.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.topics.findIndex(topic => topic._id === action.payload._id);
+        const index = state.topics.findIndex(
+          (topic) => topic._id === action.payload._id
+        );
         if (index !== -1) {
           state.topics[index] = action.payload;
         }
@@ -148,7 +156,9 @@ const topicSlice = createSlice({
       })
       .addCase(deleteTopic.fulfilled, (state, action) => {
         state.loading = false;
-        state.topics = state.topics.filter(topic => topic._id !== action.payload);
+        state.topics = state.topics.filter(
+          (topic) => topic._id !== action.payload
+        );
         state.error = null;
       })
       .addCase(deleteTopic.rejected, (state, action) => {

@@ -7,11 +7,13 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  SoundOutlined,
   ReadOutlined,
-  EditOutlined,
   AudioOutlined,
   TagsOutlined,
+  BulbOutlined,
+  RiseOutlined,
+  BellOutlined,
+  GiftOutlined,
 } from '@ant-design/icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -31,10 +33,7 @@ const Sidebar = () => {
     navigate('/login');
   };
 
-  const getSelectedKeys = () => {
-    if (location.pathname.startsWith('/admin/lesson')) return [location.pathname];
-    return [location.pathname];
-  };
+  const getSelectedKeys = () => [location.pathname];
 
   return (
     <Sider
@@ -89,36 +88,40 @@ const Sidebar = () => {
           }}
         >
           <Menu.Item key="/admin" icon={<DashboardOutlined />}>
-            <Link to="/admin" style={{ fontFamily: "'Baloo 2', cursive" }}>Dashboard</Link>
+            <Link to="/admin">Dashboard</Link>
           </Menu.Item>
 
-          <Menu.SubMenu key="lesson" icon={<BookOutlined />} title={<span style={{ fontFamily: "'Baloo 2', cursive" }}>Manage Lesson</span>}>
-             <Menu.Item key="/admin/lesson/topics" icon={<TagsOutlined />}>
-                <Link to="/admin/lesson/topics" style={{ fontFamily: "'Baloo 2', cursive" }}> Topics</Link>
+          <Menu.SubMenu key="lesson" icon={<BookOutlined />} title={<span>Manage Lesson</span>}>
+            <Menu.Item key="/admin/lesson/topics" icon={<TagsOutlined />}>
+              <Link to="/admin/lesson/topics">Topics</Link>
             </Menu.Item>
-            <Menu.Item key="/admin/lesson/listening" icon={<SoundOutlined />}>
-              <Link to="/admin/lesson/listening" style={{ fontFamily: "'Baloo 2', cursive" }}>Listening</Link>
+            <Menu.Item key="/admin/lesson/skills" icon={<BulbOutlined />}>
+              <Link to="/admin/lesson/skills">Skills</Link>
             </Menu.Item>
-            <Menu.Item key="/admin/lesson/reading" icon={<ReadOutlined />}>
-              <Link to="/admin/lesson/reading" style={{ fontFamily: "'Baloo 2', cursive" }}>Reading</Link>
+            <Menu.Item key="/admin/lesson/create" icon={<ReadOutlined />}>
+              <Link to="/admin/lesson/create">Lesson</Link>
             </Menu.Item>
-            <Menu.Item key="/admin/lesson/writing" icon={<EditOutlined />}>
-              <Link to="/admin/lesson/writing" style={{ fontFamily: "'Baloo 2', cursive" }}>Writing</Link>
+            <Menu.Item key="/admin/lesson/levels" icon={<RiseOutlined />}>
+              <Link to="/admin/lesson/levels">Levels</Link>
             </Menu.Item>
             <Menu.Item key="/admin/lesson/speaking" icon={<AudioOutlined />}>
-              <Link to="/admin/lesson/speaking" style={{ fontFamily: "'Baloo 2', cursive" }}>Speaking</Link>
+              <Link to="/admin/lesson/speaking">Speaking</Link>
             </Menu.Item>
           </Menu.SubMenu>
 
           <Menu.Item key="/admin/users" icon={<TeamOutlined />}>
-            <Link to="/admin/users" style={{ fontFamily: "'Baloo 2', cursive" }}>Manage User</Link>
+            <Link to="/admin/users">Manage User</Link>
           </Menu.Item>
 
-          <Menu.SubMenu key="notifications" icon={<BookOutlined />} title={<span style={{ fontFamily: "'Baloo 2', cursive" }}>Manage Notification</span>}>
+          <Menu.SubMenu key="notifications" icon={<BellOutlined />} title={<span>Manage Notification</span>}>
             <Menu.Item key="/admin/notifications/all" icon={<TeamOutlined />}>
-              <Link to="/admin/notifications/all" style={{ fontFamily: "'Baloo 2', cursive" }}>All User</Link>
+              <Link to="/admin/notifications/all">All User</Link>
             </Menu.Item>
           </Menu.SubMenu>
+
+          <Menu.Item key="/admin/packages" icon={<GiftOutlined />}>
+            <Link to="/admin/packages">Manage Package</Link>
+          </Menu.Item>
         </Menu>
       </div>
 

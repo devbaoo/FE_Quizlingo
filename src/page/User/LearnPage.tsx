@@ -25,8 +25,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { type Tile, type TileType, type Unit } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
-import { fetchTopics } from "@/services/features/topic/topicSlice";
-import { fetchLessons, retryLesson, checkLessonCompletion } from "@/services/features/lesson/lessonSlice";
+import { fetchLessons, retryLesson } from "@/services/features/lesson/lessonSlice";
 import { fetchUserProfile } from "@/services/features/user/userSlice";
 import { Modal } from 'antd';
 
@@ -633,85 +632,109 @@ const UnitHeader = ({
 
 const LearnPage = () => {
     const dispatch = useAppDispatch();
-    const { topics, error: topicsError } = useAppSelector((state) => state.topic);
-    const { lessons, error: lessonsError, completedLessons } = useAppSelector((state) => state.lesson);
+    const navigate = useNavigate();
+    const { profile } = useAppSelector((state) => state.user);
+    const { lessons, error: lessonsError, pagination, loading } = useAppSelector((state) => state.lesson);
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-        dispatch(fetchTopics());
-        dispatch(fetchLessons());
-    }, [dispatch]);
-
-    // Check completion status for each lesson
-    useEffect(() => {
-        if (lessons.length > 0) {
-            lessons.forEach(lesson => {
-                dispatch(checkLessonCompletion(lesson._id));
-            });
+        if (!profile?.level || !profile?.preferredSkills || profile.preferredSkills.length === 0) {
+            navigate("/choose-topic");
+            return;
         }
-    }, [dispatch, lessons]);
 
-    // Map topics to units, lessons to tiles
-    const units: Unit[] = topics.map((topic, idx) => {
-        const topicLessons = lessons.filter(lesson => lesson.topic?._id === topic._id);
-        const tiles: Tile[] = topicLessons.map(lesson => ({
-            type: "book",
-            description: lesson.title,
-            lessonId: lesson._id,
-        }));
-        return {
-            unitNumber: idx + 1,
-            description: topic.description,
-            backgroundColor: "bg-blue-500",
-            textColor: "text-blue-500",
-            borderColor: "border-blue-500",
-            tiles,
-        };
-    });
+        dispatch(fetchLessons({ page: currentPage, limit: 3 }));
+    }, [dispatch, profile, navigate, currentPage]);
 
-    // Tìm index của topic đầu tiên chưa hoàn thành hết
-    const firstUncompletedUnitIdx = units.findIndex(unit =>
-        unit.tiles.some(tile => tile.lessonId && !completedLessons[tile.lessonId])
-    );
+    // Map lessons to units, using topics from lessons
+    const units: Unit[] = Array.from(new Set(lessons.map(lesson => lesson.topic._id)))
+        .map((topicId, idx) => {
+            const topicLessons = lessons.filter(lesson => lesson.topic._id === topicId);
+            const topic = topicLessons[0].topic; // Get topic info from first lesson
+            const tiles: Tile[] = topicLessons.map(lesson => ({
+                type: "book",
+                description: lesson.title,
+                lessonId: lesson._id,
+            }));
+            return {
+                unitNumber: idx + 1,
+                description: topic.description,
+                backgroundColor: "bg-blue-500",
+                textColor: "text-blue-500",
+                borderColor: "border-blue-500",
+                tiles,
+            };
+        });
 
-    const maxVisible = 3;
-    let visibleUnits;
-    if (firstUncompletedUnitIdx === -1) {
-        // Đã hoàn thành hết, hiển thị hết
-        visibleUnits = units;
-    } else {
-        // Hiển thị tối đa 3 topic liên tiếp
-        visibleUnits = units.slice(
-            Math.max(0, firstUncompletedUnitIdx - maxVisible + 2),
-            firstUncompletedUnitIdx + 3
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
         );
     }
 
+    if (lessonsError) {
+        return <div className="text-red-500 text-center p-4 sm:p-10">Lỗi: {lessonsError}</div>;
+    }
 
-    if (topicsError || lessonsError) {
-        return <div className="text-red-500 text-center p-4 sm:p-10">Lỗi: {topicsError || lessonsError}</div>;
+    if (!lessons) {
+        return <div className="text-center p-4 sm:p-10">No data available</div>;
     }
 
     return (
         <div className="flex justify-center items-start pt-8 sm:pt-14 px-2 sm:px-6 min-h-screen bg-white">
             <div className="flex w-full max-w-2xl flex-col items-center mx-auto gap-4 sm:gap-8">
-                {visibleUnits.map((unit, unitIdx) => {
+                {units.map((unit, unitIdx) => {
                     // Kiểm tra topic trước đã hoàn thành hết chưa
                     let prevUnitCompleted = true;
                     if (unitIdx > 0) {
                         const prevUnit = units[unitIdx - 1];
                         prevUnitCompleted = prevUnit.tiles.every(
-                            tile => tile.lessonId && completedLessons && completedLessons[tile.lessonId]
+                            tile => tile.lessonId && lessons?.find(l => l._id === tile.lessonId)?.status === "COMPLETE"
                         );
                     }
                     return (
                         <UnitSection
                             unit={unit}
                             key={unit.unitNumber}
-                            completedLessons={completedLessons}
+                            completedLessons={Object.fromEntries(
+                                (lessons || []).map(lesson => [lesson._id, lesson.status === "COMPLETE"])
+                            )}
                             prevUnitCompleted={prevUnitCompleted}
                         />
                     );
                 })}
+
+                {/* Pagination */}
+                {pagination && pagination.totalPages > 1 && (
+                    <div className="flex justify-center gap-4 mt-8">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1}
+                            className={`rounded-2xl border-b-2 px-6 py-3 font-bold font-baloo w-32 transition-all ${currentPage === 1
+                                ? "border-b-gray-300 bg-gray-200 text-gray-400 cursor-not-allowed"
+                                : "border-b-blue-300 bg-blue-500 text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200"
+                                }`}
+                        >
+                            Previous
+                        </button>
+                        <span className="px-4 py-3 font-baloo text-gray-700">
+                            Page {currentPage} of {pagination.totalPages}
+                        </span>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(pagination.totalPages, prev + 1))}
+                            disabled={currentPage === pagination.totalPages}
+                            className={`rounded-2xl border-b-2 px-6 py-3 font-bold font-baloo w-32 transition-all ${currentPage === pagination.totalPages
+                                ? "border-b-gray-300 bg-gray-200 text-gray-400 cursor-not-allowed"
+                                : "border-b-blue-300 bg-blue-500 text-white ring-2 ring-blue-300 hover:bg-blue-400 active:translate-y-[0.125rem] active:border-b-blue-200"
+                                }`}
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
+
                 <div className="sticky bottom-20 sm:bottom-28 left-0 right-0 flex items-end justify-between w-full">
                     <Link
                         to="/lesson?practice"
