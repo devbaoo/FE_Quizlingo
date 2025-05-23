@@ -30,8 +30,11 @@ const getToken = (): string | null => localStorage.getItem("token");
 const removeToken = (): void => {
   // Remove all auth related data
   localStorage.removeItem("token");
-  localStorage.removeItem("quizlingo_user_avatar");
   localStorage.removeItem("user");
+  localStorage.removeItem("persist:root");
+
+  // Clear any pending requests
+  window.location.reload();
 };
 
 // ========================
@@ -57,7 +60,9 @@ axiosInstance.interceptors.request.use(
     }
 
     // Optional: add request time for debugging
-    (config as any).metadata = { startTime: new Date() };
+    (
+      config as AxiosRequestConfig & { metadata?: { startTime: Date } }
+    ).metadata = { startTime: new Date() };
     return config;
   },
   (error: AxiosError) => {
@@ -71,7 +76,9 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     // Optional: measure duration
-    const config = response.config as any;
+    const config = response.config as AxiosRequestConfig & {
+      metadata?: { startTime: Date };
+    };
     if (config.metadata?.startTime) {
       // Đã bỏ log duration
     }
@@ -87,9 +94,12 @@ axiosInstance.interceptors.response.use(
       message.error(
         "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại."
       );
-      if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
-      }
+      // Add small delay before redirect to show message
+      setTimeout(() => {
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
+      }, 1500);
     }
 
     return Promise.reject({

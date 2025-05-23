@@ -28,7 +28,6 @@ export const GET_CHECK_COMPLETED_LESSON_ENDPOINT = (id: string) =>
 export const GET_USERS_ENDPOINT = `${BASE_URL}/users`;
 export const DELETE_USER_ENDPOINT = (id: string) => `${BASE_URL}/users/${id}`;
 
-
 export const NOTIFICATIONS_ALL_ENDPOINT = `${BASE_URL}/admin/notifications/all`;
 
 export const GET_ALL_LESSONS_ENDPOINT = `${BASE_URL}/admin/lessons`;
