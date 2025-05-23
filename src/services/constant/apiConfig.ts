@@ -58,3 +58,11 @@ export const GET_LEVELS_ENDPOINT = `${BASE_URL}/levels`;
 export const CREATE_LEVEL_ENDPOINT = `${BASE_URL}/levels`;
 export const UPDATE_LEVEL_ENDPOINT = (id: string) => `${BASE_URL}/levels/${id}`;
 export const DELETE_LEVEL_ENDPOINT = (id: string) => `${BASE_URL}/levels/${id}`;
+
+//notification
+export const GET_NOTIFICATIONS_ENDPOINT = `${BASE_URL}/notifications`;
+export const GET_NOTIFICATION_SETTINGS_ENDPOINT = `${BASE_URL}/notifications/settings`;
+export const SETTING_NOTIFICATIONS_ENDPOINT = `${BASE_URL}/notifications/settings`;
+export const READ_A_NOTIFICATION_ENDPOINT = (id: string) =>
+  `${BASE_URL}/notifications/${id}/read`;
+export const MARK_ALL_NOTIFICATIONS_READ_ENDPOINT = `${BASE_URL}/notifications/mark-all-read`;

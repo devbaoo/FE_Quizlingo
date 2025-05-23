@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "@/services/features/auth/authSlice";
 import { Link } from "react-router-dom";
+import { SettingOutlined } from "@ant-design/icons";
 
 const menuItems = [
     {
@@ -16,6 +17,11 @@ const menuItems = [
         label: "Hồ sơ",
         href: "/profile",
         profileInitial: "P",
+    },
+    {
+        iconElement: <SettingOutlined />,
+        label: "Cài đặt",
+        href: "/setting",
     },
     {
         icon: "https://d35aaqx5ub95lt.cloudfront.net/vendor/7159c0b5d4250a5aea4f396d53f17f0c.svg",
@@ -111,6 +117,8 @@ export default function Sidebar() {
                                 <div className="w-8 h-8 flex items-center justify-center">
                                     {item.icon ? (
                                         <img src={item.icon} alt={item.label} className="w-8 h-8 sm:w-10 sm:h-10" />
+                                    ) : item.iconElement ? (
+                                        <div className="text-lg text-gray-600">{item.iconElement}</div>
                                     ) : (
                                         <div className="bg-gray-200 text-gray-600 font-bold rounded-full w-6 h-6 flex items-center justify-center text-xs">
                                             {item.profileInitial}

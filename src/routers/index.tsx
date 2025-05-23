@@ -31,6 +31,7 @@ import LevelsPage from "@/page/Admin/LevelsPage";
 import SpeakingLessonPage from "@/page/Admin/SpeakingLessonPage";
 import TopicsLesson from "@/page/Admin/TopicsLesson";
 import AdminPackage from "@/page/Admin/AdminPackage";
+import NotificationSettings from "@/page/User/NotificationSetting";
 
 import NotificationsAllPage from "@/page/Admin/NotificationsAllPage";
 
@@ -75,6 +76,7 @@ const AppRouter = () => {
                     <Route path="/lesson/:id" element={<LessonPage />} />
                     <Route path="/lesson/submit" element={<LessonSubmitPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/setting" element={<NotificationSettings />} />
                 </Route>
 
                 {/* Choose Process Routes */}
