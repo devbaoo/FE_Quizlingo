@@ -61,7 +61,7 @@ const LessonPage = () => {
 
     useEffect(() => {
         if (currentLesson) {
-            setTimeLeft(currentLesson.timeLimit);
+            setTimeLeft(currentLesson.level?.timeLimit || 0);
             // Shuffle both questions and their options
             const shuffled = shuffleArray(shuffleQuestionsAndOptions(currentLesson.questions));
             setShuffledQuestions(shuffled);
@@ -79,16 +79,33 @@ const LessonPage = () => {
         }
     }, [timeLeft]);
 
-    // Handle F5 refresh
+    // Handle F5 refresh and navigation
     useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
             e.preventDefault();
-            e.returnValue = '';
+            e.returnValue = 'Bạn có chắc chắn muốn rời khỏi trang? Tiến độ bài học của bạn sẽ không được lưu.';
+            return e.returnValue;
         };
 
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
     }, []);
+
+    // Handle browser back button
+    useEffect(() => {
+        const handlePopState = (e: PopStateEvent) => {
+            e.preventDefault();
+            if (window.confirm('Bạn có chắc chắn muốn rời khỏi trang? Tiến độ bài học của bạn sẽ không được lưu.')) {
+                navigate('/learn');
+            } else {
+                window.history.pushState(null, '', `/lesson/${id}`);
+            }
+        };
+
+        window.history.pushState(null, '', `/lesson/${id}`);
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [id, navigate]);
 
     useEffect(() => {
         // Reset all state when lessonId changes (retry)
@@ -143,7 +160,7 @@ const LessonPage = () => {
                 navigate("/lesson/submit", {
                     state: {
                         lessonId: currentLesson._id,
-                        score,
+                        score: score + (isCorrect ? currentQuestion.score : 0),
                         questionResults: [...questionResults, result],
                         isRetried: false,
                     },
@@ -169,7 +186,7 @@ const LessonPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 py-4 sm:py-8 px-2 sm:px-4 font-baloo">
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-3xl mx-auto mt-16">
                 {/* Progress Bar */}
                 <div className="mb-4 sm:mb-8">
                     <div className="flex justify-between items-center mb-2">
