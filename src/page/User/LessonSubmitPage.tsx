@@ -39,6 +39,8 @@ const LessonSubmitPage = () => {
         const submitLesson = async () => {
             try {
                 setLoading(true);
+                await new Promise(resolve => setTimeout(resolve, 5000));
+
                 const result = await dispatch(completeLesson({
                     lessonId: state.lessonId,
                     score: state.score,

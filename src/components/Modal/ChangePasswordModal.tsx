@@ -1,32 +1,26 @@
 import { Modal, Form, Input, message } from 'antd';
-import { useAppDispatch } from '@/services/store/store';
-import { updateProfile } from '@/services/features/user/userSlice';
 
 interface ChangePasswordModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess?: () => void;
+    onSubmit: (oldPassword: string, newPassword: string, confirmPassword: string) => Promise<void>;
 }
 
-const ChangePasswordModal = ({ isOpen, onClose, onSuccess }: ChangePasswordModalProps) => {
+const ChangePasswordModal = ({ isOpen, onClose, onSubmit }: ChangePasswordModalProps) => {
     const [form] = Form.useForm();
-    const dispatch = useAppDispatch();
 
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            if (values.password !== values.confirmPassword) {
+            if (values.newPassword !== values.confirmPassword) {
                 message.error('Mật khẩu xác nhận không khớp');
                 return;
             }
 
-            await dispatch(updateProfile({ password: values.password })).unwrap();
-            message.success('Đổi mật khẩu thành công');
+            await onSubmit(values.oldPassword, values.newPassword, values.confirmPassword);
             form.resetFields();
-            onClose();
-            if (onSuccess) onSuccess();
         } catch {
-            message.error('Đổi mật khẩu thất bại');
+            // Error is handled by the parent component
         }
     };
 
@@ -45,7 +39,17 @@ const ChangePasswordModal = ({ isOpen, onClose, onSuccess }: ChangePasswordModal
                 className="mt-4"
             >
                 <Form.Item
-                    name="password"
+                    name="oldPassword"
+                    label="Mật khẩu hiện tại"
+                    rules={[
+                        { required: true, message: 'Vui lòng nhập mật khẩu hiện tại' }
+                    ]}
+                >
+                    <Input.Password placeholder="Nhập mật khẩu hiện tại" />
+                </Form.Item>
+
+                <Form.Item
+                    name="newPassword"
                     label="Mật khẩu mới"
                     rules={[
                         { required: true, message: 'Vui lòng nhập mật khẩu mới' },
@@ -62,7 +66,7 @@ const ChangePasswordModal = ({ isOpen, onClose, onSuccess }: ChangePasswordModal
                         { required: true, message: 'Vui lòng xác nhận mật khẩu' },
                         ({ getFieldValue }) => ({
                             validator(_, value) {
-                                if (!value || getFieldValue('password') === value) {
+                                if (!value || getFieldValue('newPassword') === value) {
                                     return Promise.resolve();
                                 }
                                 return Promise.reject(new Error('Mật khẩu xác nhận không khớp'));
