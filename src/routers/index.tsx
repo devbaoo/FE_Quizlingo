@@ -25,9 +25,9 @@ import ProfilePage from "@/page/User/ProfilePage";
 import { useSelector } from "react-redux";
 import { RootState } from "@/services/store/store";
 import ManageUserPage from "@/page/Admin/ManageUserPage";
-import ListeningLessonPage from "@/page/Admin/ListeningLessonPage";
-import ReadingLessonPage from "@/page/Admin/ReadingLessonPage";
-import WritingLessonPage from "@/page/Admin/WritingLessonPage";
+import SkillsPage from "@/page/Admin/SkillsPage";
+import LessonsPage from "@/page/Admin/LessonsPage";
+import LevelsPage from "@/page/Admin/LevelsPage";
 import SpeakingLessonPage from "@/page/Admin/SpeakingLessonPage";
 import TopicsLesson from "@/page/Admin/TopicsLesson";
 import AdminPackage from "@/page/Admin/AdminPackage";
@@ -91,10 +91,10 @@ const AppRouter = () => {
                     <Route path="packages" element={<AdminPackage />} />
                     <Route path="users" element={<ManageUserPage />} />
                     <Route path="notifications/all" element={<NotificationsAllPage />} />
-                    <Route path="lesson/listening" element={<ListeningLessonPage />} />
+                    <Route path="lesson/skills" element={<SkillsPage />} />
                     <Route path="lesson/topics" element={<TopicsLesson />} />
-                    <Route path="lesson/reading" element={<ReadingLessonPage />} />
-                    <Route path="lesson/writing" element={<WritingLessonPage />} />
+                    <Route path="lesson/create" element={<LessonsPage />} />
+                    <Route path="lesson/levels" element={<LevelsPage />} />
                     <Route path="lesson/speaking" element={<SpeakingLessonPage />} />
                 </Route>
             </Route>
