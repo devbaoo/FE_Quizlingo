@@ -2,20 +2,16 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
 import { completeLesson, retryLesson } from "@/services/features/lesson/lessonSlice";
-import { CheckmarkSvg, StarSvg, CloseSvg } from "@/components/ui/Svgs";
-import { Modal } from 'antd';
+import { CheckmarkSvg, StarSvg, CloseSvg, ChevronDownSvg } from "@/components/ui/Svgs";
+import { Modal, Spin } from 'antd';
 import { fetchUserProfile } from "@/services/features/user/userSlice";
 import Confetti from 'react-confetti';
+import { QuestionResult, CompleteLessonResponse } from "@/interfaces/ILesson";
 
 interface LocationState {
     lessonId: string;
     score: number;
-    questionResults: {
-        questionId: string;
-        answer: string;
-        isCorrect: boolean;
-        isTimeout: boolean;
-    }[];
+    questionResults: QuestionResult[];
     isRetried: boolean;
 }
 
@@ -28,6 +24,9 @@ const LessonSubmitPage = () => {
     const { lessons } = useAppSelector((state) => state.lesson);
     const [showConfetti, setShowConfetti] = useState(false);
     const [nextLessonId, setNextLessonId] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [expandedQuestions, setExpandedQuestions] = useState<{ [key: string]: boolean }>({});
+    const [serverResults, setServerResults] = useState<CompleteLessonResponse | null>(null);
 
     const state = location.state as LocationState;
 
@@ -39,6 +38,7 @@ const LessonSubmitPage = () => {
 
         const submitLesson = async () => {
             try {
+                setLoading(true);
                 const result = await dispatch(completeLesson({
                     lessonId: state.lessonId,
                     score: state.score,
@@ -46,12 +46,15 @@ const LessonSubmitPage = () => {
                     isRetried: state.isRetried,
                 })).unwrap();
 
+                setServerResults(result as CompleteLessonResponse);
                 if (result.status === "COMPLETE") {
                     setShowConfetti(true);
                 }
                 await dispatch(fetchUserProfile());
             } catch (error: unknown) {
                 console.error("Failed to submit lesson:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -64,20 +67,15 @@ const LessonSubmitPage = () => {
             if (!currentLesson) return;
 
             const lessonsInTopic = lessons.filter(lesson => lesson.topic._id === currentLesson.topic._id);
-
             lessonsInTopic.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-
             const currentIndex = lessonsInTopic.findIndex(lesson => lesson._id === state.lessonId);
 
-            if (
-                currentIndex !== -1 &&
-                currentIndex < lessonsInTopic.length - 1 &&
-                state.score >= (currentLesson.level?.minScoreRequired ?? 0)
-            ) {
+            if (currentIndex !== -1 && currentIndex < lessonsInTopic.length - 1 &&
+                serverResults?.progress?.score && serverResults?.progress?.score >= (currentLesson.level?.minScoreRequired ?? 0)) {
                 setNextLessonId(lessonsInTopic[currentIndex + 1]._id);
             }
         }
-    }, [lessons, state]);
+    }, [lessons, state, serverResults]);
 
     const handleNextLesson = () => {
         if (nextLessonId) {
@@ -116,13 +114,24 @@ const LessonSubmitPage = () => {
         });
     };
 
-    const correctAnswers = state?.questionResults.filter(result => result.isCorrect).length || 0;
-    const totalQuestions = state?.questionResults.length || 0;
-    const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+    const toggleQuestion = (questionId: string) => {
+        setExpandedQuestions(prev => ({
+            ...prev,
+            [questionId]: !prev[questionId]
+        }));
+    };
 
-    if (!state) {
-        return null;
+    if (!state || loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <Spin size="large" />
+            </div>
+        );
     }
+
+    const correctAnswers = serverResults?.progress?.questionResults?.filter((result) => result.isCorrect).length || 0;
+    const totalQuestions = serverResults?.progress?.questionResults?.length || 0;
+    const percentage = Math.round((correctAnswers / totalQuestions) * 100);
 
     return (
         <div className="min-h-screen bg-gray-50 py-4 sm:py-8 px-2 sm:px-4 font-baloo">
@@ -156,7 +165,7 @@ const LessonSubmitPage = () => {
                             </div>
                         </div>
                         <p className="text-lg sm:text-xl text-gray-600 font-baloo">
-                            You scored {state.score} points!
+                            You scored {serverResults?.progress?.score || 0} points!
                         </p>
                     </div>
 
@@ -175,23 +184,45 @@ const LessonSubmitPage = () => {
                         <div className="bg-gray-50 p-4 sm:p-6 rounded-lg sm:rounded-xl">
                             <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base font-baloo">Question Results</h3>
                             <div className="space-y-3 sm:space-y-4">
-                                {state.questionResults.map((result, index) => (
-                                    <div
-                                        key={result.questionId}
-                                        className="flex items-center justify-between p-3 sm:p-4 bg-white rounded-lg text-sm sm:text-base"
-                                    >
-                                        <span className="font-medium font-baloo">Question {index + 1}</span>
-                                        <div className="flex items-center gap-2">
-                                            {result.isCorrect ? (
-                                                <div className="w-7 h-7 flex items-center justify-center">
-                                                    <CheckmarkSvg />
+                                {serverResults?.progress?.questionResults?.map((result, index) => (
+                                    <div key={result.questionId} className="bg-white rounded-lg overflow-hidden">
+                                        <div
+                                            className="flex items-center justify-between p-3 sm:p-4 cursor-pointer hover:bg-gray-50"
+                                            onClick={() => toggleQuestion(result.questionId)}
+                                        >
+                                            <span className="font-medium font-baloo">Question {index + 1}</span>
+                                            <div className="flex items-center gap-2">
+                                                {result.score >= 50 ? (
+                                                    <div className="w-7 h-7 flex items-center justify-center">
+                                                        <CheckmarkSvg />
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-7 h-7 flex items-center justify-center text-red-500">
+                                                        <CloseSvg />
+                                                    </div>
+                                                )}
+                                                <div className={`w-5 h-5 transition-transform ${expandedQuestions[result.questionId] ? 'rotate-180' : ''}`}>
+                                                    <ChevronDownSvg />
                                                 </div>
-                                            ) : (
-                                                <div className="w-7 h-7 flex items-center justify-center text-red-500">
-                                                    <CloseSvg />
-                                                </div>
-                                            )}
+                                            </div>
                                         </div>
+                                        {expandedQuestions[result.questionId] && (
+                                            <div className="p-4 border-t border-gray-100">
+                                                <div className="mb-3">
+                                                    <h4 className="font-semibold text-gray-700 mb-2">Your Answer:</h4>
+                                                    <p className="text-gray-600">{result.answer}</p>
+                                                </div>
+                                                {result.feedback && (
+                                                    <div>
+                                                        <h4 className="font-semibold text-gray-700 mb-2">Feedback:</h4>
+                                                        <div className="text-gray-600 whitespace-pre-line">{result.feedback}</div>
+                                                    </div>
+                                                )}
+                                                <div className="mt-3 text-sm text-gray-500">
+                                                    Score: {result.score}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -205,7 +236,7 @@ const LessonSubmitPage = () => {
                         >
                             Back to Lessons
                         </button>
-                        {nextLessonId && (
+                        {nextLessonId && serverResults?.status === "COMPLETE" && (
                             <button
                                 onClick={handleNextLesson}
                                 className="px-4 sm:px-6 py-2 sm:py-3 bg-blue-500 text-white rounded-lg sm:rounded-xl hover:bg-blue-600 transition-colors text-sm sm:text-base font-baloo"

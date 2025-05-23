@@ -169,26 +169,17 @@ const LessonPage = () => {
         setTextInput(value);
     };
 
-    const handleNextQuestion = () => {
+    const handleNextQuestion = async () => {
         if (currentLesson && currentQuestionIndex < shuffledQuestions.length) {
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const isTimeout = timeLeft === 0;
-            const isCorrect = !isTimeout && (
-                currentQuestion.type === "multiple_choice"
-                    ? selectedAnswer === currentQuestion.correctAnswer
-                    : textInput.trim().toLowerCase() === currentQuestion.correctAnswer.trim().toLowerCase()
-            );
 
             const result: QuestionResult = {
                 questionId: currentQuestion._id,
                 answer: currentQuestion.type === "multiple_choice" ? selectedAnswer : textInput,
-                isCorrect,
+                isCorrect: false,
                 isTimeout,
             };
-
-            if (isCorrect) {
-                setScore(score + currentQuestion.score);
-            }
 
             setQuestionResults([...questionResults, result]);
             setSelectedAnswer("");
@@ -200,10 +191,11 @@ const LessonPage = () => {
             if (currentQuestionIndex + 1 < shuffledQuestions.length) {
                 setCurrentQuestionIndex(currentQuestionIndex + 1);
             } else {
+                // Navigate to submit page with current results
                 navigate("/lesson/submit", {
                     state: {
                         lessonId: currentLesson._id,
-                        score: score + (isCorrect ? currentQuestion.score : 0),
+                        score: score,
                         questionResults: [...questionResults, result],
                         isRetried: false,
                     },
