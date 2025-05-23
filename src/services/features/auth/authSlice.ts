@@ -9,6 +9,7 @@ import {
   VERIFY_EMAIL_ENDPOINT,
   RESEND_VERIFICATION_ENDPOINT,
   RESET_PASSWORD_ENDPOINT,
+  CHANGE_PASSWORD_ENDPOINT,
 } from "@/services/constant/apiConfig";
 
 const AVATAR_STORAGE_KEY = "quizlingo_user_avatar";
@@ -52,6 +53,12 @@ interface ResetPasswordRequest {
 
 interface ResendVerificationRequest {
   email: string;
+}
+
+interface ChangePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export const loginUser = createAsyncThunk<
@@ -151,6 +158,29 @@ export const resendVerification = createAsyncThunk<
   } catch (err: unknown) {
     const error = err as ApiError;
     const message = error.message || "Gửi lại email xác thực thất bại";
+    return rejectWithValue({ message });
+  }
+});
+
+export const changePassword = createAsyncThunk<
+  { success: boolean; message: string },
+  ChangePasswordRequest,
+  { rejectValue: { message: string } }
+>("auth/changePassword", async (request, { rejectWithValue }) => {
+  try {
+    if (request.newPassword !== request.confirmPassword) {
+      return rejectWithValue({
+        message: "Mật khẩu mới và xác nhận mật khẩu không khớp",
+      });
+    }
+    const response = await axiosInstance.post(CHANGE_PASSWORD_ENDPOINT, {
+      oldPassword: request.oldPassword,
+      newPassword: request.newPassword,
+    });
+    return response.data;
+  } catch (err: unknown) {
+    const error = err as ApiError;
+    const message = error.message || "Đổi mật khẩu thất bại";
     return rejectWithValue({ message });
   }
 });
@@ -295,6 +325,21 @@ const authSlice = createSlice({
         state.loading = false;
         state.error =
           action.payload?.message || "Gửi lại email xác thực thất bại";
+      })
+      // Change password cases
+      .addCase(changePassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changePassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        message.success(action.payload.message || "Đổi mật khẩu thành công");
+      })
+      .addCase(changePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Đổi mật khẩu thất bại";
+        message.error(state.error);
       });
   },
 });

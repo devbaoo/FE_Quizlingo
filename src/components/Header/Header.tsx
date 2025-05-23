@@ -1,7 +1,7 @@
 import { Typography, Dropdown, Avatar } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "@/services/store/store";
-import { logout } from "@/services/features/auth/authSlice";
+import { logout, changePassword } from "@/services/features/auth/authSlice";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { MenuProps } from "antd";
 import { useEffect, useState } from "react";
@@ -57,9 +57,14 @@ const Header = () => {
     }
   };
 
-  // Callback to fetch user profile after password change
-  const handlePasswordChangeSuccess = () => {
-    dispatch(fetchUserProfile());
+  // Callback to handle password change
+  const handlePasswordChange = async (oldPassword: string, newPassword: string, confirmPassword: string) => {
+    try {
+      await dispatch(changePassword({ oldPassword, newPassword, confirmPassword })).unwrap();
+      setIsPasswordModalOpen(false);
+    } catch (error) {
+      // Error is handled in the slice
+    }
   };
 
   const items: MenuProps["items"] = [
@@ -152,7 +157,7 @@ const Header = () => {
       <ChangePasswordModal
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
-        onSuccess={handlePasswordChangeSuccess}
+        onSubmit={handlePasswordChange}
       />
     </>
   );
