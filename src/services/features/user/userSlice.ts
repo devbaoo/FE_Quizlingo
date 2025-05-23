@@ -1,18 +1,30 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiMethods } from "@/services/constant/axiosInstance";
-import { GET_PROFILE_TOKEN_ENDPOINT } from "@/services/constant/apiConfig";
+import {
+  GET_PROFILE_TOKEN_ENDPOINT,
+  UPDATE_AVATAR_PROFILE_ENDPOINT,
+  UPDATE_PROFILE_ENDPOINT,
+} from "@/services/constant/apiConfig";
 import { UserProfile } from "@/interfaces/IUser";
 
 interface UserState {
   profile: UserProfile | null;
   loading: boolean;
   error: string | null;
+  avatarUploading: boolean;
+}
+
+interface UpdateProfileData {
+  firstName?: string;
+  lastName?: string;
+  password?: string;
 }
 
 const initialState: UserState = {
   profile: null,
   loading: false,
   error: null,
+  avatarUploading: false,
 };
 
 export const fetchUserProfile = createAsyncThunk(
@@ -29,20 +41,32 @@ export const fetchUserProfile = createAsyncThunk(
   }
 );
 
-export const uploadUserAvatar = createAsyncThunk(
-  "users/uploadAvatar",
-  async (formData: FormData, { rejectWithValue, dispatch }) => {
+export const uploadAvatar = createAsyncThunk(
+  "user/uploadAvatar",
+  async (formData: FormData, { rejectWithValue }) => {
     try {
-      await apiMethods.post("/users/avatar", formData, {
-        withCredentials: true,
-      });
-      await dispatch(fetchUserProfile());
-      return true;
-    } catch (error: any) {
-      console.error("Upload avatar error:", error, error?.response);
-      return rejectWithValue(
-        error?.response?.data?.message || error.message || "Failed to upload avatar"
+      const response = await apiMethods.upload<UserProfile>(
+        UPDATE_AVATAR_PROFILE_ENDPOINT,
+        formData
       );
+      return response.data.user;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to upload avatar");
+    }
+  }
+);
+
+export const updateProfile = createAsyncThunk(
+  "user/updateProfile",
+  async (data: UpdateProfileData, { rejectWithValue }) => {
+    try {
+      const response = await apiMethods.put<UserProfile>(
+        UPDATE_PROFILE_ENDPOINT,
+        data
+      );
+      return response.data.user;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to update profile");
     }
   }
 );
@@ -70,14 +94,27 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(uploadUserAvatar.pending, (state) => {
+      .addCase(uploadAvatar.pending, (state) => {
+        state.avatarUploading = true;
+        state.error = null;
+      })
+      .addCase(uploadAvatar.fulfilled, (state, action) => {
+        state.avatarUploading = false;
+        state.profile = action.payload;
+      })
+      .addCase(uploadAvatar.rejected, (state, action) => {
+        state.avatarUploading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(updateProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(uploadUserAvatar.fulfilled, (state) => {
+      .addCase(updateProfile.fulfilled, (state, action) => {
         state.loading = false;
+        state.profile = action.payload;
       })
-      .addCase(uploadUserAvatar.rejected, (state, action) => {
+      .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
