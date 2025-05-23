@@ -23,7 +23,7 @@ export interface ILesson {
   type: string;
   topic: ITopicDetail;
   level: ILevel | null;
-  skill: ISkill;
+  skills: ISkill[];
   maxScore: number;
   timeLimit: number;
   questions: IQuestion[];
@@ -68,9 +68,12 @@ export interface IQuestion {
   _id: string;
   lessonId: string;
   content: string;
+  type: string;
+  skill: string;
   options: string[];
   correctAnswer: string;
   score: number;
+  audioContent?: string;
   createdAt: string;
   __v: number;
 }

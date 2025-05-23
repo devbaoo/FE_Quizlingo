@@ -259,12 +259,11 @@ const ProfilePage = () => {
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="relative group">
+                                        <div className="relative">
                                             <h2 className="text-xl sm:text-2xl font-bold text-gray-800 font-baloo inline-flex items-center gap-2">
                                                 {profile.firstName} {profile.lastName}
                                                 <button
                                                     onClick={handleNameEdit}
-                                                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                                                 >
                                                     <FaEdit className="text-blue-500 hover:text-blue-600" />
                                                 </button>
