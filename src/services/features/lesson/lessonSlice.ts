@@ -10,8 +10,8 @@ import {
   ILesson,
   QuestionResult,
   ILessonResponse,
-  ServerProgress,
-  ServerUserProgress,
+  LessonProgress,
+  UserProgress,
 } from "@/interfaces/ILesson";
 import { message as antMessage } from "antd";
 
@@ -20,8 +20,8 @@ interface LessonState {
   currentLesson: ILesson | null;
   loading: boolean;
   error: string | null;
-  progress: ServerProgress | null;
-  userProgress: ServerUserProgress | null;
+  progress: LessonProgress | null;
+  userProgress: UserProgress | null;
   status: string | null;
   pagination: {
     currentPage: number;
@@ -78,7 +78,7 @@ export const fetchLessonById = createAsyncThunk<
 });
 
 export const completeLesson = createAsyncThunk<
-  { progress: ServerProgress; user: ServerUserProgress; status: string },
+  { progress: LessonProgress; user: UserProgress; status: string },
   {
     lessonId: string;
     score: number;
