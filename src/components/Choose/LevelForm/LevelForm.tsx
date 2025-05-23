@@ -61,7 +61,7 @@ const LevelForm = () => {
         </div>
 
         {/* Levels Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full max-w-4xl">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-4xl">
           {levels.map((level, index) => {
             const isSelected = selectedIndex === index;
             return (

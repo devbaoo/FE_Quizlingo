@@ -5,13 +5,13 @@ import {
   GET_LESSON_BY_ID_ENDPOINT,
   COMPLETE_LESSON_ENDPOINT,
   RETRY_LESSON_ENDPOINT,
-  GET_CHECK_COMPLETED_LESSON_ENDPOINT,
 } from "@/services/constant/apiConfig";
 import {
   ILesson,
   LessonProgress,
   UserProgress,
   QuestionResult,
+  ILessonResponse,
 } from "@/interfaces/ILesson";
 import { message as antMessage } from "antd";
 
@@ -23,7 +23,12 @@ interface LessonState {
   progress: LessonProgress | null;
   userProgress: UserProgress | null;
   status: string | null;
-  completedLessons: { [key: string]: boolean };
+  pagination: {
+    currentPage: number;
+    pageSize: number;
+    totalTopics: number;
+    totalPages: number;
+  } | null;
 }
 
 const initialState: LessonState = {
@@ -34,23 +39,28 @@ const initialState: LessonState = {
   progress: null,
   userProgress: null,
   status: null,
-  completedLessons: {},
+  pagination: null,
 };
 
 export const fetchLessons = createAsyncThunk<
-  { lessons: ILesson[] },
-  void,
+  ILessonResponse,
+  { page?: number; limit?: number },
   { rejectValue: { message: string } }
->("lesson/fetchLessons", async (_, { rejectWithValue }) => {
-  try {
-    const response = await axiosInstance.get(GET_LESSONS_ENDPOINT);
-    return response.data;
-  } catch (err: unknown) {
-    const error = err as ApiError;
-    const message = error.message || "Failed to fetch lessons";
-    return rejectWithValue({ message });
+>(
+  "lesson/fetchLessons",
+  async ({ page = 1, limit = 3 }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `${GET_LESSONS_ENDPOINT}?page=${page}&limit=${limit}`
+      );
+      return response.data;
+    } catch (err: unknown) {
+      const error = err as ApiError;
+      const message = error.message || "Failed to fetch lessons";
+      return rejectWithValue({ message });
+    }
   }
-});
+);
 
 export const fetchLessonById = createAsyncThunk<
   { lesson: ILesson },
@@ -108,23 +118,6 @@ export const retryLesson = createAsyncThunk<
   }
 });
 
-export const checkLessonCompletion = createAsyncThunk<
-  { completed: boolean; progress: LessonProgress },
-  string,
-  { rejectValue: { message: string } }
->("lesson/checkCompletion", async (lessonId, { rejectWithValue }) => {
-  try {
-    const response = await axiosInstance.get(
-      GET_CHECK_COMPLETED_LESSON_ENDPOINT(lessonId)
-    );
-    return response.data;
-  } catch (err: unknown) {
-    const error = err as ApiError;
-    const message = error.message || "Failed to check lesson completion";
-    return rejectWithValue({ message });
-  }
-});
-
 const lessonSlice = createSlice({
   name: "lesson",
   initialState,
@@ -144,7 +137,8 @@ const lessonSlice = createSlice({
       })
       .addCase(fetchLessons.fulfilled, (state, action) => {
         state.loading = false;
-        state.lessons = action.payload.lessons;
+        state.lessons = action.payload.topics.flatMap((topic) => topic.lessons);
+        state.pagination = action.payload.pagination;
         state.error = null;
       })
       .addCase(fetchLessons.rejected, (state, action) => {
@@ -194,22 +188,6 @@ const lessonSlice = createSlice({
       .addCase(retryLesson.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Failed to retry lesson";
-      })
-      // Check Lesson Completion
-      .addCase(checkLessonCompletion.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(checkLessonCompletion.fulfilled, (state, action) => {
-        state.loading = false;
-        if (!state.completedLessons) state.completedLessons = {};
-        state.completedLessons[action.meta.arg] = action.payload.completed;
-        state.error = null;
-      })
-      .addCase(checkLessonCompletion.rejected, (state, action) => {
-        state.loading = false;
-        state.error =
-          action.payload?.message || "Failed to check lesson completion";
       });
   },
 });
