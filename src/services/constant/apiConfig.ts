@@ -1,4 +1,4 @@
-export const BASE_URL = "http://localhost:8080/api";
+export const BASE_URL = "https://quizlingo-mb7fv.ondigitalocean.app/api";
 
 export const LOGIN_ENDPOINT = `${BASE_URL}/auth/login`;
 export const REGISTER_ENDPOINT = `${BASE_URL}/auth/register`;
@@ -31,9 +31,11 @@ export const NOTIFICATIONS_ALL_ENDPOINT = `${BASE_URL}/admin/notifications/all`;
 
 //package
 export const GET_PACKAGES_ENDPOINT = `${BASE_URL}/admin/packages`;
-export const DELETE_PACKAGES_ENDPOINT = (id: string) => `${BASE_URL}/admin/packages/${id}`;
+export const DELETE_PACKAGES_ENDPOINT = (id: string) =>
+  `${BASE_URL}/admin/packages/${id}`;
 export const CREATE_PACKAGES_ENDPOINT = `${BASE_URL}/admin/packages`;
-export const UPDATE_PACKAGES_ENDPOINT = (id: string) => `${BASE_URL}/admin/packages/${id}`;
+export const UPDATE_PACKAGES_ENDPOINT = (id: string) =>
+  `${BASE_URL}/admin/packages/${id}`;
 
 //topic
 export const GET_TOPICS_ENDPOINT = `${BASE_URL}/topics`;
