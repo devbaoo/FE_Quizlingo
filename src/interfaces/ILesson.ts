@@ -1,7 +1,20 @@
 export interface ILessonResponse {
   success: boolean;
   message: string;
-  lesson: ILesson;
+  topics: ITopicWithLessons[];
+  pagination: IPagination;
+}
+
+export interface ITopicWithLessons {
+  topic: ITopicDetail;
+  lessons: ILesson[];
+}
+
+export interface IPagination {
+  currentPage: number;
+  pageSize: number;
+  totalTopics: number;
+  totalPages: number;
 }
 
 export interface ILesson {
@@ -9,14 +22,13 @@ export interface ILesson {
   title: string;
   type: string;
   topic: ITopicDetail;
-  level: ILevel;
+  level: ILevel | null;
   skill: ISkill;
   maxScore: number;
   timeLimit: number;
   questions: IQuestion[];
-  isActive: boolean;
   createdAt: string;
-  __v: number;
+  status: "COMPLETE" | "LOCKED";
 }
 
 export interface ITopicDetail {
