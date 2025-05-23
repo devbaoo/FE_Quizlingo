@@ -15,7 +15,7 @@ import skillReducer from "../features/skill/skillSlice";
 const presistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "user", "lesson", "topic", "admin"],
+  whitelist: ["auth", "user", "lesson", "topic", "admin", "level", "skill"],
 };
 
 // Create a hook for using TypedUseSelectorHook

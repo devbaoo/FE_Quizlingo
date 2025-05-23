@@ -53,6 +53,8 @@ export const CREATE_SKILL_ENDPOINT = `${BASE_URL}/skills`;
 export const UPDATE_SKILL_ENDPOINT = (id: string) => `${BASE_URL}/skills/${id}`;
 export const DELETE_SKILL_ENDPOINT = (id: string) => `${BASE_URL}/skills/${id}`;
 
-
 //level
 export const GET_LEVELS_ENDPOINT = `${BASE_URL}/levels`;
+export const CREATE_LEVEL_ENDPOINT = `${BASE_URL}/levels`;
+export const UPDATE_LEVEL_ENDPOINT = (id: string) => `${BASE_URL}/levels/${id}`;
+export const DELETE_LEVEL_ENDPOINT = (id: string) => `${BASE_URL}/levels/${id}`;

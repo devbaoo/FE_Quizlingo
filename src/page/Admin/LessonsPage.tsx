@@ -33,7 +33,7 @@ const LessonsPage = () => {
     total: 0,
   });
 
-  const fetchLessons = async (page = 1, limit = 5) => {
+  const fetchLessons = async (page = 1, limit = 10) => {
     try {
       setLoading(true);
       const response = await apiMethods.get(
