@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
-import { fetchUserProfile } from "@/services/features/user/userSlice";
+import { fetchUserProfile, uploadUserAvatar } from "@/services/features/user/userSlice";
 import Sidebar from "@/components/Layout/SidebarUser";
 import { FaPlus, FaMedal, FaStar, FaBullseye, FaUserGraduate, FaHeart } from "react-icons/fa";
 import { TbVocabulary } from "react-icons/tb";
@@ -24,17 +24,10 @@ const ProfilePage = () => {
             formData.append("avatar", file);
 
             try {
-                const res = await fetch("/api/users/avatar", {
-                    method: "POST",
-                    body: formData,
-                    credentials: "include",
-                });
-                if (!res.ok) {
-                    const errText = await res.text();
-                    alert("Upload avatar failed: " + errText);
-                    return;
+                const resultAction = await dispatch(uploadUserAvatar(formData));
+                if (uploadUserAvatar.rejected.match(resultAction)) {
+                    alert("Upload avatar failed: " + (resultAction.payload || "Unknown error"));
                 }
-                dispatch(fetchUserProfile());
             } catch (err) {
                 alert("Lỗi khi upload avatar: " + err);
             }
