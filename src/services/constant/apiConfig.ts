@@ -29,6 +29,8 @@ export const DELETE_USER_ENDPOINT = (id: string) => `${BASE_URL}/users/${id}`;
 
 export const NOTIFICATIONS_ALL_ENDPOINT = `${BASE_URL}/admin/notifications/all`;
 
+export const GET_ALL_LESSONS_ENDPOINT = `${BASE_URL}/admin/lessons`;
+
 //package
 export const GET_PACKAGES_ENDPOINT = `${BASE_URL}/admin/packages`;
 export const DELETE_PACKAGES_ENDPOINT = (id: string) =>
