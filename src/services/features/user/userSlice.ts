@@ -29,6 +29,24 @@ export const fetchUserProfile = createAsyncThunk(
   }
 );
 
+export const uploadUserAvatar = createAsyncThunk(
+  "users/uploadAvatar",
+  async (formData: FormData, { rejectWithValue, dispatch }) => {
+    try {
+      await apiMethods.post("/users/avatar", formData, {
+        withCredentials: true,
+      });
+      await dispatch(fetchUserProfile());
+      return true;
+    } catch (error: any) {
+      console.error("Upload avatar error:", error, error?.response);
+      return rejectWithValue(
+        error?.response?.data?.message || error.message || "Failed to upload avatar"
+      );
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -49,6 +67,17 @@ const userSlice = createSlice({
         state.profile = action.payload;
       })
       .addCase(fetchUserProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(uploadUserAvatar.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(uploadUserAvatar.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(uploadUserAvatar.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
