@@ -8,14 +8,15 @@ import { useEffect, useState } from "react";
 import { fetchUserProfile } from "@/services/features/user/userSlice";
 import { useAppDispatch } from "@/services/store/store";
 import ChangePasswordModal from "@/components/Modal/ChangePasswordModal";
-import { FaFire, FaHeart } from "react-icons/fa";
+import { FaFire, FaHeart, FaCrown } from "react-icons/fa";
+import NotificationButton from "@/components/Notification/NotificationButton";
 
 function getStreakColor(streak: number) {
-  if (streak >= 200) return "#b16cff";      // tím
-  if (streak >= 100) return "#ff5ecb";      // hồng
-  if (streak >= 30) return "#ff4e4e";      // đỏ
-  if (streak >= 10) return "#ff9900";      // cam đậm
-  if (streak >= 3) return "#ffb300";      // cam nhạt
+  if (streak >= 25) return "#b16cff";      // tím
+  if (streak >= 15) return "#ff5ecb";      // hồng
+  if (streak >= 8) return "#ff4e4e";      // đ
+  if (streak >= 5) return "#ff9900";      // cam đậm
+  if (streak >= 2) return "#ffb300";      // cam nhạt
   return "#bdbdbd";                         // xám (chưa có streak)
 }
 
@@ -87,7 +88,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white shadow-md p-4 flex justify-between items-center">
+      <header className="sticky top-0 z-50 bg-white shadow-md p-4 flex justify-between items-center font-baloo">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleNavigation("/")}>
           <Typography.Title level={2} style={{ margin: 0, color: "#1677ff" }} className="font-baloo">
             Quizlingo
@@ -121,13 +122,28 @@ const Header = () => {
                 </div>
               </div>
 
+              <NotificationButton />
+
               <Dropdown menu={{ items }} placement="bottomRight">
-                <div className="flex items-center gap-2 cursor-pointer">
-                  <Avatar
-                    src={userProfile?.avatar || "https://api.dicebear.com/6.x/fun-emoji/svg?seed=" + userProfile?.firstName}
-                    alt={userProfile?.firstName}
-                  />
-                  <span className="font-baloo hidden md:inline">Hi, {userProfile?.firstName} {userProfile?.lastName}</span>
+                <div className="flex items-center gap-2 cursor-pointer group">
+                  <div className="relative">
+                    <Avatar
+                      src={userProfile?.avatar || "https://api.dicebear.com/6.x/fun-emoji/svg?seed=" + userProfile?.firstName}
+                      alt={userProfile?.firstName}
+                      className="w-10 h-10 border-2 border-gray-200 group-hover:border-blue-400 transition-all duration-300"
+                    />
+                    {userProfile?.activePackage && (
+                      <div className="absolute -top-3 -right-0.5 transform rotate-12">
+                        <span className="inline-flex items-center gap-0.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-1 py-[1px] rounded-full text-[10px] font-bold shadow-sm">
+                          <FaCrown className="text-yellow-300 text-[8px]" />
+                          <span>VIP</span>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="font-baloo hidden md:inline text-gray-700 group-hover:text-blue-600 transition-colors duration-300">
+                    Hi, <span className="font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">{userProfile?.firstName} {userProfile?.lastName}</span>
+                  </span>
                 </div>
               </Dropdown>
             </>
