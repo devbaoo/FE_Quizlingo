@@ -34,6 +34,7 @@ import AdminPackage from "@/page/Admin/AdminPackage";
 import NotificationSettings from "@/page/User/NotificationSetting";
 
 import NotificationsAllPage from "@/page/Admin/NotificationsAllPage";
+import Rank from "@/page/User/Rank";
 
 
 const AppRouter = () => {
@@ -77,6 +78,7 @@ const AppRouter = () => {
                     <Route path="/lesson/submit" element={<LessonSubmitPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/setting" element={<NotificationSettings />} />
+                    <Route path="/rank" element={<Rank />} />
                 </Route>
 
                 {/* Choose Process Routes */}
