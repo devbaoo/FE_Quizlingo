@@ -84,25 +84,6 @@ const NotificationsAllPage = () => {
               placeholder="Nội dung thông báo..."
             />
           </Form.Item>
-
-          <Form.Item
-            label="Loại thông báo"
-            name="type"
-            rules={[
-              { required: true, message: "Vui lòng nhập loại thông báo!" },
-            ]}
-          >
-            <Input placeholder="Ví dụ: system" />
-          </Form.Item>
-
-          <Form.Item
-            label="Liên kết"
-            name="link"
-            normalize={(value) => (value === "" ? null : value)}
-          >
-            <Input placeholder="Ví dụ: /home" />
-          </Form.Item>
-
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
               Gửi thông báo
