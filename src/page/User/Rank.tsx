@@ -189,7 +189,7 @@ const Rank: React.FC = () => {
                                         marginTop: 2,
                                         opacity: 0.8
                                     }}>
-                                        {orderIdx === 0 ? "2nd" : orderIdx === 1 ? "1st" : "3rd"}
+                                        {orderIdx === 0 ? "1st" : orderIdx === 1 ? "2nd" : "3rd"}
                                     </div>
                                 </div>
                             );
