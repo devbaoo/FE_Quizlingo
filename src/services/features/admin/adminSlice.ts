@@ -1,3 +1,4 @@
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiMethods } from "@/services/constant/axiosInstance";
 import {
@@ -9,7 +10,11 @@ import {
   CREATE_PACKAGES_ENDPOINT,
 } from "@/services/constant/apiConfig";
 import { ApiError } from "@/services/constant/axiosInstance";
-import { IAdmin, IPackage, IPackageUpdateCreate } from "@/interfaces/IAdmin";
+import {
+  IAdmin,
+  IPackage,
+  IPackageUpdateCreate,
+} from "@/interfaces/IAdmin";
 
 interface UsersResponse {
   success: boolean;
@@ -113,7 +118,6 @@ export const createPackage = createAsyncThunk(
   }
 );
 
-
 export const updatePackage = createAsyncThunk(
   "admin/updatePackage",
   async (
@@ -145,7 +149,6 @@ const adminSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch Users
       .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -161,7 +164,6 @@ const adminSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      // Delete User
       .addCase(deleteUser.pending, (state) => {
         state.loading = true;
         state.error = null;
