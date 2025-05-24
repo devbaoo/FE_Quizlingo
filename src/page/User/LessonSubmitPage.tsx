@@ -185,14 +185,18 @@ const LessonSubmitPage = () => {
 
                         <div className="bg-gray-50 p-4 sm:p-6 rounded-lg sm:rounded-xl">
                             <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base font-baloo">Question Results</h3>
+                            <p className="text-gray-600 mb-4 text-sm">Click on each question to view your answer and feedback</p>
                             <div className="space-y-3 sm:space-y-4">
                                 {serverResults?.progress?.questionResults?.map((result, index) => (
-                                    <div key={result.questionId} className="bg-white rounded-lg overflow-hidden">
+                                    <div key={result.questionId} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                                         <div
                                             className="flex items-center justify-between p-3 sm:p-4 cursor-pointer hover:bg-gray-50"
                                             onClick={() => toggleQuestion(result.questionId)}
                                         >
-                                            <span className="font-medium font-baloo">Question {index + 1}</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-medium font-baloo">Question {index + 1}</span>
+                                                <span className="text-sm text-gray-500">(Click to {expandedQuestions[result.questionId] ? 'hide' : 'view'} details)</span>
+                                            </div>
                                             <div className="flex items-center gap-2">
                                                 {result.score >= 50 ? (
                                                     <div className="w-7 h-7 flex items-center justify-center">
