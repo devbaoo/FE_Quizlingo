@@ -11,8 +11,6 @@ export interface IAdmin {
 export interface INoticationAll {
   title: string;
   message: string;
-  type: string;
-  link: string;
 }
 
 export interface IPackageFeature {
