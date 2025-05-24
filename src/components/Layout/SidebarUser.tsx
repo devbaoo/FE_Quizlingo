@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "@/services/features/auth/authSlice";
 import { Link } from "react-router-dom";
-import { SettingOutlined } from "@ant-design/icons";
+import { SettingOutlined, TrophyOutlined } from "@ant-design/icons";
 
 const menuItems = [
     {
@@ -11,7 +11,11 @@ const menuItems = [
         label: "Học",
         href: "/learn",
     },
-
+    {
+        iconElement: <TrophyOutlined style={{ fontSize: '24px', color: '#FFD700' }} />,
+        label: "Bảng xếp hạng",
+        href: "/rank",
+    },
     {
         icon: null,
         label: "Hồ sơ",
