@@ -105,3 +105,18 @@ export interface ILessonsResponse {
 }
 
 
+export interface IUserRoleUpdateResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  user: UserManager;
+}
+
+export interface UserManager {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+} 
+
