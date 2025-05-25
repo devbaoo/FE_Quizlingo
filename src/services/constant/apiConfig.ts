@@ -8,6 +8,7 @@ export const RESEND_VERIFICATION_ENDPOINT = `${BASE_URL}/auth/resend-verificatio
 export const FORGOT_PASSWORD_ENDPOINT = `${BASE_URL}/auth/forgot-password`;
 export const RESET_PASSWORD_ENDPOINT = `${BASE_URL}/auth/reset-password`;
 export const CHANGE_PASSWORD_ENDPOINT = `${BASE_URL}/auth/change-password`;
+export const REFRESH_TOKEN_ENDPOINT = `${BASE_URL}/auth/refresh-token`;
 //user
 export const GET_PROFILE_TOKEN_ENDPOINT = `${BASE_URL}/users/profile`;
 export const UPDATE_PROFILE_ENDPOINT = `${BASE_URL}/users/profile`;
@@ -30,7 +31,8 @@ export const GET_USERS_ENDPOINT = `${BASE_URL}/users`;
 export const DELETE_USER_ENDPOINT = (id: string) => `${BASE_URL}/users/${id}`;
 export const NOTIFICATIONS_ALL_ENDPOINT = `${BASE_URL}/admin/notifications/all`;
 export const GET_ALL_LESSONS_ENDPOINT = `${BASE_URL}/admin/lessons`;
-export const UPDATE_USER_ROLE_ENDPOINT = (id: string) => `${BASE_URL}/users/${id}/role`;
+export const UPDATE_USER_ROLE_ENDPOINT = (id: string) =>
+  `${BASE_URL}/users/${id}/role`;
 
 //package
 export const GET_PACKAGES_ENDPOINT = `${BASE_URL}/admin/packages`;

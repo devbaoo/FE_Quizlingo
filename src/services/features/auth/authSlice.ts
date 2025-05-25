@@ -10,13 +10,13 @@ import {
   RESEND_VERIFICATION_ENDPOINT,
   RESET_PASSWORD_ENDPOINT,
   CHANGE_PASSWORD_ENDPOINT,
+  REFRESH_TOKEN_ENDPOINT,
 } from "@/services/constant/apiConfig";
-
-const AVATAR_STORAGE_KEY = "quizlingo_user_avatar";
 
 export interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
@@ -25,6 +25,7 @@ export interface AuthState {
 const initialState: AuthState = {
   user: null,
   token: null,
+  refreshToken: null,
   isAuthenticated: false,
   loading: false,
   error: null,
@@ -185,6 +186,23 @@ export const changePassword = createAsyncThunk<
   }
 });
 
+export const refreshToken = createAsyncThunk<
+  { accessToken: string; refreshToken: string },
+  string,
+  { rejectValue: { message: string } }
+>("auth/refreshToken", async (refreshToken, { rejectWithValue }) => {
+  try {
+    const response = await axiosInstance.post(REFRESH_TOKEN_ENDPOINT, {
+      refreshToken,
+    });
+    return response.data;
+  } catch (err: unknown) {
+    const error = err as ApiError;
+    const message = error.message || "Làm mới token thất bại";
+    return rejectWithValue({ message });
+  }
+});
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -192,9 +210,11 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
+      state.refreshToken = null;
       state.isAuthenticated = false;
       state.error = null;
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
     },
     setAvatar: (state, action) => {
       if (state.user) {
@@ -211,15 +231,12 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
         state.isAuthenticated = true;
         state.error = null;
-        localStorage.setItem("token", action.payload.token);
-
-        const savedAvatar = localStorage.getItem(AVATAR_STORAGE_KEY);
-        if (savedAvatar && state.user) {
-          state.user.avatar = savedAvatar;
-        }
+        localStorage.setItem("token", action.payload.accessToken);
+        localStorage.setItem("refreshToken", action.payload.refreshToken);
 
         message.success(action.payload.message);
       })
@@ -339,6 +356,24 @@ const authSlice = createSlice({
       .addCase(changePassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload?.message || "Đổi mật khẩu thất bại";
+        message.error(state.error);
+      })
+      // Add refresh token cases
+      .addCase(refreshToken.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(refreshToken.fulfilled, (state, action) => {
+        state.loading = false;
+        state.token = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
+        state.error = null;
+        localStorage.setItem("token", action.payload.accessToken);
+        localStorage.setItem("refreshToken", action.payload.refreshToken);
+      })
+      .addCase(refreshToken.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Làm mới token thất bại";
         message.error(state.error);
       });
   },
