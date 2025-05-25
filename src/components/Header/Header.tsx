@@ -63,7 +63,7 @@ const Header = () => {
     try {
       await dispatch(changePassword({ oldPassword, newPassword, confirmPassword })).unwrap();
       setIsPasswordModalOpen(false);
-    } catch (error) {
+    } catch {
       // Error is handled in the slice
     }
   };

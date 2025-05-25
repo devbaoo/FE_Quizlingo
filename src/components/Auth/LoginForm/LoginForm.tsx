@@ -40,6 +40,8 @@ const LoginForm = () => {
                     setTimeout(() => {
                         if (result.user?.role === "admin") {
                             navigate("/admin");
+                        } else if (result.user?.role === "staff") {
+                            navigate("/staff");
                         } else {
                             // Check if user needs to complete profile setup
                             if (!profileResult.level || !profileResult.preferredSkills || profileResult.preferredSkills.length === 0) {

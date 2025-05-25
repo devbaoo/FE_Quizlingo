@@ -22,6 +22,8 @@ const LoginPage = ({ isRegister = false }: LoginPageProps) => {
         if (isAuthenticated) {
             if (user?.role === "admin") {
                 navigate("/admin", { replace: true });
+            } else if (user?.role === "staff") {
+                navigate("/staff", { replace: true });
             } else {
                 navigate("/home", { replace: true });
             }
