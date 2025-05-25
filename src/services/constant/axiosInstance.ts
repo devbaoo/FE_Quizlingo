@@ -6,6 +6,8 @@ import axios, {
 } from "axios";
 import { BASE_URL } from "./apiConfig";
 import { message } from "antd";
+import { store } from "../store/store";
+import { refreshToken } from "../features/auth/authSlice";
 
 // ========================
 // Type Definitions
@@ -27,10 +29,12 @@ export interface ApiError {
 // Token Helpers
 // ========================
 const getToken = (): string | null => localStorage.getItem("token");
+const getRefreshToken = (): string | null =>
+  localStorage.getItem("refreshToken");
 const removeToken = (): void => {
-  // Remove all auth related data
+  // Remove only auth related data
   localStorage.removeItem("token");
-  localStorage.removeItem("user");
+  localStorage.removeItem("refreshToken");
   localStorage.removeItem("persist:root");
 
   // Clear any pending requests
@@ -48,6 +52,62 @@ const axiosInstance: AxiosInstance = axios.create({
     Accept: "application/json",
   },
 });
+
+// Flag to prevent multiple refresh token requests
+let isRefreshing = false;
+let refreshTimeout: NodeJS.Timeout | null = null;
+const REFRESH_TIMEOUT = 10000; // 10 seconds timeout for refresh
+
+// Store pending requests
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown = null, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+// Clear refresh timeout
+const clearRefreshTimeout = () => {
+  if (refreshTimeout) {
+    clearTimeout(refreshTimeout);
+    refreshTimeout = null;
+  }
+};
+
+// Add token expiration check
+const checkTokenExpiration = () => {
+  const token = getToken();
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const expirationTime = payload.exp * 1000; // Convert to milliseconds
+      const currentTime = Date.now();
+      const timeUntilExpiration = expirationTime - currentTime;
+
+      // If token will expire in less than 5 minutes, refresh it
+      if (timeUntilExpiration < 5 * 60 * 1000) {
+        const refreshTokenValue = getRefreshToken();
+        if (refreshTokenValue) {
+          store.dispatch(refreshToken(refreshTokenValue));
+        }
+      }
+    } catch (error) {
+      console.error("Error checking token expiration:", error);
+    }
+  }
+};
+
+// Check token expiration every minute
+setInterval(checkTokenExpiration, 60 * 1000);
 
 // ========================
 // Request Interceptor
@@ -85,21 +145,82 @@ axiosInstance.interceptors.response.use(
 
     return response;
   },
-  (error: AxiosError) => {
-    console.error("API Error:", error);
+  async (error: AxiosError) => {
+    const originalRequest = error.config;
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
 
     // Handle 401: Unauthorized
     if (error.response?.status === 401) {
-      removeToken();
-      message.error(
-        "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại."
-      );
-      // Add small delay before redirect to show message
-      setTimeout(() => {
-        if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
+      if (!isRefreshing) {
+        isRefreshing = true;
+        const refreshTokenValue = getRefreshToken();
+
+        if (!refreshTokenValue) {
+          removeToken();
+          message.error(
+            "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại."
+          );
+          setTimeout(() => {
+            if (window.location.pathname !== "/login") {
+              window.location.href = "/login";
+            }
+          }, 1500);
+          return Promise.reject(error);
         }
-      }, 1500);
+
+        // Set timeout for refresh token request
+        refreshTimeout = setTimeout(() => {
+          isRefreshing = false;
+          clearRefreshTimeout();
+          processQueue(new Error("Refresh token request timeout"), null);
+          removeToken();
+          message.error(
+            "Yêu cầu làm mới token quá thời gian. Vui lòng đăng nhập lại."
+          );
+          if (window.location.pathname !== "/login") {
+            window.location.href = "/login";
+          }
+        }, REFRESH_TIMEOUT);
+
+        try {
+          const result = await store
+            .dispatch(refreshToken(refreshTokenValue))
+            .unwrap();
+          clearRefreshTimeout();
+          isRefreshing = false;
+          processQueue(null, result.accessToken);
+          return axiosInstance(originalRequest);
+        } catch (refreshError) {
+          clearRefreshTimeout();
+          processQueue(refreshError, null);
+          removeToken();
+          message.error(
+            "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại."
+          );
+          setTimeout(() => {
+            if (window.location.pathname !== "/login") {
+              window.location.href = "/login";
+            }
+          }, 1500);
+          return Promise.reject(refreshError);
+        }
+      } else {
+        // If token refresh is in progress, add request to queue
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            return axiosInstance(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
     }
 
     return Promise.reject({
