@@ -32,10 +32,9 @@ import SpeakingLessonPage from "@/page/Admin/SpeakingLessonPage";
 import TopicsLesson from "@/page/Admin/TopicsLesson";
 import AdminPackage from "@/page/Admin/AdminPackage";
 import NotificationSettings from "@/page/User/NotificationSetting";
-
 import NotificationsAllPage from "@/page/Admin/NotificationsAllPage";
 import Rank from "@/page/User/Rank";
-
+import StaffDashboard from "@/page/Staff/StaffDashboard";
 
 const AppRouter = () => {
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -47,6 +46,9 @@ const AppRouter = () => {
         }
         if (user?.role === "admin") {
             return "/admin";
+        }
+        if (user?.role === "staff") {
+            return "/staff";
         }
         return "/learn";
     };
@@ -100,6 +102,13 @@ const AppRouter = () => {
                     <Route path="lesson/create" element={<LessonsPage />} />
                     <Route path="lesson/levels" element={<LevelsPage />} />
                     <Route path="lesson/speaking" element={<SpeakingLessonPage />} />
+                </Route>
+            </Route>
+
+            {/* Staff Routes - Only accessible when authenticated as staff */}
+            <Route element={<ProtectedRoute allowedRoles={["staff"]} />}>
+                <Route path="/staff" element={<AdminLayout />}>
+                    <Route index element={<StaffDashboard />} />
                 </Route>
             </Route>
 
