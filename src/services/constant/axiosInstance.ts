@@ -57,6 +57,8 @@ const axiosInstance: AxiosInstance = axios.create({
 let isRefreshing = false;
 let refreshTimeout: NodeJS.Timeout | null = null;
 const REFRESH_TIMEOUT = 10000; // 10 seconds timeout for refresh
+const MAX_RETRIES = 3;
+let retryCount = 0;
 
 // Store pending requests
 let failedQueue: Array<{
@@ -84,7 +86,7 @@ const clearRefreshTimeout = () => {
 };
 
 // Add token expiration check
-const checkTokenExpiration = () => {
+const checkTokenExpiration = async () => {
   const token = getToken();
   if (token) {
     try {
@@ -97,11 +99,36 @@ const checkTokenExpiration = () => {
       if (timeUntilExpiration < 5 * 60 * 1000) {
         const refreshTokenValue = getRefreshToken();
         if (refreshTokenValue) {
-          store.dispatch(refreshToken(refreshTokenValue));
+          try {
+            await store.dispatch(refreshToken(refreshTokenValue)).unwrap();
+            retryCount = 0; // Reset retry count on success
+          } catch (error) {
+            console.error("Error refreshing token:", error);
+            if (retryCount < MAX_RETRIES) {
+              retryCount++;
+              setTimeout(checkTokenExpiration, 5000); // Retry after 5 seconds
+            } else {
+              // After max retries, logout user
+              removeToken();
+              message.error(
+                "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại."
+              );
+              if (window.location.pathname !== "/login") {
+                window.location.href = "/login";
+              }
+            }
+          }
         }
       }
     } catch (error) {
       console.error("Error checking token expiration:", error);
+      removeToken();
+      message.error(
+        "Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại."
+      );
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
   }
 };
