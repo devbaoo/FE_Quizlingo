@@ -1,15 +1,20 @@
 import { useState } from 'react';
 import { Layout, Menu, Button } from 'antd';
 import {
-  DashboardOutlined,
   
-  TeamOutlined,
+ 
+  
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
- 
-  BellOutlined,
-  GiftOutlined,
+  ReadOutlined,
+  
+  TagsOutlined,
+  BulbOutlined,
+  RiseOutlined,
+  DashboardOutlined,
+  
+  
 } from '@ant-design/icons';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -17,7 +22,7 @@ import { logout } from '@/services/features/auth/authSlice';
 
 const { Sider } = Layout;
 
-const Sidebar = () => {
+const SidebarStaff = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const navigate = useNavigate();
@@ -64,7 +69,7 @@ const Sidebar = () => {
         />
         {!collapsed && (
           <div style={{ fontSize: 20, fontWeight: 'bold', color: 'white', fontFamily: "'Baloo 2', cursive" }}>
-            Quizlingo
+            Quizlingo Staff
           </div>
         )}
       </div>
@@ -83,25 +88,31 @@ const Sidebar = () => {
             fontFamily: "'Baloo 2', cursive"
           }}
         >
-          <Menu.Item key="/admin" icon={<DashboardOutlined />}>
-            <Link to="/admin">Dashboard</Link>
+            <Menu.Item key="/staff" icon={<DashboardOutlined />}>
+            <Link to="/staff">Dashboard</Link>
           </Menu.Item>
 
           
-
-          <Menu.Item key="/admin/users" icon={<TeamOutlined />}>
-            <Link to="/admin/users">Manage User</Link>
-          </Menu.Item>
-
-          <Menu.SubMenu key="notifications" icon={<BellOutlined />} title={<span>Manage Notification</span>}>
-            <Menu.Item key="/admin/notifications/all" icon={<TeamOutlined />}>
-              <Link to="/admin/notifications/all">All User</Link>
+            <Menu.Item key="/staff/topics" icon={<TagsOutlined />}>
+              <Link to="/staff/topics">Topics</Link>
             </Menu.Item>
-          </Menu.SubMenu>
+            <Menu.Item key="/staff/skills" icon={<BulbOutlined />}>
+              <Link to="/staff/skills">Skills</Link>
+            </Menu.Item>
+            <Menu.Item key="/staff/lesson" icon={<ReadOutlined />}>
+              <Link to="/staff/lesson">Lesson</Link>
+            </Menu.Item>
+            <Menu.Item key="/staff/levels" icon={<RiseOutlined />}>
+              <Link to="/staff/levels">Levels</Link>
+            </Menu.Item>
+            {/* <Menu.Item key="/staff/speaking" icon={<AudioOutlined />}>
+              <Link to="/staff/speaking">Speaking</Link>
+            </Menu.Item> */}
+          
 
-          <Menu.Item key="/admin/packages" icon={<GiftOutlined />}>
-            <Link to="/admin/packages">Manage Package</Link>
-          </Menu.Item>
+          
+
+          
         </Menu>
       </div>
 
@@ -126,4 +137,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default SidebarStaff;
