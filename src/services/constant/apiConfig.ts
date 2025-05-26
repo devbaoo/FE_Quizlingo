@@ -67,3 +67,6 @@ export const SETTING_NOTIFICATIONS_ENDPOINT = `${BASE_URL}/notifications/setting
 export const READ_A_NOTIFICATION_ENDPOINT = (id: string) =>
   `${BASE_URL}/notifications/${id}/read`;
 export const MARK_ALL_NOTIFICATIONS_READ_ENDPOINT = `${BASE_URL}/notifications/mark-all-read`;
+
+//leaderboard
+export const GET_LEADERBOARD_ENDPOINT = `${BASE_URL}/leaderboard`;
