@@ -64,8 +64,8 @@ const Rank: React.FC = () => {
             <Card
                 style={{
                     margin: 32,
-                    minWidth: 400,
-                    maxWidth: 480,
+                    minWidth: 600,
+                    maxWidth: 800,
                     borderRadius: 24,
                     boxShadow: "0 8px 32px #b4b4b4a0",
                     border: "4px solid #1890ff",
@@ -92,7 +92,7 @@ const Rank: React.FC = () => {
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "flex-end",
-                        gap: 24,
+                        gap: 34,
                         padding: "24px 0 12px 0",
                         background: "linear-gradient(180deg, #fffbe6 60%, #fff 100%)"
                     }}>
@@ -107,7 +107,7 @@ const Rank: React.FC = () => {
                                     display: "flex",
                                     flexDirection: "column",
                                     alignItems: "center",
-                                    width: 90,
+                                    width: 120,
                                     marginBottom: orderIdx === 0 ? 0 : 16,
                                 }}>
                                     <div style={{
@@ -117,7 +117,7 @@ const Rank: React.FC = () => {
                                         <Avatar
                                             src={user.avatar}
                                             icon={!user.avatar && <UserOutlined />}
-                                            size={orderIdx === 0 ? 70 : 56}
+                                            size={orderIdx === 0 ? 80 : 64}
                                             style={{
                                                 border: `3px solid ${COLORS[orderIdx]}`,
                                                 background: !user.avatar ? "#fff7e6" : "#fff",
@@ -137,12 +137,12 @@ const Rank: React.FC = () => {
                                     <div style={{
                                         fontWeight: isCurrent ? 700 : 600,
                                         color: isCurrent ? "#52c41a" : "#333",
-                                        fontSize: orderIdx === 0 ? 17 : 15,
+                                        fontSize: orderIdx === 0 ? 18 : 16,
                                         textAlign: "center",
                                         whiteSpace: "nowrap",
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
-                                        maxWidth: 80
+                                        maxWidth: 110
                                     }}>
                                         {user.firstName} {user.lastName}
                                         {isCurrent && <span style={{
@@ -157,7 +157,7 @@ const Rank: React.FC = () => {
                                     <div style={{
                                         fontWeight: 700,
                                         color: "#b8860b",
-                                        fontSize: 15,
+                                        fontSize: 18,
                                         marginTop: 2,
                                         display: "flex",
                                         alignItems: "center",
@@ -169,7 +169,7 @@ const Rank: React.FC = () => {
                                     <div style={{
                                         fontWeight: 600,
                                         color: "#b8860b",
-                                        fontSize: 13,
+                                        fontSize: 18,
                                         marginTop: 2,
                                         opacity: 0.8
                                     }}>
@@ -183,7 +183,7 @@ const Rank: React.FC = () => {
                     <div style={{
                         maxHeight: 400,
                         overflowY: "auto",
-                        padding: "0 18px 18px 18px"
+                        padding: "0 24px 24px 24px"
                     }}>
                         {others.map((user, idx) => {
                             const isCurrent = getCurrentUserId() === user._id;
@@ -200,23 +200,23 @@ const Rank: React.FC = () => {
                                         margin: "10px 0",
                                         border: isCurrent ? "2.5px solid #52c41a" : "2px solid #fff",
                                         minHeight: 56,
-                                        padding: "6px 12px"
+                                        padding: "6px 16px"
                                     }}
                                 >
                                     <span style={{
                                         fontWeight: 700,
                                         fontSize: 18,
                                         color: "#fff",
-                                        width: 32,
+                                        width: 44,
                                         textAlign: "center"
                                     }}>{idx + 4}.</span>
                                     <Avatar
                                         src={user.avatar}
                                         icon={!user.avatar && <UserOutlined />}
-                                        size={36}
+                                        size={44}
                                         style={{
                                             background: !user.avatar ? "#f56a00" : "#fff",
-                                            marginRight: 12,
+                                            marginRight: 18,
                                             marginLeft: 4,
                                             border: isCurrent ? "2px solid #52c41a" : undefined,
                                         }}
@@ -224,7 +224,7 @@ const Rank: React.FC = () => {
                                     <div style={{ flex: 1 }}>
                                         <div style={{
                                             fontWeight: isCurrent ? 700 : 600,
-                                            fontSize: 15,
+                                            fontSize: 18,
                                             color: isCurrent ? "#52c41a" : "#fff",
                                             display: "flex",
                                             alignItems: "center"
@@ -242,10 +242,10 @@ const Rank: React.FC = () => {
                                     </div>
                                     <div style={{
                                         fontWeight: 700,
-                                        fontSize: 15,
+                                        fontSize: 18,
                                         color: "#ffe066",
                                         marginRight: 8,
-                                        minWidth: 48,
+                                        minWidth: 60,
                                         textAlign: "right",
                                         display: "flex",
                                         alignItems: "center",
