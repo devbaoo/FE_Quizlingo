@@ -115,7 +115,7 @@ const Rank: React.FC = () => {
                                         marginBottom: 6,
                                     }}>
                                         <Avatar
-                                            src={user.avatar}
+                                            src={user.avatar || undefined}
                                             icon={!user.avatar && <UserOutlined />}
                                             size={orderIdx === 0 ? 80 : 64}
                                             style={{
@@ -211,7 +211,7 @@ const Rank: React.FC = () => {
                                         textAlign: "center"
                                     }}>{idx + 4}.</span>
                                     <Avatar
-                                        src={user.avatar}
+                                        src={user.avatar || undefined}
                                         icon={!user.avatar && <UserOutlined />}
                                         size={44}
                                         style={{
