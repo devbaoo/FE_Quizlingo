@@ -307,6 +307,7 @@ const LessonsPage = () => {
                         <Select>
                           <Select.Option value="multiple_choice">Multiple Choice</Select.Option>
                           <Select.Option value="text_input">Text Input</Select.Option>
+                          <Select.Option value="audio_input">Audio Input</Select.Option>
                         </Select>
                       </Form.Item>
 

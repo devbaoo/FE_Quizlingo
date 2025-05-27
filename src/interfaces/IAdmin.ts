@@ -15,7 +15,7 @@ export interface INoticationAll {
 
 export interface IPackageFeature {
   doubleXP: boolean;
-  premiumLessons?: boolean; 
+  premiumLessons?: boolean;
   unlimitedLives: boolean;
 }
 export interface IPackageUpdateCreate {
@@ -36,7 +36,7 @@ export interface IPackage {
   duration: number;
   isActive: boolean;
   discount: number;
-  discountEndDate: string; 
+  discountEndDate: string;
   createdAt: string;
   updatedAt: string;
   features: IPackageFeature;
@@ -85,7 +85,7 @@ export interface IQuestion {
 export interface ILesson {
   _id: string;
   title: string;
-  type: 'multiple_choice' | 'text_input';
+  type: "multiple_choice" | "text_input" | "audio_input";
   topic: ITopic;
   level: ILevel | null;
   skill: ISkill;
@@ -104,7 +104,6 @@ export interface ILessonsResponse {
   limit: number;
 }
 
-
 export interface IUserRoleUpdateResponse {
   success: boolean;
   statusCode: number;
@@ -113,10 +112,9 @@ export interface IUserRoleUpdateResponse {
 }
 
 export interface UserManager {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-} 
-
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}

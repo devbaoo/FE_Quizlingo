@@ -68,7 +68,7 @@ export interface IQuestion {
   _id: string;
   lessonId: string;
   content: string;
-  type: "multiple_choice" | "text_input";
+  type: "multiple_choice" | "text_input" | "audio_input";
   skill: string;
   options: string[];
   correctAnswer?: string;
