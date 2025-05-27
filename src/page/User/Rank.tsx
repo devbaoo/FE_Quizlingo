@@ -7,6 +7,7 @@ import { UserProfile } from "@/interfaces/IUser";
 import { apiMethods } from "@/services/constant/axiosInstance";
 import { ApiResponse } from "@/services/constant/axiosInstance";
 import { GET_LEADERBOARD_ENDPOINT } from "@/services/constant/apiConfig";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 const COLORS = ["#FFD700", "#C0C0C0", "#CD7F32"];
@@ -27,14 +28,77 @@ interface RankUser {
 }
 
 const InfoBox = () => (
-    <div className="fixed top-24 right-8 max-w-sm bg-[#1a2b3c] bg-opacity-90 text-white p-6 rounded-xl shadow-lg">
-        <h3 className="text-lg font-bold mb-2">BẢNG XẾP HẠNG LÀ GÌ?</h3>
-        <p className="text-gray-300 mb-4">Học tập. Thi đua. Kiếm điểm.</p>
-        <p className="text-gray-300 text-sm">
-            Làm thật nhiều bài, kiếm thật nhiều điểm từ các bài học để thi đua với những người học khác trên bảng xếp hạng.
-        </p>
+    <div
+        className="max-w-sm bg-gradient-to-r from-[#2d4b6b] to-[#1a2b3c] text-white p-6 rounded-xl shadow-lg animate-fadeIn mb-4"
+        style={{
+            border: '1px solid rgba(255,255,255,0.2)',
+            backdropFilter: 'blur(10px)',
+        }}
+    >
+        <div className="flex items-center gap-4 mb-3">
+            <div className="p-2 bg-white bg-opacity-20 rounded-lg">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" />
+                    <path d="M2 17L12 22L22 17" fill="currentColor" />
+                    <path d="M2 12L12 17L22 12" fill="currentColor" />
+                </svg>
+            </div>
+            <h3 className="text-lg font-bold m-0">BẢNG XẾP HẠNG LÀ GÌ?</h3>
+        </div>
+        <div className="relative">
+            <div className="absolute -top-6 -right-4 w-20 h-20 bg-white opacity-5 rounded-full blur-2xl"></div>
+            <p className="text-blue-300 font-medium mb-3 relative z-10">
+                Học tập. Thi đua. Kiếm điểm.
+            </p>
+            <p className="text-gray-300 text-sm relative z-10">
+                Làm thật nhiều bài, kiếm thật nhiều điểm từ các bài học để thi đua với những người học khác trên bảng xếp hạng.
+            </p>
+        </div>
+        <style>
+            {`
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .animate-fadeIn {
+                animation: fadeIn 0.5s ease-out;
+            }
+            `}
+        </style>
     </div>
 );
+
+const EarnPointsBox = () => {
+    const navigate = useNavigate();
+
+    return (
+        <div
+            className="max-w-sm bg-gradient-to-r from-blue-600 to-blue-400 text-white p-6 rounded-xl shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300"
+            onClick={() => navigate('/packages')}
+            style={{
+                border: '1px solid rgba(255,255,255,0.2)',
+                backdropFilter: 'blur(10px)',
+            }}
+        >
+            <div className="flex items-center gap-4 mb-3">
+                <div className="p-2 bg-white bg-opacity-20 rounded-lg">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L15 8L21 9L17 14L18 20L12 17L6 20L7 14L3 9L9 8L12 2Z" fill="currentColor" />
+                    </svg>
+                </div>
+                <h3 className="text-lg font-bold m-0">KIẾM THÊM ĐIỂM</h3>
+            </div>
+            <p className="text-white text-sm mb-4">
+                Mua gói premium để mở khóa thêm nhiều bài học và cơ hội kiếm điểm!
+            </p>
+            <button
+                className="w-full py-2 px-4 bg-white text-blue-600 rounded-lg font-semibold hover:bg-opacity-90 transition-colors duration-200"
+            >
+                Mua Gói Premium Ngay
+            </button>
+        </div>
+    );
+};
 
 const Rank: React.FC = () => {
     const [loading, setLoading] = useState(false);
@@ -79,18 +143,16 @@ const Rank: React.FC = () => {
                 position: "relative"
             }}
         >
-            <InfoBox />
             <div style={{
                 maxWidth: 1200,
                 margin: "0 auto",
                 display: "flex",
-                justifyContent: "flex-start",
-                position: "relative",
-                paddingLeft: "120px",
+                gap: "40px",
+                justifyContent: "center"
             }}>
+                {/* Main leaderboard content */}
                 <div style={{
-                    width: "100%",
-                    maxWidth: 720,
+                    flex: "0 1 720px",
                     background: "#ffffff",
                     borderRadius: 16,
                     padding: "24px",
@@ -154,7 +216,7 @@ const Rank: React.FC = () => {
                                 if (!user) return null;
 
                                 const isCurrent = getCurrentUserId() === user._id;
-                                const position = orderIdx === 0 ? "1nd" : orderIdx === 1 ? "2st" : "3rd";
+                                const position = orderIdx === 0 ? "1st" : orderIdx === 1 ? "2nd" : "3rd";
                                 return (
                                     <div key={user._id} style={{
                                         display: "flex",
@@ -333,6 +395,18 @@ const Rank: React.FC = () => {
                             })}
                         </div>
                     </Spin>
+                </div>
+
+                {/* Right sidebar with InfoBox and EarnPointsBox */}
+                <div style={{
+                    width: "360px",
+                    position: "sticky",
+                    top: "24px",
+                    alignSelf: "flex-start",
+                    height: "fit-content"
+                }}>
+                    <InfoBox />
+                    <EarnPointsBox />
                 </div>
             </div>
         </div>
