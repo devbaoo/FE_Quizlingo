@@ -1,7 +1,13 @@
 //skill
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance, { ApiError } from "@/services/constant/axiosInstance";
-import { CHOOSE_SKILLS_ENDPOINT, GET_SKILLS_ENDPOINT, CREATE_SKILL_ENDPOINT, UPDATE_SKILL_ENDPOINT, DELETE_SKILL_ENDPOINT } from "@/services/constant/apiConfig";
+import {
+  CHOOSE_SKILLS_ENDPOINT,
+  GET_SKILLS_ENDPOINT,
+  CREATE_SKILL_ENDPOINT,
+  UPDATE_SKILL_ENDPOINT,
+  DELETE_SKILL_ENDPOINT,
+} from "@/services/constant/apiConfig";
 
 //skill
 export interface Skill {
@@ -9,8 +15,7 @@ export interface Skill {
   name: string;
   description: string;
   supportedTypes: string;
-} 
-
+}
 
 interface SkillState {
   skills: Skill[];
@@ -25,7 +30,7 @@ const initialState: SkillState = {
 };
 
 export const fetchSkills = createAsyncThunk<
-  { skills: Skill[] }, 
+  { skills: Skill[] },
   void,
   { rejectValue: { message: string } }
 >("skill/fetchSkills", async (_, { rejectWithValue }) => {
@@ -41,18 +46,19 @@ export const fetchSkills = createAsyncThunk<
 
 export const chooseSkills = createAsyncThunk<
   void,
-  string[], 
+  string[],
   { rejectValue: { message: string } }
 >("skill/chooseSkills", async (selectedSkillIds, { rejectWithValue }) => {
   try {
-    await axiosInstance.post(CHOOSE_SKILLS_ENDPOINT, { 
-      skills: selectedSkillIds });
+    await axiosInstance.post(CHOOSE_SKILLS_ENDPOINT, {
+      skills: selectedSkillIds,
+    });
   } catch (err: unknown) {
     const error = err as ApiError;
-    const message = error.message || "Failed to choose skills"; 
+    const message = error.message || "Failed to choose skills";
     return rejectWithValue({ message });
   }
-}); 
+});
 
 export const createSkill = createAsyncThunk<
   { skill: Skill },
@@ -71,7 +77,10 @@ export const createSkill = createAsyncThunk<
 
 export const updateSkill = createAsyncThunk<
   { skill: Skill },
-  { id: string; data: { name: string; description: string; supportedTypes: string[] } },
+  {
+    id: string;
+    data: { name: string; description: string; supportedTypes: string[] };
+  },
   { rejectValue: { message: string } }
 >("skill/updateSkill", async ({ id, data }, { rejectWithValue }) => {
   try {
@@ -136,7 +145,9 @@ const skillSlice = createSlice({
       })
       .addCase(updateSkill.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.skills.findIndex(skill => skill._id === action.payload.skill._id);
+        const index = state.skills.findIndex(
+          (skill) => skill._id === action.payload.skill._id
+        );
         if (index !== -1) {
           state.skills[index] = action.payload.skill;
         }
@@ -152,7 +163,9 @@ const skillSlice = createSlice({
       })
       .addCase(deleteSkill.fulfilled, (state, action) => {
         state.loading = false;
-        state.skills = state.skills.filter(skill => skill._id !== action.meta.arg);
+        state.skills = state.skills.filter(
+          (skill) => skill._id !== action.meta.arg
+        );
         state.error = null;
       })
       .addCase(deleteSkill.rejected, (state, action) => {

@@ -68,10 +68,10 @@ export interface IQuestion {
   _id: string;
   lessonId: string;
   content: string;
-  type: string;
+  type: "multiple_choice" | "text_input";
   skill: string;
   options: string[];
-  correctAnswer: string;
+  correctAnswer?: string;
   score: number;
   audioContent?: string;
   createdAt: string;
@@ -120,4 +120,43 @@ export interface CompleteLessonResponse {
   status: string;
   progress: LessonProgress;
   user: UserProgress;
+}
+
+// Form related interfaces
+export interface QuestionFormData {
+  content: string;
+  options: string[];
+  correctAnswer?: string;
+  score: number;
+  skill: string;
+  type: "multiple_choice" | "text_input";
+}
+
+export interface LessonFormData {
+  title: string;
+  type: string;
+  topic: string;
+  level: string;
+  skills: string[];
+  questions: QuestionFormData[];
+}
+
+export interface CreateLessonData {
+  title: string;
+  type: string;
+  topic: ITopicDetail;
+  level: ILevel;
+  questions: {
+    _id: string;
+    lessonId: string;
+    content: string;
+    type: "multiple_choice" | "text_input";
+    skill: string;
+    options: string[];
+    correctAnswer?: string;
+    score: number;
+    audioContent: string | undefined;
+    createdAt: string;
+    __v: number;
+  }[];
 }
