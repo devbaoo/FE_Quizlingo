@@ -21,49 +21,12 @@ import { fetchLessons, createLesson, updateLesson, deleteLesson } from '@/servic
 import { fetchTopics } from '@/services/features/topic/topicSlice';
 import { fetchLevels } from '@/services/features/level/levelSlice';
 import { fetchSkills } from '@/services/features/skill/skillSlice';
-import { ILesson, ISkill, ITopicDetail, ILevel } from '@/interfaces/ILesson';
-
-interface QuestionFormData {
-  content: string;
-  options: string[];
-  correctAnswer: string;
-  score: number;
-  skill: string;
-}
-
-interface LessonFormData {
-  title: string;
-  type: string;
-  topic: string;
-  level: string;
-  skills: string[];
-  maxScore: number;
-  timeLimit: number;
-  questions: QuestionFormData[];
-}
-
-interface CreateLessonData {
-  title: string;
-  type: string;
-  topic: ITopicDetail;
-  level: ILevel;
-  skills: ISkill[];
-  maxScore: number;
-  timeLimit: number;
-  questions: {
-    _id: string;
-    lessonId: string;
-    content: string;
-    type: string;
-    skill: string;
-    options: string[];
-    correctAnswer: string;
-    score: number;
-    audioContent: string | undefined;
-    createdAt: string;
-    __v: number;
-  }[];
-}
+import {
+  ILesson,
+  ISkill,
+  LessonFormData,
+  CreateLessonData
+} from '@/interfaces/ILesson';
 
 const LessonsPage = () => {
   const dispatch = useAppDispatch();
@@ -95,15 +58,14 @@ const LessonsPage = () => {
   const handleSubmit = async (values: LessonFormData) => {
     try {
       // Validate required fields
-      if (!values.topic || !values.level || !values.skills || values.skills.length === 0) {
-        message.error('Vui lòng điền đầy đủ thông tin chủ đề, cấp độ và kỹ năng');
+      if (!values.topic || !values.level) {
+        message.error('Vui lòng điền đầy đủ thông tin chủ đề và cấp độ');
         return;
       }
 
-      // Find the selected topic, level, and skills
+      // Find the selected topic and level
       const selectedTopic = topics.find(t => t._id === values.topic);
       const selectedLevel = levels.find(l => l._id === values.level);
-      const selectedSkills = skills.filter(s => values.skills.includes(s._id));
 
       if (!selectedTopic || !selectedLevel) {
         message.error('Không tìm thấy thông tin chủ đề hoặc cấp độ');
@@ -119,7 +81,7 @@ const LessonsPage = () => {
           name: selectedTopic.name,
           description: selectedTopic.description,
           isActive: true,
-          createdAt: '',
+          createdAt: new Date().toISOString(),
           __v: 0
         },
         level: {
@@ -132,31 +94,20 @@ const LessonsPage = () => {
           minScoreRequired: selectedLevel.minScoreRequired,
           order: selectedLevel.order,
           isActive: true,
-          createdAt: '',
+          createdAt: new Date().toISOString(),
           __v: 0
         },
-        skills: selectedSkills.map(skill => ({
-          _id: skill._id,
-          name: skill.name,
-          description: skill.description,
-          supportedTypes: Array.isArray(skill.supportedTypes) ? skill.supportedTypes : (typeof skill.supportedTypes === 'string' ? skill.supportedTypes.split(',').map(s => s.trim()) : []),
-          isActive: true,
-          createdAt: '',
-          __v: 0
-        })),
-        maxScore: Number(values.maxScore) || 0,
-        timeLimit: Number(values.timeLimit) || 0,
         questions: values.questions?.map((q) => ({
           _id: '',
           lessonId: '',
           content: q.content,
-          type: values.type || 'multiple_choice',
-          skill: q.skill || selectedSkills[0]?._id || '',
-          options: Array.isArray(q.options) ? q.options : [],
-          correctAnswer: q.correctAnswer,
+          type: q.type || 'multiple_choice',
+          skill: q.skill,
+          options: q.type === 'multiple_choice' ? q.options : [],
+          correctAnswer: q.type === 'multiple_choice' ? q.correctAnswer : undefined,
           score: Number(q.score) || 0,
           audioContent: undefined,
-          createdAt: '',
+          createdAt: new Date().toISOString(),
           __v: 0
         })) || []
       };
@@ -229,14 +180,13 @@ const LessonsPage = () => {
                 topic: record.topic?._id,
                 level: record.level?._id,
                 skills: record.skills?.map(skill => skill._id) || [],
-                maxScore: record.maxScore,
-                timeLimit: record.timeLimit,
                 questions: record.questions?.map(q => ({
                   content: q.content,
                   options: q.options || [],
                   correctAnswer: q.correctAnswer,
                   score: q.score || 0,
-                  skill: q.skill || record.skills?.[0]?._id || ''
+                  skill: q.skill || record.skills?.[0]?._id || '',
+                  type: q.type || 'multiple_choice'
                 })) || []
               };
               form.setFieldsValue(formData);
@@ -306,17 +256,6 @@ const LessonsPage = () => {
           </Form.Item>
 
           <Form.Item
-            name="type"
-            label="Loại bài học"
-            rules={[{ required: true, message: 'Vui lòng chọn loại bài học!' }]}
-          >
-            <Select>
-              <Select.Option value="multiple_choice">Multiple Choice</Select.Option>
-              <Select.Option value="text_input">Text Input</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item
             name="topic"
             label="Chủ đề"
             rules={[{ required: true, message: 'Vui lòng chọn chủ đề!' }]}
@@ -344,36 +283,6 @@ const LessonsPage = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item
-            name="skills"
-            label="Kỹ năng"
-            rules={[{ required: true, message: 'Vui lòng chọn kỹ năng!' }]}
-          >
-            <Select mode="multiple" placeholder="Chọn kỹ năng">
-              {skills.map((skill) => (
-                <Select.Option key={skill._id} value={skill._id}>
-                  {skill.name}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item
-            name="maxScore"
-            label="Điểm tối đa"
-            rules={[{ required: true, message: 'Vui lòng nhập điểm tối đa!' }]}
-          >
-            <InputNumber min={0} />
-          </Form.Item>
-
-          <Form.Item
-            name="timeLimit"
-            label="Thời gian (giây)"
-            rules={[{ required: true, message: 'Vui lòng nhập thời gian!' }]}
-          >
-            <InputNumber min={0} />
-          </Form.Item>
-
           <Form.List name="questions">
             {(fields, { add, remove }) => (
               <>
@@ -389,33 +298,77 @@ const LessonsPage = () => {
                         <Input />
                       </Form.Item>
 
-                      <Form.List name={[name, 'options']}>
-                        {(optionFields, { add: addOption }) => (
-                          <>
-                            {optionFields.map(({ name: optionName, ...restOptionField }) => (
-                              <Form.Item
-                                {...restOptionField}
-                                name={[optionName]}
-                                label={`Lựa chọn ${optionName + 1}`}
-                                rules={[{ required: true, message: 'Vui lòng nhập lựa chọn!' }]}
-                              >
-                                <Input />
-                              </Form.Item>
-                            ))}
-                            <Button type="dashed" onClick={() => addOption()} block>
-                              Thêm lựa chọn
-                            </Button>
-                          </>
-                        )}
-                      </Form.List>
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'type']}
+                        label="Loại câu hỏi"
+                        rules={[{ required: true, message: 'Vui lòng chọn loại câu hỏi!' }]}
+                      >
+                        <Select>
+                          <Select.Option value="multiple_choice">Multiple Choice</Select.Option>
+                          <Select.Option value="text_input">Text Input</Select.Option>
+                        </Select>
+                      </Form.Item>
 
                       <Form.Item
                         {...restField}
-                        name={[name, 'correctAnswer']}
-                        label="Đáp án đúng"
-                        rules={[{ required: true, message: 'Vui lòng nhập đáp án đúng!' }]}
+                        name={[name, 'skill']}
+                        label="Kỹ năng"
+                        rules={[{ required: true, message: 'Vui lòng chọn kỹ năng cho câu hỏi!' }]}
                       >
-                        <Input />
+                        <Select>
+                          {skills.map((skill) => (
+                            <Select.Option key={skill._id} value={skill._id}>
+                              {skill.name}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+
+                      <Form.Item
+                        noStyle
+                        shouldUpdate={(prevValues, currentValues) => {
+                          return prevValues.questions?.[name]?.type !== currentValues.questions?.[name]?.type;
+                        }}
+                      >
+                        {({ getFieldValue }) => {
+                          const questionType = getFieldValue(['questions', name, 'type']);
+                          if (questionType === 'multiple_choice') {
+                            return (
+                              <>
+                                <Form.List name={[name, 'options']}>
+                                  {(optionFields, { add: addOption }) => (
+                                    <>
+                                      {optionFields.map(({ name: optionName, ...restOptionField }) => (
+                                        <Form.Item
+                                          {...restOptionField}
+                                          name={[optionName]}
+                                          label={`Lựa chọn ${optionName + 1}`}
+                                          rules={[{ required: true, message: 'Vui lòng nhập lựa chọn!' }]}
+                                        >
+                                          <Input />
+                                        </Form.Item>
+                                      ))}
+                                      <Button type="dashed" onClick={() => addOption()} block>
+                                        Thêm lựa chọn
+                                      </Button>
+                                    </>
+                                  )}
+                                </Form.List>
+
+                                <Form.Item
+                                  {...restField}
+                                  name={[name, 'correctAnswer']}
+                                  label="Đáp án đúng"
+                                  rules={[{ required: true, message: 'Vui lòng nhập đáp án đúng!' }]}
+                                >
+                                  <Input />
+                                </Form.Item>
+                              </>
+                            );
+                          }
+                          return null;
+                        }}
                       </Form.Item>
 
                       <Form.Item
@@ -425,21 +378,6 @@ const LessonsPage = () => {
                         rules={[{ required: true, message: 'Vui lòng nhập điểm!' }]}
                       >
                         <InputNumber min={0} />
-                      </Form.Item>
-
-                      <Form.Item
-                        {...restField}
-                        name={[name, 'skill']}
-                        label="Kỹ năng"
-                        rules={[{ required: true, message: 'Vui lòng chọn kỹ năng!' }]}
-                      >
-                        <Select>
-                          {skills.map((skill) => (
-                            <Select.Option key={skill._id} value={skill._id}>
-                              {skill.name}
-                            </Select.Option>
-                          ))}
-                        </Select>
                       </Form.Item>
 
                       <Button type="link" danger onClick={() => remove(name)}>

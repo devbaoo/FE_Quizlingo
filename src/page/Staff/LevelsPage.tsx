@@ -17,7 +17,7 @@ const LevelsPage: React.FC = () => {
     dispatch(fetchLevels());
   }, [dispatch]);
 
-   useEffect(() => {
+  useEffect(() => {
     if (shouldReload) {
       dispatch(fetchLevels());
       setShouldReload(false);
@@ -52,7 +52,7 @@ const LevelsPage: React.FC = () => {
         message.success('Level created successfully');
       }
       handleCancel();
-    } catch (error) {
+    } catch {
       message.error('Failed to save level');
     }
   };
@@ -61,7 +61,7 @@ const LevelsPage: React.FC = () => {
     try {
       await dispatch(deleteLevel(id)).unwrap();
       message.success('Level deleted successfully');
-    } catch (error) {
+    } catch {
       message.error('Failed to delete level');
     }
   };
@@ -87,13 +87,13 @@ const LevelsPage: React.FC = () => {
       key: 'actions',
       render: (_: any, record: Level) => (
         <Space>
-          <Button 
-            icon={<EditOutlined />} 
+          <Button
+            icon={<EditOutlined />}
             onClick={() => showModal(record)}
           />
-          <Button 
-            icon={<DeleteOutlined />} 
-            danger 
+          <Button
+            icon={<DeleteOutlined />}
+            danger
             onClick={() => handleDelete(record._id)}
           />
         </Space>

@@ -8,7 +8,7 @@ import { PodcastIconSvg } from "@/components/ui/Svgs";
 
 interface ShuffledQuestion extends Omit<IQuestion, 'options'> {
     options: string[];
-    originalCorrectAnswer: string;
+    originalCorrectAnswer?: string;
 }
 
 const LessonPage = () => {
@@ -79,7 +79,7 @@ const LessonPage = () => {
             return {
                 ...question,
                 options: shuffledOptions,
-                originalCorrectAnswer: question.correctAnswer
+                originalCorrectAnswer: question.correctAnswer || ''
             };
         });
     };
