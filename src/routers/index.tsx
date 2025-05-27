@@ -25,16 +25,18 @@ import ProfilePage from "@/page/User/ProfilePage";
 import { useSelector } from "react-redux";
 import { RootState } from "@/services/store/store";
 import ManageUserPage from "@/page/Admin/ManageUserPage";
-import SkillsPage from "@/page/Admin/SkillsPage";
-import LessonsPage from "@/page/Admin/LessonsPage";
-import LevelsPage from "@/page/Admin/LevelsPage";
-import SpeakingLessonPage from "@/page/Admin/SpeakingLessonPage";
-import TopicsLesson from "@/page/Admin/TopicsLesson";
+import SkillsPage from "@/page/Staff/SkillsPage";
+import LessonsPage from "@/page/Staff/LessonsPage";
+import LevelsPage from "@/page/Staff/LevelsPage";
+import SpeakingLessonPage from "@/page/Staff/SpeakingLessonPage";
+import TopicsLesson from "@/page/Staff/TopicsLesson";
 import AdminPackage from "@/page/Admin/AdminPackage";
 import NotificationSettings from "@/page/User/NotificationSetting";
 import NotificationsAllPage from "@/page/Admin/NotificationsAllPage";
 import Rank from "@/page/User/Rank";
 import StaffDashboard from "@/page/Staff/StaffDashboard";
+import StaffLayout from "@/components/Layout/StaffLayout";
+
 
 const AppRouter = () => {
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -97,18 +99,19 @@ const AppRouter = () => {
                     <Route path="packages" element={<AdminPackage />} />
                     <Route path="users" element={<ManageUserPage />} />
                     <Route path="notifications/all" element={<NotificationsAllPage />} />
-                    <Route path="lesson/skills" element={<SkillsPage />} />
-                    <Route path="lesson/topics" element={<TopicsLesson />} />
-                    <Route path="lesson/create" element={<LessonsPage />} />
-                    <Route path="lesson/levels" element={<LevelsPage />} />
-                    <Route path="lesson/speaking" element={<SpeakingLessonPage />} />
+                    
                 </Route>
             </Route>
 
             {/* Staff Routes - Only accessible when authenticated as staff */}
-            <Route element={<ProtectedRoute allowedRoles={["staff"]} />}>
-                <Route path="/staff" element={<AdminLayout />}>
+            <Route element={<ProtectedRoute allowedRoles={["staff"]}  />}>
+                <Route path="/staff" element={<StaffLayout />}>
                     <Route index element={<StaffDashboard />} />
+                    <Route path="skills" element={<SkillsPage />} />
+                    <Route path="topics" element={<TopicsLesson />} />
+                    <Route path="lesson" element={<LessonsPage />} />
+                    <Route path="levels" element={<LevelsPage />} />
+                    <Route path="speaking" element={<SpeakingLessonPage />} />
                 </Route>
             </Route>
 
