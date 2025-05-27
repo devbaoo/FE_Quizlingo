@@ -45,6 +45,10 @@ const Rank: React.FC = () => {
         return currentUser?.id || '';
     };
 
+    const isInTop3 = (userId: string) => {
+        return top3.some(user => user._id === userId);
+    };
+
     useEffect(() => {
         const fetchLeaderboard = async () => {
             setLoading(true);
@@ -87,8 +91,11 @@ const Rank: React.FC = () => {
                 <div style={{
                     width: "100%",
                     maxWidth: 720,
-                    position: "relative",
-                    zIndex: 1
+                    background: "#ffffff",
+                    borderRadius: 16,
+                    padding: "24px",
+                    border: "1px solid rgba(0, 0, 0, 0.1)",
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.1)"
                 }}>
                     <div className="flex items-center gap-4 mb-6">
                         <div className="flex-1">
@@ -124,8 +131,24 @@ const Rank: React.FC = () => {
                             justifyContent: "center",
                             alignItems: "flex-end",
                             gap: 34,
-                            padding: "24px 0 32px 0",
+                            padding: "32px 24px",
+                            background: "#f8fafc",
+                            borderRadius: 20,
+                            marginBottom: 20,
+                            position: "relative",
+                            overflow: "hidden",
+                            boxShadow: "inset 0 0 20px rgba(0,0,0,0.03)",
+                            border: "1px solid rgba(0,0,0,0.05)"
                         }}>
+                            <div style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                opacity: 0.03,
+                                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L49.8 6.485 48.384 7.9l-7.9-7.9h2.83zM16.686 0L10.2 6.485 11.616 7.9l7.9-7.9h-2.83zM22.343 0L13.857 8.485 15.272 9.9l7.9-7.9h-.83zm5.657 0L19.514 8.485 20.93 9.9l8.485-8.485h-1.415zM32.372 0L22.343 10.03 23.758 11.444l10.03-10.03h-1.415zm-1.414 0L19.514 11.444l1.414 1.414 11.444-11.444h-1.414zM32.372 0L21.93 10.444 23.343 11.858 33.787 1.414 32.37 0zm-5.657 0L15.272 11.444l1.414 1.414L28.13 1.414 26.714 0zM22.343 0L12.9 9.444l1.414 1.414L24.757 0h-2.414zm-5.657 0L6.243 10.444l1.415 1.414L19.1 0h-2.413zM16.686 0L7.243 9.444l1.414 1.414L19.1 0h-2.414zm-5.657 0L0 11.03l1.414 1.414L13.857 0H11.03z' fill='%23000000' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
+                            }} />
                             {[1, 0, 2].map((orderIdx) => {
                                 const user = top3[orderIdx];
                                 if (!user) return null;
@@ -137,7 +160,7 @@ const Rank: React.FC = () => {
                                         display: "flex",
                                         flexDirection: "column",
                                         alignItems: "center",
-                                        width: 120,
+                                        width: 160,
                                         marginBottom: orderIdx === 0 ? 0 : 16,
                                         position: "relative",
                                     }}>
@@ -190,14 +213,15 @@ const Rank: React.FC = () => {
                                         </div>
                                         <div style={{
                                             fontWeight: isCurrent ? 700 : 600,
-                                            color: isCurrent ? "#40a9ff" : "#fff",
+                                            color: "#1e293b",
                                             fontSize: orderIdx === 0 ? 18 : 16,
                                             textAlign: "center",
                                             whiteSpace: "nowrap",
                                             overflow: "hidden",
                                             textOverflow: "ellipsis",
-                                            maxWidth: 110,
-                                            textShadow: `0 0 10px ${COLORS[orderIdx]}`,
+                                            maxWidth: 160,
+                                            marginTop: 8,
+                                            padding: "0 4px",
                                         }}>
                                             {user.firstName} {user.lastName}
                                         </div>
@@ -233,6 +257,8 @@ const Rank: React.FC = () => {
                         <div style={{ padding: "0 12px" }}>
                             {others.map((user, idx) => {
                                 const isCurrent = getCurrentUserId() === user._id;
+                                const showBadge = isCurrent && !isInTop3(user._id);
+
                                 return (
                                     <div
                                         key={user._id}
@@ -240,20 +266,21 @@ const Rank: React.FC = () => {
                                             display: "flex",
                                             alignItems: "center",
                                             background: isCurrent
-                                                ? "rgba(64, 169, 255, 0.1)"
-                                                : "rgba(255, 255, 255, 0.05)",
+                                                ? "rgba(24, 144, 255, 0.15)"
+                                                : "#f8fafc",
                                             borderRadius: 16,
                                             margin: "10px 0",
-                                            border: isCurrent ? "2px solid #40a9ff" : "1px solid rgba(255,255,255,0.1)",
+                                            border: isCurrent
+                                                ? "1px solid rgba(24, 144, 255, 0.3)"
+                                                : "1px solid rgba(0, 0, 0, 0.1)",
                                             minHeight: 56,
                                             padding: "6px 16px",
-                                            backdropFilter: "blur(10px)"
                                         }}
                                     >
                                         <span style={{
-                                            fontWeight: 600,
+                                            fontWeight: 500,
                                             fontSize: 16,
-                                            color: "#9CA3AF",
+                                            color: "#64748b",
                                             width: 44,
                                             textAlign: "center"
                                         }}>{idx + 4}.</span>
@@ -270,16 +297,16 @@ const Rank: React.FC = () => {
                                         />
                                         <div style={{ flex: 1 }}>
                                             <div style={{
-                                                fontWeight: isCurrent ? 700 : 600,
+                                                fontWeight: isCurrent ? 600 : 500,
                                                 fontSize: 16,
-                                                color: isCurrent ? "#40a9ff" : "#fff",
+                                                color: isCurrent ? "#1677ff" : "#1e293b",
                                                 display: "flex",
                                                 alignItems: "center"
                                             }}>
                                                 {user.firstName} {user.lastName}
-                                                {isCurrent && <span style={{
+                                                {showBadge && <span style={{
                                                     background: "#40a9ff",
-                                                    color: "#fff",
+                                                    color: "#ffffff",
                                                     borderRadius: 8,
                                                     padding: "2px 8px",
                                                     marginLeft: 8,
@@ -290,7 +317,7 @@ const Rank: React.FC = () => {
                                         <div style={{
                                             fontWeight: 600,
                                             fontSize: 16,
-                                            color: "#FFD700",
+                                            color: "#64748b",
                                             marginRight: 8,
                                             minWidth: 60,
                                             textAlign: "right",
@@ -299,7 +326,7 @@ const Rank: React.FC = () => {
                                             justifyContent: "flex-end"
                                         }}>
                                             <span style={{ marginRight: 4 }}>{user.totalScore}</span>
-                                            <span style={{ fontSize: 16, color: "#FFD700" }}>★</span>
+                                            <span style={{ fontSize: 16, color: "#64748b" }}>★</span>
                                         </div>
                                     </div>
                                 );
