@@ -131,7 +131,7 @@ const Rank: React.FC = () => {
                                 if (!user) return null;
 
                                 const isCurrent = getCurrentUserId() === user._id;
-                                const position = orderIdx === 0 ? "2nd" : orderIdx === 1 ? "1st" : "3rd";
+                                const position = orderIdx === 0 ? "1nd" : orderIdx === 1 ? "2st" : "3rd";
                                 return (
                                     <div key={user._id} style={{
                                         display: "flex",

@@ -21,11 +21,53 @@ import { fetchLessons, createLesson, updateLesson, deleteLesson } from '@/servic
 import { fetchTopics } from '@/services/features/topic/topicSlice';
 import { fetchLevels } from '@/services/features/level/levelSlice';
 import { fetchSkills } from '@/services/features/skill/skillSlice';
-import { ILesson } from '@/interfaces/ILesson';
+import { ILesson, ISkill, ITopicDetail, ILevel } from '@/interfaces/ILesson';
+
+interface QuestionFormData {
+  content: string;
+  options: string[];
+  correctAnswer: string;
+  score: number;
+  skill: string;
+}
+
+interface LessonFormData {
+  title: string;
+  type: string;
+  topic: string;
+  level: string;
+  skills: string[];
+  maxScore: number;
+  timeLimit: number;
+  questions: QuestionFormData[];
+}
+
+interface CreateLessonData {
+  title: string;
+  type: string;
+  topic: ITopicDetail;
+  level: ILevel;
+  skills: ISkill[];
+  maxScore: number;
+  timeLimit: number;
+  questions: {
+    _id: string;
+    lessonId: string;
+    content: string;
+    type: string;
+    skill: string;
+    options: string[];
+    correctAnswer: string;
+    score: number;
+    audioContent: string | undefined;
+    createdAt: string;
+    __v: number;
+  }[];
+}
 
 const LessonsPage = () => {
   const dispatch = useAppDispatch();
-  const { lessons, loading, error } = useAppSelector((state) => state.lesson);
+  const { lessons, loading } = useAppSelector((state) => state.lesson);
   const { topics } = useAppSelector((state) => state.topic);
   const { levels } = useAppSelector((state) => state.level);
   const { skills } = useAppSelector((state) => state.skill);
@@ -45,12 +87,12 @@ const LessonsPage = () => {
     try {
       await dispatch(deleteLesson(id)).unwrap();
       message.success('Xóa bài học thành công');
-    } catch (error) {
+    } catch {
       message.error('Xóa bài học thất bại');
     }
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: LessonFormData) => {
     try {
       // Validate required fields
       if (!values.topic || !values.level || !values.skills || values.skills.length === 0) {
@@ -58,21 +100,64 @@ const LessonsPage = () => {
         return;
       }
 
-      // Prepare the data structure with only IDs
-      const lessonData = {
+      // Find the selected topic, level, and skills
+      const selectedTopic = topics.find(t => t._id === values.topic);
+      const selectedLevel = levels.find(l => l._id === values.level);
+      const selectedSkills = skills.filter(s => values.skills.includes(s._id));
+
+      if (!selectedTopic || !selectedLevel) {
+        message.error('Không tìm thấy thông tin chủ đề hoặc cấp độ');
+        return;
+      }
+
+      // Prepare the data structure with the correct format
+      const lessonData: CreateLessonData = {
         title: values.title,
         type: values.type || 'multiple_choice',
-        topic: values.topic, // This is already the ID from Select
-        level: values.level, // This is already the ID from Select
-        skills: values.skills, // This is already an array of IDs from Select
+        topic: {
+          _id: selectedTopic._id,
+          name: selectedTopic.name,
+          description: selectedTopic.description,
+          isActive: true,
+          createdAt: '',
+          __v: 0
+        },
+        level: {
+          _id: selectedLevel._id,
+          name: selectedLevel.name,
+          maxScore: selectedLevel.maxScore,
+          timeLimit: selectedLevel.timeLimit,
+          minUserLevel: selectedLevel.minUserLevel,
+          minLessonPassed: selectedLevel.minLessonPassed,
+          minScoreRequired: selectedLevel.minScoreRequired,
+          order: selectedLevel.order,
+          isActive: true,
+          createdAt: '',
+          __v: 0
+        },
+        skills: selectedSkills.map(skill => ({
+          _id: skill._id,
+          name: skill.name,
+          description: skill.description,
+          supportedTypes: Array.isArray(skill.supportedTypes) ? skill.supportedTypes : (typeof skill.supportedTypes === 'string' ? skill.supportedTypes.split(',').map(s => s.trim()) : []),
+          isActive: true,
+          createdAt: '',
+          __v: 0
+        })),
         maxScore: Number(values.maxScore) || 0,
         timeLimit: Number(values.timeLimit) || 0,
-        questions: values.questions?.map((q: any) => ({
+        questions: values.questions?.map((q) => ({
+          _id: '',
+          lessonId: '',
           content: q.content,
           type: values.type || 'multiple_choice',
+          skill: q.skill || selectedSkills[0]?._id || '',
           options: Array.isArray(q.options) ? q.options : [],
           correctAnswer: q.correctAnswer,
-          score: Number(q.score) || 0
+          score: Number(q.score) || 0,
+          audioContent: undefined,
+          createdAt: '',
+          __v: 0
         })) || []
       };
 
@@ -80,22 +165,23 @@ const LessonsPage = () => {
       console.log('Sending lesson data:', lessonData);
 
       if (editingLesson) {
-        await dispatch(updateLesson({ 
-          id: editingLesson._id, 
-          data: lessonData 
+        await dispatch(updateLesson({
+          id: editingLesson._id,
+          data: lessonData
         })).unwrap();
         message.success('Cập nhật bài học thành công');
       } else {
         await dispatch(createLesson(lessonData)).unwrap();
         message.success('Thêm bài học thành công');
       }
-      
+
       setIsModalVisible(false);
       form.resetFields();
       setEditingLesson(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error submitting lesson:', error);
-      message.error(error.message || (editingLesson ? 'Cập nhật bài học thất bại' : 'Thêm bài học thất bại'));
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      message.error(errorMessage || (editingLesson ? 'Cập nhật bài học thất bại' : 'Thêm bài học thất bại'));
     }
   };
 
@@ -125,12 +211,12 @@ const LessonsPage = () => {
       title: 'Kỹ năng',
       dataIndex: 'skills',
       key: 'skills',
-      render: (skills: any[]) => skills.map(skill => skill.name).join(', '),
+      render: (skills: ISkill[]) => skills.map(skill => skill.name).join(', '),
     },
     {
       title: 'Thao tác',
       key: 'actions',
-      render: (_: any, record: ILesson) => (
+      render: (_: unknown, record: ILesson) => (
         <Space>
           <Button
             icon={<EditOutlined />}
@@ -149,7 +235,8 @@ const LessonsPage = () => {
                   content: q.content,
                   options: q.options || [],
                   correctAnswer: q.correctAnswer,
-                  score: q.score || 0
+                  score: q.score || 0,
+                  skill: q.skill || record.skills?.[0]?._id || ''
                 })) || []
               };
               form.setFieldsValue(formData);
@@ -303,9 +390,9 @@ const LessonsPage = () => {
                       </Form.Item>
 
                       <Form.List name={[name, 'options']}>
-                        {(optionFields, { add: addOption, remove: removeOption }) => (
+                        {(optionFields, { add: addOption }) => (
                           <>
-                            {optionFields.map(({ key: optionKey, name: optionName, ...restOptionField }) => (
+                            {optionFields.map(({ name: optionName, ...restOptionField }) => (
                               <Form.Item
                                 {...restOptionField}
                                 name={[optionName]}
@@ -338,6 +425,21 @@ const LessonsPage = () => {
                         rules={[{ required: true, message: 'Vui lòng nhập điểm!' }]}
                       >
                         <InputNumber min={0} />
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'skill']}
+                        label="Kỹ năng"
+                        rules={[{ required: true, message: 'Vui lòng chọn kỹ năng!' }]}
+                      >
+                        <Select>
+                          {skills.map((skill) => (
+                            <Select.Option key={skill._id} value={skill._id}>
+                              {skill.name}
+                            </Select.Option>
+                          ))}
+                        </Select>
                       </Form.Item>
 
                       <Button type="link" danger onClick={() => remove(name)}>
