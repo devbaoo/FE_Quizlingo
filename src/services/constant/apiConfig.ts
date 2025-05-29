@@ -45,6 +45,11 @@ export const CREATE_PACKAGES_ENDPOINT = `${BASE_URL}/admin/packages`;
 export const UPDATE_PACKAGES_ENDPOINT = (id: string) =>
   `${BASE_URL}/admin/packages/${id}`;
 
+//package user
+export const GET_USER_PACKAGES_ENDPOINT = `${BASE_URL}/packages`;
+export const GET_USER_ACTIVE_PACKAGE_ENDPOINT = `${BASE_URL}/packages/user/active`;
+export const CREATE_PACKAGE_PURCHASE_ENDPOINT = `${BASE_URL}/packages/purchase`;
+
 //topic
 export const GET_TOPICS_ENDPOINT = `${BASE_URL}/topics`;
 export const CREATE_TOPIC_ENDPOINT = `${BASE_URL}/topics`;

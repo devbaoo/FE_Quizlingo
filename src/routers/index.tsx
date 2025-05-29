@@ -36,6 +36,7 @@ import NotificationsAllPage from "@/page/Admin/NotificationsAllPage";
 import Rank from "@/page/User/Rank";
 import StaffDashboard from "@/page/Staff/StaffDashboard";
 import StaffLayout from "@/components/Layout/StaffLayout";
+import Package from "@/page/User/Package";
 
 
 const AppRouter = () => {
@@ -83,6 +84,7 @@ const AppRouter = () => {
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/setting" element={<NotificationSettings />} />
                     <Route path="/rank" element={<Rank />} />
+                    <Route path="/packages" element={<Package />} />
                 </Route>
 
                 {/* Choose Process Routes */}
@@ -99,12 +101,12 @@ const AppRouter = () => {
                     <Route path="packages" element={<AdminPackage />} />
                     <Route path="users" element={<ManageUserPage />} />
                     <Route path="notifications/all" element={<NotificationsAllPage />} />
-                    
+
                 </Route>
             </Route>
 
             {/* Staff Routes - Only accessible when authenticated as staff */}
-            <Route element={<ProtectedRoute allowedRoles={["staff"]}  />}>
+            <Route element={<ProtectedRoute allowedRoles={["staff"]} />}>
                 <Route path="/staff" element={<StaffLayout />}>
                     <Route index element={<StaffDashboard />} />
                     <Route path="skills" element={<SkillsPage />} />
