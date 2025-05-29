@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAppDispatch } from "@/services/store/store";
 import { forgotPassword } from "@/services/features/auth/authSlice";
 import { Link } from "react-router-dom";
+import { message } from "antd";
 
 const ForgotPasswordForm = () => {
     const [email, setEmail] = useState("");
@@ -19,11 +20,7 @@ const ForgotPasswordForm = () => {
         try {
             const result = await dispatch(forgotPassword({ email })).unwrap();
             if (result.success) {
-                // setTimeout(() => {
-                //     navigate("/login");
-                // }, 3000);
-                console.log("Email đã được gửi thành công!");
-
+                message.success("Email đã được gửi thành công!");
             }
         } catch {
             // error

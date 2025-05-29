@@ -57,82 +57,43 @@ const LessonsPage = () => {
 
   const handleSubmit = async (values: LessonFormData) => {
     try {
-      // Validate required fields
       if (!values.topic || !values.level) {
-        message.error('Vui lòng điền đầy đủ thông tin chủ đề và cấp độ');
+        message.error("Please fill in all required fields");
         return;
       }
 
-      // Find the selected topic and level
-      const selectedTopic = topics.find(t => t._id === values.topic);
-      const selectedLevel = levels.find(l => l._id === values.level);
-
-      if (!selectedTopic || !selectedLevel) {
-        message.error('Không tìm thấy thông tin chủ đề hoặc cấp độ');
-        return;
-      }
-
-      // Prepare the data structure with the correct format
       const lessonData: CreateLessonData = {
         title: values.title,
-        type: values.type || 'multiple_choice',
-        topic: {
-          _id: selectedTopic._id,
-          name: selectedTopic.name,
-          description: selectedTopic.description,
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          __v: 0
-        },
-        level: {
-          _id: selectedLevel._id,
-          name: selectedLevel.name,
-          maxScore: selectedLevel.maxScore,
-          timeLimit: selectedLevel.timeLimit,
-          minUserLevel: selectedLevel.minUserLevel,
-          minLessonPassed: selectedLevel.minLessonPassed,
-          minScoreRequired: selectedLevel.minScoreRequired,
-          order: selectedLevel.order,
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          __v: 0
-        },
-        questions: values.questions?.map((q) => ({
-          _id: '',
-          lessonId: '',
-          content: q.content,
-          type: q.type || 'multiple_choice',
+        topic: values.topic,
+        level: values.level,
+        questions: values.questions.map(q => ({
           skill: q.skill,
-          options: q.type === 'multiple_choice' ? q.options : [],
+          type: q.type,
+          content: q.content,
+          options: q.type === 'multiple_choice' ? q.options : undefined,
           correctAnswer: q.type === 'multiple_choice' ? q.correctAnswer : undefined,
           score: Number(q.score) || 0,
-          audioContent: undefined,
-          createdAt: new Date().toISOString(),
-          __v: 0
-        })) || []
+          audioContent: undefined
+        }))
       };
 
-      // Log the data being sent
-      console.log('Sending lesson data:', lessonData);
 
       if (editingLesson) {
-        await dispatch(updateLesson({
-          id: editingLesson._id,
-          data: lessonData
-        })).unwrap();
-        message.success('Cập nhật bài học thành công');
+        await dispatch(updateLesson({ id: editingLesson._id, data: lessonData })).unwrap();
+        message.success("Lesson updated successfully");
       } else {
         await dispatch(createLesson(lessonData)).unwrap();
-        message.success('Thêm bài học thành công');
+        message.success("Lesson created successfully");
       }
 
+      // Refresh lessons data
+      dispatch(fetchLessons({ page: currentPage, limit: 10 }));
       setIsModalVisible(false);
       form.resetFields();
       setEditingLesson(null);
-    } catch (error: unknown) {
-      console.error('Error submitting lesson:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      message.error(errorMessage || (editingLesson ? 'Cập nhật bài học thất bại' : 'Thêm bài học thất bại'));
+    } catch (error) {
+      console.error("Error submitting lesson:", error);
+      message.error("Failed to save lesson");
     }
   };
 
@@ -142,12 +103,7 @@ const LessonsPage = () => {
       dataIndex: 'title',
       key: 'title',
     },
-    {
-      title: 'Loại',
-      dataIndex: 'type',
-      key: 'type',
-      render: (type: string) => type === 'multiple_choice' ? 'Trắc nghiệm' : 'Nhập text',
-    },
+
     {
       title: 'Chủ đề',
       dataIndex: ['topic', 'name'],
