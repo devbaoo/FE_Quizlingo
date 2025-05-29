@@ -1,6 +1,14 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { apiMethods } from "@/services/constant/axiosInstance";
-import { GET_USER_PACKAGES_ENDPOINT, CREATE_PACKAGE_PURCHASE_ENDPOINT, GET_USER_ACTIVE_PACKAGE_ENDPOINT } from "@/services/constant/apiConfig";
+import {
+  GET_ACTIVE_PACKAGES_ENDPOINT,
+  GET_PACKAGE_DETAILS_ENDPOINT,
+  GET_USER_ACTIVE_PACKAGE_ENDPOINT,
+  CREATE_PACKAGE_PURCHASE_ENDPOINT,
+  CHECK_PAYMENT_STATUS_ENDPOINT,
+  CANCEL_PAYMENT_ENDPOINT,
+  CHECK_USER_PACKAGES_ENDPOINT,
+} from "@/services/constant/apiConfig";
 import { ApiError } from "@/services/constant/axiosInstance";
 
 export interface IPackageFeature {
@@ -53,35 +61,50 @@ interface ActivePackageResponse {
   };
 }
 
+interface PaymentStatusResponse {
+  success: boolean;
+  message: string;
+  status: string;
+}
+
 interface PackageState {
   packages: IPackage[];
+  packageDetails: IPackage | null;
   loading: boolean;
   error: string | null;
   purchaseLoading: boolean;
   purchaseError: string | null;
   paymentUrl: string | null;
   hasActivePackage: boolean;
+  activePackage: any | null;
   activePackageLoading: boolean;
+  paymentStatus: PaymentStatusResponse | null;
+  paymentStatusLoading: boolean;
 }
 
 const initialState: PackageState = {
   packages: [],
+  packageDetails: null,
   loading: false,
   error: null,
   purchaseLoading: false,
   purchaseError: null,
   paymentUrl: null,
   hasActivePackage: false,
+  activePackage: null,
   activePackageLoading: false,
+  paymentStatus: null,
+  paymentStatusLoading: false,
 };
 
 export const fetchActivePackages = createAsyncThunk(
   "package/fetchActivePackages",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiMethods.get<PackageResponse>(GET_USER_PACKAGES_ENDPOINT);
-      const data = response.data as unknown as PackageResponse;
-      return data;
+      const response = await apiMethods.get<PackageResponse>(
+        GET_ACTIVE_PACKAGES_ENDPOINT
+      );
+      return response.data;
     } catch (error) {
       const apiError = error as ApiError;
       return rejectWithValue(apiError.message || "Failed to fetch packages");
@@ -95,20 +118,9 @@ export const purchasePackage = createAsyncThunk(
     try {
       const response = await apiMethods.post<PurchaseResponse>(
         CREATE_PACKAGE_PURCHASE_ENDPOINT,
-        {
-          packageId,
-          paymentMethod: "payos"
-        }
+        { packageId, paymentMethod: "payos" }
       );
-      
-      const data = response.data as unknown as PurchaseResponse;
-      if (data.success && data.purchaseInfo) {
-        return {
-          paymentUrl: data.purchaseInfo.paymentUrl
-        };
-      } else {
-        return rejectWithValue(data.message || "Failed to purchase package");
-      }
+      return response.data;
     } catch (error) {
       const apiError = error as ApiError;
       return rejectWithValue(apiError.message || "Failed to purchase package");
@@ -120,18 +132,86 @@ export const checkActivePackage = createAsyncThunk(
   "package/checkActivePackage",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiMethods.get<ActivePackageResponse>(GET_USER_ACTIVE_PACKAGE_ENDPOINT);
-      return response.data as unknown as ActivePackageResponse;
+      const response = await apiMethods.get<ActivePackageResponse>(
+        GET_USER_ACTIVE_PACKAGE_ENDPOINT
+      );
+      return response.data;
     } catch (error) {
       const apiError = error as ApiError;
       if (apiError.response?.status === 404) {
-        return { 
+        return {
           success: true,
           message: "No active package",
-          hasActivePackage: false 
-        } as ActivePackageResponse;
+          hasActivePackage: false,
+        };
       }
-      return rejectWithValue(apiError.message || "Failed to check active package");
+      return rejectWithValue(
+        apiError.message || "Failed to check active package"
+      );
+    }
+  }
+);
+
+export const getPackageDetails = createAsyncThunk(
+  "package/getDetails",
+  async (packageId: string, { rejectWithValue }) => {
+    try {
+      const response = await apiMethods.get(
+        GET_PACKAGE_DETAILS_ENDPOINT(packageId)
+      );
+      return response.data;
+    } catch (error) {
+      const apiError = error as ApiError;
+      return rejectWithValue(
+        apiError.message || "Failed to get package details"
+      );
+    }
+  }
+);
+
+export const checkPaymentStatus = createAsyncThunk(
+  "package/checkPaymentStatus",
+  async (transactionId: string, { rejectWithValue }) => {
+    try {
+      const response = await apiMethods.get(
+        CHECK_PAYMENT_STATUS_ENDPOINT(transactionId)
+      );
+      return response.data;
+    } catch (error) {
+      const apiError = error as ApiError;
+      return rejectWithValue(
+        apiError.message || "Failed to check payment status"
+      );
+    }
+  }
+);
+
+export const cancelPayment = createAsyncThunk(
+  "package/cancelPayment",
+  async (transactionId: string, { rejectWithValue }) => {
+    try {
+      const response = await apiMethods.delete(
+        CANCEL_PAYMENT_ENDPOINT(transactionId)
+      );
+      return response.data;
+    } catch (error) {
+      const apiError = error as ApiError;
+      return rejectWithValue(apiError.message || "Failed to cancel payment");
+    }
+  }
+);
+
+export const checkAndUpdateUserPackages = createAsyncThunk(
+  "package/checkAndUpdate",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiMethods.get(CHECK_USER_PACKAGES_ENDPOINT);
+      return response.data;
+    } catch (error) {
+      const apiError = error as ApiError;
+      return rejectWithValue(
+        apiError.message || "Failed to check user packages"
+      );
     }
   }
 );
@@ -144,7 +224,13 @@ const packageSlice = createSlice({
       state.purchaseLoading = false;
       state.purchaseError = null;
       state.paymentUrl = null;
-    }
+    },
+    clearPackageDetails: (state) => {
+      state.packageDetails = null;
+    },
+    clearPaymentStatus: (state) => {
+      state.paymentStatus = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -166,7 +252,7 @@ const packageSlice = createSlice({
       })
       .addCase(purchasePackage.fulfilled, (state, action) => {
         state.purchaseLoading = false;
-        state.paymentUrl = action.payload.paymentUrl;
+        state.paymentUrl = action.payload.purchaseInfo?.paymentUrl || null;
       })
       .addCase(purchasePackage.rejected, (state, action) => {
         state.purchaseLoading = false;
@@ -177,14 +263,45 @@ const packageSlice = createSlice({
       })
       .addCase(checkActivePackage.fulfilled, (state, action) => {
         state.activePackageLoading = false;
-        state.hasActivePackage = action.payload.hasActivePackage || false;
+        state.hasActivePackage = action.payload.hasActivePackage;
+        state.activePackage = action.payload.activePackage || null;
       })
       .addCase(checkActivePackage.rejected, (state) => {
         state.activePackageLoading = false;
         state.hasActivePackage = false;
+      })
+      .addCase(getPackageDetails.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getPackageDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.packageDetails = action.payload.package;
+      })
+      .addCase(getPackageDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(checkPaymentStatus.pending, (state) => {
+        state.paymentStatusLoading = true;
+      })
+      .addCase(checkPaymentStatus.fulfilled, (state, action) => {
+        state.paymentStatusLoading = false;
+        state.paymentStatus = action.payload;
+      })
+      .addCase(checkPaymentStatus.rejected, (state, action) => {
+        state.paymentStatusLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(cancelPayment.fulfilled, (state) => {
+        state.paymentUrl = null;
+      })
+      .addCase(checkAndUpdateUserPackages.fulfilled, (state, action) => {
+        state.hasActivePackage = action.payload.hasActivePackage;
+        state.activePackage = action.payload.activePackage || null;
       });
   },
 });
 
-export const { clearPurchaseState } = packageSlice.actions;
-export default packageSlice.reducer; 
+export const { clearPurchaseState, clearPackageDetails, clearPaymentStatus } =
+  packageSlice.actions;
+export default packageSlice.reducer;
