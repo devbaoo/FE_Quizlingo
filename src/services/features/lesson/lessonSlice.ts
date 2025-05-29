@@ -15,6 +15,7 @@ import {
   ILessonResponse,
   LessonProgress,
   UserProgress,
+  CreateLessonData,
 } from "@/interfaces/ILesson";
 import { message as antMessage } from "antd";
 
@@ -123,11 +124,14 @@ export const retryLesson = createAsyncThunk<
 
 export const createLesson = createAsyncThunk<
   { lesson: ILesson },
-  Partial<ILesson>,
+  CreateLessonData,
   { rejectValue: { message: string } }
 >("lesson/createLesson", async (lessonData, { rejectWithValue }) => {
   try {
-    const response = await axiosInstance.post(CREATE_LESSON_ENDPOINT, lessonData);
+    const response = await axiosInstance.post(
+      CREATE_LESSON_ENDPOINT,
+      lessonData
+    );
     return response.data;
   } catch (err: unknown) {
     const error = err as ApiError;
@@ -138,7 +142,7 @@ export const createLesson = createAsyncThunk<
 
 export const updateLesson = createAsyncThunk<
   { lesson: ILesson },
-  { id: string; data: Partial<ILesson> },
+  { id: string; data: CreateLessonData },
   { rejectValue: { message: string } }
 >("lesson/updateLesson", async ({ id, data }, { rejectWithValue }) => {
   try {
@@ -185,15 +189,10 @@ const lessonSlice = createSlice({
       .addCase(fetchLessons.fulfilled, (state, action) => {
         state.loading = false;
         // Extract lessons from the nested topics structure
-        const allLessons = action.payload.topics.flatMap(topicWithLessons => {
+        const allLessons = action.payload.topics.flatMap((topicWithLessons) => {
           // Each lesson already has its topic information, so we don't need to map it
           return topicWithLessons.lessons;
         });
-        
-        // Log the processed data
-        console.log('API Response:', action.payload);
-        console.log('Processed Lessons:', allLessons);
-        
         state.lessons = allLessons;
         state.pagination = action.payload.pagination;
         state.error = null;
@@ -267,7 +266,9 @@ const lessonSlice = createSlice({
       })
       .addCase(updateLesson.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.lessons.findIndex(lesson => lesson._id === action.payload.lesson._id);
+        const index = state.lessons.findIndex(
+          (lesson) => lesson._id === action.payload.lesson._id
+        );
         if (index !== -1) {
           state.lessons[index] = action.payload.lesson;
         }
@@ -284,7 +285,9 @@ const lessonSlice = createSlice({
       })
       .addCase(deleteLesson.fulfilled, (state, action) => {
         state.loading = false;
-        state.lessons = state.lessons.filter(lesson => lesson._id !== action.meta.arg);
+        state.lessons = state.lessons.filter(
+          (lesson) => lesson._id !== action.meta.arg
+        );
         state.error = null;
       })
       .addCase(deleteLesson.rejected, (state, action) => {

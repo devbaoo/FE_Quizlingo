@@ -45,7 +45,7 @@ const TopicsLesson = () => {
       await dispatch(deleteTopic(id)).unwrap();
       message.success('Xóa topic thành công');
       setShouldReload(true);
-    } catch (error) {
+    } catch {
       message.error('Lỗi khi xóa topic');
     }
   };
@@ -63,7 +63,7 @@ const TopicsLesson = () => {
       form.resetFields();
       setEditingTopic(null);
       setShouldReload(true);
-    } catch (error) {
+    } catch {
       message.error('Lỗi khi lưu topic');
     }
   };

@@ -125,38 +125,30 @@ export interface CompleteLessonResponse {
 // Form related interfaces
 export interface QuestionFormData {
   content: string;
-  options: string[];
+  type: "multiple_choice" | "text_input" | "audio_input";
+  skill: string;
+  options?: string[];
   correctAnswer?: string;
   score: number;
-  skill: string;
-  type: "multiple_choice" | "text_input";
 }
 
 export interface LessonFormData {
   title: string;
-  type: string;
   topic: string;
   level: string;
-  skills: string[];
   questions: QuestionFormData[];
 }
 
 export interface CreateLessonData {
   title: string;
-  type: string;
-  topic: ITopicDetail;
-  level: ILevel;
+  topic: string;
+  level: string;
   questions: {
-    _id: string;
-    lessonId: string;
-    content: string;
-    type: "multiple_choice" | "text_input";
     skill: string;
-    options: string[];
+    type: "multiple_choice" | "text_input" | "audio_input";
+    content: string;
+    options?: string[];
     correctAnswer?: string;
     score: number;
-    audioContent: string | undefined;
-    createdAt: string;
-    __v: number;
   }[];
 }
