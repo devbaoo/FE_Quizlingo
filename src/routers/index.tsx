@@ -37,6 +37,7 @@ import Rank from "@/page/User/Rank";
 import StaffDashboard from "@/page/Staff/StaffDashboard";
 import StaffLayout from "@/components/Layout/StaffLayout";
 import Package from "@/page/User/Package";
+import PaymentReturn from "@/page/Payment/PaymentReturn";
 
 
 const AppRouter = () => {
@@ -86,6 +87,9 @@ const AppRouter = () => {
                     <Route path="/rank" element={<Rank />} />
                     <Route path="/packages" element={<Package />} />
                 </Route>
+
+                {/* Payment Routes */}
+                <Route path="/payment/return" element={<PaymentReturn />} />
 
                 {/* Choose Process Routes */}
                 <Route path="/choose-topic" element={<Process currentStep={1} Page={<TopicPage />} />} />
