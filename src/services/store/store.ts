@@ -10,12 +10,13 @@ import lessonReducer from "../features/lesson/lessonSlice";
 import adminReducer from "../features/admin/adminSlice";
 import levelReducer from "../features/level/levelSlice"; 
 import skillReducer from "../features/skill/skillSlice"; 
+import packageReducer from "../features/package/packageSlice";
 
 
 const presistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "user", "lesson", "topic", "admin", "level", "skill"],
+  whitelist: ["auth", "user", "lesson", "topic", "admin", "level", "skill", "package"],
 };
 
 // Create a hook for using TypedUseSelectorHook
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   admin: adminReducer,
   level: levelReducer,
   skill: skillReducer,
+  package: packageReducer,
   // Add other reducers here as needed
 });
 
