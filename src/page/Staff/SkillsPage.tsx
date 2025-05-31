@@ -43,7 +43,7 @@ const SkillsPage = () => {
     try {
       await dispatch(deleteSkill(id)).unwrap();
       message.success('Xóa kỹ năng thành công');
-    } catch (error) {
+    } catch {
       message.error('Không thể xóa kỹ năng');
     }
   };
@@ -60,7 +60,7 @@ const SkillsPage = () => {
       }
       setIsModalVisible(false);
       form.resetFields();
-    } catch (error) {
+    } catch {
       message.error('Có lỗi xảy ra');
     }
   };
@@ -79,13 +79,13 @@ const SkillsPage = () => {
       key: 'actions',
       render: (_: any, record: Skill) => (
         <Space>
-          <Button 
-            icon={<EditOutlined />} 
+          <Button
+            icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
           />
-          <Button 
-            icon={<DeleteOutlined />} 
-            danger 
+          <Button
+            icon={<DeleteOutlined />}
+            danger
             onClick={() => handleDelete(record._id)}
           />
         </Space>
