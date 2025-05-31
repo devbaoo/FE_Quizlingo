@@ -67,6 +67,12 @@ interface PaymentStatusResponse {
   status: string;
 }
 
+interface PackageDetailsResponse {
+  success: boolean;
+  message: string;
+  package: IPackage;
+}
+
 interface PackageState {
   packages: IPackage[];
   packageDetails: IPackage | null;
@@ -76,7 +82,7 @@ interface PackageState {
   purchaseError: string | null;
   paymentUrl: string | null;
   hasActivePackage: boolean;
-  activePackage: any | null;
+  activePackage: null;
   activePackageLoading: boolean;
   paymentStatus: PaymentStatusResponse | null;
   paymentStatusLoading: boolean;
@@ -138,13 +144,13 @@ export const checkActivePackage = createAsyncThunk(
       return response.data;
     } catch (error) {
       const apiError = error as ApiError;
-      if (apiError.response?.status === 404) {
-        return {
-          success: true,
-          message: "No active package",
-          hasActivePackage: false,
-        };
-      }
+      // if (apiError.response?.status === 404) {
+      //   return {
+      //     success: true,
+      //     message: "No active package",
+      //     hasActivePackage: false,
+      //   };
+      // }
       return rejectWithValue(
         apiError.message || "Failed to check active package"
       );
@@ -156,10 +162,10 @@ export const getPackageDetails = createAsyncThunk(
   "package/getDetails",
   async (packageId: string, { rejectWithValue }) => {
     try {
-      const response = await apiMethods.get(
+      const response = await apiMethods.get<PackageDetailsResponse>(
         GET_PACKAGE_DETAILS_ENDPOINT(packageId)
       );
-      return response.data;
+      return response.data as unknown as PackageDetailsResponse;
     } catch (error) {
       const apiError = error as ApiError;
       return rejectWithValue(
@@ -238,9 +244,8 @@ const packageSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchActivePackages.fulfilled, (state, action) => {
+      .addCase(fetchActivePackages.fulfilled, (state) => {
         state.loading = false;
-        state.packages = action.payload.packages;
       })
       .addCase(fetchActivePackages.rejected, (state, action) => {
         state.loading = false;
@@ -252,7 +257,10 @@ const packageSlice = createSlice({
       })
       .addCase(purchasePackage.fulfilled, (state, action) => {
         state.purchaseLoading = false;
-        state.paymentUrl = action.payload.purchaseInfo?.paymentUrl || null;
+        const response = action.payload as unknown as PurchaseResponse;
+        if (response?.purchaseInfo?.paymentUrl) {
+          state.paymentUrl = response.purchaseInfo.paymentUrl;
+        }
       })
       .addCase(purchasePackage.rejected, (state, action) => {
         state.purchaseLoading = false;
@@ -261,10 +269,8 @@ const packageSlice = createSlice({
       .addCase(checkActivePackage.pending, (state) => {
         state.activePackageLoading = true;
       })
-      .addCase(checkActivePackage.fulfilled, (state, action) => {
+      .addCase(checkActivePackage.fulfilled, (state) => {
         state.activePackageLoading = false;
-        state.hasActivePackage = action.payload.hasActivePackage;
-        state.activePackage = action.payload.activePackage || null;
       })
       .addCase(checkActivePackage.rejected, (state) => {
         state.activePackageLoading = false;
@@ -284,9 +290,8 @@ const packageSlice = createSlice({
       .addCase(checkPaymentStatus.pending, (state) => {
         state.paymentStatusLoading = true;
       })
-      .addCase(checkPaymentStatus.fulfilled, (state, action) => {
+      .addCase(checkPaymentStatus.fulfilled, (state) => {
         state.paymentStatusLoading = false;
-        state.paymentStatus = action.payload;
       })
       .addCase(checkPaymentStatus.rejected, (state, action) => {
         state.paymentStatusLoading = false;
@@ -294,10 +299,6 @@ const packageSlice = createSlice({
       })
       .addCase(cancelPayment.fulfilled, (state) => {
         state.paymentUrl = null;
-      })
-      .addCase(checkAndUpdateUserPackages.fulfilled, (state, action) => {
-        state.hasActivePackage = action.payload.hasActivePackage;
-        state.activePackage = action.payload.activePackage || null;
       });
   },
 });

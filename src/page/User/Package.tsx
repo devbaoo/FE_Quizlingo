@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/services/store/store';
 import {
@@ -37,7 +37,7 @@ import {
     CloseCircleOutlined,
     EyeOutlined
 } from '@ant-design/icons';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 interface IPackageFeature {
@@ -59,6 +59,17 @@ interface IPackage {
     updatedAt: string;
 }
 
+interface IActivePackage {
+    _id: string;
+    userId: string;
+    package: IPackage;
+    startDate: string;
+    endDate: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 const getDisplayPackageName = (name: string) => {
     const lowercaseName = name.toLowerCase();
     if (lowercaseName.includes('silver')) return 'Gói Bạc';
@@ -74,7 +85,6 @@ const calculateRemainingDays = (endDate: string) => {
 
 function Package() {
     const dispatch = useDispatch<AppDispatch>();
-    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const transactionIdParam = searchParams.get('transactionId');
 
@@ -90,8 +100,19 @@ function Package() {
         activePackageLoading,
         packageDetails,
         paymentStatus,
-        paymentStatusLoading
-    } = useSelector((state: RootState) => state.package);
+    } = useSelector((state: RootState) => state.package as {
+        packages: IPackage[];
+        loading: boolean;
+        error: string | null;
+        purchaseLoading: boolean;
+        purchaseError: string | null;
+        paymentUrl: string | null;
+        hasActivePackage: boolean;
+        activePackage: IActivePackage | null;
+        activePackageLoading: boolean;
+        packageDetails: IPackage | null;
+        paymentStatus: { status: string } | null;
+    });
 
     useEffect(() => {
         dispatch(fetchActivePackages());
@@ -105,9 +126,12 @@ function Package() {
 
     useEffect(() => {
         if (paymentUrl) {
-            const newWindow = window.open(paymentUrl, '_blank', 'noopener,noreferrer');
-            if (newWindow) newWindow.opener = null;
-            dispatch(clearPurchaseState());
+            message.loading('Đang chuyển hướng đến trang thanh toán...', 1.5).then(() => {
+                const newWindow = window.open(paymentUrl, '_blank', 'noopener,noreferrer');
+                if (newWindow) newWindow.opener = null;
+                message.info('Vui lòng hoàn tất thanh toán trong cửa sổ mới', 3);
+                dispatch(clearPurchaseState());
+            });
         }
     }, [paymentUrl, dispatch]);
 
