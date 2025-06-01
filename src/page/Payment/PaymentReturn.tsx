@@ -37,16 +37,23 @@ const PaymentReturn: React.FC = () => {
     const [paymentResult, setPaymentResult] = useState<PaymentStatusResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const orderId = searchParams.get('id');
     const orderCode = searchParams.get('orderCode');
     const isCancelled = searchParams.get('cancel') === 'true';
 
+    // Hàm chuyển đổi orderCode sang định dạng PKG_
+    const convertToTransactionId = (code: string): string => {
+        // Sử dụng toàn bộ orderCode
+        return `PKG_${code}`;
+    };
+
     useEffect(() => {
         const handlePaymentReturn = async () => {
-            if (orderId) {
+            if (orderCode) {
                 try {
                     setIsLoading(true);
-                    const action = await dispatch(checkPaymentStatus(orderId));
+                    // Chuyển đổi orderCode sang định dạng PKG_
+                    const transactionId = convertToTransactionId(orderCode);
+                    const action = await dispatch(checkPaymentStatus(transactionId));
                     const result = action.payload as unknown as PaymentStatusResponse;
                     setPaymentResult(result);
 
@@ -66,7 +73,7 @@ const PaymentReturn: React.FC = () => {
         };
 
         handlePaymentReturn();
-    }, [dispatch, navigate, orderId]);
+    }, [dispatch, navigate, orderCode]);
 
     const renderContent = () => {
         if (isLoading) {

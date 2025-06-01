@@ -49,14 +49,17 @@ export const UPDATE_PACKAGES_ENDPOINT = (id: string) =>
 
 //package user
 export const GET_ACTIVE_PACKAGES_ENDPOINT = `${BASE_URL}/packages`;
-export const GET_PACKAGE_DETAILS_ENDPOINT = (packageId: string) => `${BASE_URL}/packages/${packageId}`;
+export const GET_PACKAGE_DETAILS_ENDPOINT = (packageId: string) =>
+  `${BASE_URL}/packages/${packageId}`;
 export const GET_USER_ACTIVE_PACKAGE_ENDPOINT = `${BASE_URL}/packages/user/active`;
 export const CREATE_PACKAGE_PURCHASE_ENDPOINT = `${BASE_URL}/packages/purchase`;
 export const PAYMENT_CALLBACK_ENDPOINT = `${BASE_URL}/packages/payment-callback`;
 export const CHECK_USER_PACKAGES_ENDPOINT = `${BASE_URL}/packages/user/check`;
 export const PAYMENT_WEBHOOK_ENDPOINT = `${BASE_URL}/packages/webhook`;
-export const CHECK_PAYMENT_STATUS_ENDPOINT = (transactionId: string) => `${BASE_URL}/packages/payment-status/${transactionId}`;
-export const CANCEL_PAYMENT_ENDPOINT = (transactionId: string) => `${BASE_URL}/packages/cancel-payment/${transactionId}`;
+export const CHECK_PAYMENT_STATUS_ENDPOINT = (transactionId: string) =>
+  `${BASE_URL}/packages/payment/${transactionId}/status`;
+export const CANCEL_PAYMENT_ENDPOINT = (transactionId: string) =>
+  `${BASE_URL}/packages/cancel-payment/${transactionId}`;
 
 //topic
 export const GET_TOPICS_ENDPOINT = `${BASE_URL}/topics`;
