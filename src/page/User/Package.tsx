@@ -115,7 +115,15 @@ function Package() {
     });
 
     useEffect(() => {
-        dispatch(fetchActivePackages());
+        console.log('Fetching packages...');
+        dispatch(fetchActivePackages())
+            .unwrap()
+            .then((result) => {
+                console.log('Packages fetched successfully:', result);
+            })
+            .catch((error) => {
+                console.error('Error fetching packages:', error);
+            });
         dispatch(checkActivePackage());
         dispatch(checkAndUpdateUserPackages());
 

@@ -30,12 +30,6 @@ export interface IPackage {
   updatedAt: string;
 }
 
-interface PackageResponse {
-  success: boolean;
-  message: string;
-  packages: IPackage[];
-}
-
 interface PurchaseResponse {
   success: boolean;
   message: string;
@@ -47,6 +41,13 @@ interface PurchaseResponse {
     qrCode: string;
     orderCode: string;
   };
+}
+
+interface PackageListResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  packages: IPackage[];
 }
 
 interface ActivePackageResponse {
@@ -107,11 +108,23 @@ export const fetchActivePackages = createAsyncThunk(
   "package/fetchActivePackages",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiMethods.get<PackageResponse>(
-        GET_ACTIVE_PACKAGES_ENDPOINT
-      );
-      return response.data;
+      console.log("Making API request...");
+      const response = await apiMethods.get(GET_ACTIVE_PACKAGES_ENDPOINT);
+      console.log("Response data:", response.data);
+
+      const responseData = response.data as unknown;
+      if (
+        typeof responseData === "object" &&
+        responseData !== null &&
+        "packages" in responseData &&
+        Array.isArray((responseData as PackageListResponse).packages)
+      ) {
+        return (responseData as PackageListResponse).packages;
+      }
+
+      throw new Error("Invalid response format");
     } catch (error) {
+      console.error("API Error:", error);
       const apiError = error as ApiError;
       return rejectWithValue(apiError.message || "Failed to fetch packages");
     }
@@ -244,8 +257,9 @@ const packageSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchActivePackages.fulfilled, (state) => {
+      .addCase(fetchActivePackages.fulfilled, (state, action) => {
         state.loading = false;
+        state.packages = action.payload;
       })
       .addCase(fetchActivePackages.rejected, (state, action) => {
         state.loading = false;
