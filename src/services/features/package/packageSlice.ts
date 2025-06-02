@@ -209,7 +209,7 @@ export const cancelPayment = createAsyncThunk(
   "package/cancelPayment",
   async (transactionId: string, { rejectWithValue }) => {
     try {
-      const response = await apiMethods.delete(
+      const response = await apiMethods.post(
         CANCEL_PAYMENT_ENDPOINT(transactionId)
       );
       return response.data;
