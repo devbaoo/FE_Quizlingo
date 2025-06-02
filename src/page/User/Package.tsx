@@ -9,7 +9,6 @@ import {
     getPackageDetails,
     checkPaymentStatus,
     cancelPayment,
-    checkAndUpdateUserPackages,
     clearPackageDetails,
     clearPaymentStatus
 } from '@/services/features/package/packageSlice';
@@ -83,6 +82,12 @@ const calculateRemainingDays = (endDate: string) => {
     return end.diff(now, 'day');
 };
 
+const isDiscountValid = (discountEndDate: string) => {
+    const end = dayjs(discountEndDate);
+    const now = dayjs();
+    return now.isBefore(end);
+};
+
 function Package() {
     const dispatch = useDispatch<AppDispatch>();
     const [searchParams] = useSearchParams();
@@ -125,7 +130,6 @@ function Package() {
                 console.error('Error fetching packages:', error);
             });
         dispatch(checkActivePackage());
-        dispatch(checkAndUpdateUserPackages());
 
         if (transactionIdParam) {
             dispatch(checkPaymentStatus(transactionIdParam));
@@ -275,6 +279,7 @@ function Package() {
                     {packages.map((pkg: IPackage) => {
                         const discountedPrice = pkg.price * (1 - pkg.discount / 100);
                         const isPopular = pkg.duration === 30;
+                        const showDiscount = pkg.discount > 0 && isDiscountValid(pkg.discountEndDate);
 
                         return (
                             <Col key={pkg._id} xs={24} sm={12} md={8} lg={6}>
@@ -285,60 +290,71 @@ function Package() {
                                     style={{ display: isPopular ? 'block' : 'none' }}
                                 >
                                     <Card
-                                        className="h-full transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                                        className="h-full transform transition-all duration-300 hover:scale-105 hover:shadow-lg flex flex-col"
                                         title={
                                             <div className="text-xl font-bold text-center">
                                                 {getDisplayPackageName(pkg.name)}
                                             </div>
                                         }
                                     >
-                                        <div className="text-center mb-6">
-                                            {pkg.discount > 0 ? (
-                                                <div className="space-y-1">
-                                                    <div className="text-gray-500 line-through text-lg">
-                                                        {pkg.price.toLocaleString('vi-VN')}đ
+                                        <div className="flex-grow flex flex-col">
+                                            <div className="text-center py-4 min-h-[130px] flex flex-col justify-center">
+                                                {showDiscount ? (
+                                                    <div className="space-y-1">
+                                                        <div className="text-gray-500 line-through text-lg">
+                                                            {pkg.price.toLocaleString('vi-VN')}đ
+                                                        </div>
+                                                        <div className="text-3xl font-bold text-blue-600">
+                                                            {discountedPrice.toLocaleString('vi-VN')}đ
+                                                        </div>
+                                                        <Tag color="red" className="mt-1">
+                                                            Giảm {pkg.discount}%
+                                                        </Tag>
+                                                        <div className="text-xs text-gray-500 mt-1">
+                                                            <ClockCircleOutlined className="mr-1" />
+                                                            Hết hạn: {dayjs(pkg.discountEndDate).format('DD/MM/YYYY')}
+                                                        </div>
                                                     </div>
-                                                    <div className="text-3xl font-bold text-blue-600">
-                                                        {discountedPrice.toLocaleString('vi-VN')}đ
+                                                ) : (
+                                                    <div className="space-y-1">
+                                                        <div className="h-[24px]"></div>
+                                                        <div className="text-3xl font-bold text-blue-600">
+                                                            {pkg.price.toLocaleString('vi-VN')}đ
+                                                        </div>
+                                                        <div className="h-[22px]"></div>
+                                                        <div className="h-[22px]"></div>
                                                     </div>
-                                                    <Tag color="red" className="mt-1">
-                                                        Giảm {pkg.discount}%
-                                                    </Tag>
-                                                </div>
-                                            ) : (
-                                                <div className="text-3xl font-bold text-blue-600">
-                                                    {pkg.price.toLocaleString('vi-VN')}đ
-                                                </div>
-                                            )}
-                                            <div className="text-gray-500 mt-2">/{pkg.duration} ngày</div>
-                                        </div>
-
-                                        <div className="mb-6">
-                                            <p className="text-gray-600 text-center">{pkg.description}</p>
-                                        </div>
-
-                                        <div className="space-y-3 mb-6">
-                                            <h3 className="font-bold mb-3 text-gray-700 flex items-center">
-                                                <ThunderboltOutlined className="text-yellow-500 mr-2" />
-                                                Tính năng bao gồm:
-                                            </h3>
-                                            <ul className="space-y-2">
-                                                {pkg.features.doubleXP && (
-                                                    <li className="flex items-center text-gray-600">
-                                                        <CheckCircleOutlined className="text-green-500 mr-2" />
-                                                        Nhân đôi XP
-                                                    </li>
                                                 )}
-                                                {pkg.features.unlimitedLives && (
-                                                    <li className="flex items-center text-gray-600">
-                                                        <HeartOutlined className="text-red-500 mr-2" />
-                                                        Mạng không giới hạn
-                                                    </li>
-                                                )}
-                                            </ul>
+                                                <div className="text-gray-500 mt-2">/{pkg.duration} ngày</div>
+                                            </div>
+
+                                            <div className="px-4 mb-4">
+                                                <p className="text-gray-600 text-center">{pkg.description}</p>
+                                            </div>
+
+                                            <div className="px-4 mb-4">
+                                                <h3 className="font-bold mb-2 text-gray-700 flex items-center">
+                                                    <ThunderboltOutlined className="text-yellow-500 mr-2" />
+                                                    Tính năng bao gồm:
+                                                </h3>
+                                                <ul className="space-y-2">
+                                                    {pkg.features.doubleXP && (
+                                                        <li className="flex items-center text-gray-600">
+                                                            <CheckCircleOutlined className="text-green-500 mr-2" />
+                                                            Nhân đôi XP
+                                                        </li>
+                                                    )}
+                                                    {pkg.features.unlimitedLives && (
+                                                        <li className="flex items-center text-gray-600">
+                                                            <HeartOutlined className="text-red-500 mr-2" />
+                                                            Mạng không giới hạn
+                                                        </li>
+                                                    )}
+                                                </ul>
+                                            </div>
                                         </div>
 
-                                        <div className="flex space-x-2">
+                                        <div className="flex space-x-2 p-4 border-t">
                                             <Tooltip title={hasActivePackage ? "Bạn cần đợi gói hiện tại hết hạn trước khi mua gói mới" : ""}>
                                                 <Button
                                                     type="primary"
@@ -383,12 +399,16 @@ function Package() {
                             <Descriptions.Item label="Mô tả">{packageDetails.description}</Descriptions.Item>
                             <Descriptions.Item label="Giá gốc">
                                 {packageDetails.price.toLocaleString('vi-VN')}đ
-                                {packageDetails.discount > 0 && (
+                                {packageDetails.discount > 0 && isDiscountValid(packageDetails.discountEndDate) && (
                                     <span className="ml-2">
                                         <Tag color="red">Giảm {packageDetails.discount}%</Tag>
                                         <span className="ml-2 text-lg font-semibold">
                                             → {Math.round(packageDetails.price * (1 - packageDetails.discount / 100)).toLocaleString('vi-VN')}đ
                                         </span>
+                                        <div className="text-sm text-gray-500 mt-1">
+                                            <ClockCircleOutlined className="mr-1" />
+                                            Hết hạn: {dayjs(packageDetails.discountEndDate).format('DD/MM/YYYY')}
+                                        </div>
                                     </span>
                                 )}
                             </Descriptions.Item>
