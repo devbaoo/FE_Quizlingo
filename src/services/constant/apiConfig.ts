@@ -59,7 +59,7 @@ export const PAYMENT_WEBHOOK_ENDPOINT = `${BASE_URL}/packages/webhook`;
 export const CHECK_PAYMENT_STATUS_ENDPOINT = (transactionId: string) =>
   `${BASE_URL}/packages/payment/${transactionId}/status`;
 export const CANCEL_PAYMENT_ENDPOINT = (transactionId: string) =>
-  `${BASE_URL}/packages/cancel-payment/${transactionId}`;
+  `${BASE_URL}/packages/payment/${transactionId}/cancel`;
 
 //topic
 export const GET_TOPICS_ENDPOINT = `${BASE_URL}/topics`;
