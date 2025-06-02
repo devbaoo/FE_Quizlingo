@@ -7,7 +7,6 @@ import {
   CREATE_PACKAGE_PURCHASE_ENDPOINT,
   CHECK_PAYMENT_STATUS_ENDPOINT,
   CANCEL_PAYMENT_ENDPOINT,
-  CHECK_USER_PACKAGES_ENDPOINT,
 } from "@/services/constant/apiConfig";
 import { ApiError } from "@/services/constant/axiosInstance";
 
@@ -216,21 +215,6 @@ export const cancelPayment = createAsyncThunk(
     } catch (error) {
       const apiError = error as ApiError;
       return rejectWithValue(apiError.message || "Failed to cancel payment");
-    }
-  }
-);
-
-export const checkAndUpdateUserPackages = createAsyncThunk(
-  "package/checkAndUpdate",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await apiMethods.get(CHECK_USER_PACKAGES_ENDPOINT);
-      return response.data;
-    } catch (error) {
-      const apiError = error as ApiError;
-      return rejectWithValue(
-        apiError.message || "Failed to check user packages"
-      );
     }
   }
 );
