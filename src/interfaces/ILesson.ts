@@ -73,6 +73,7 @@ export interface IQuestion {
   options: string[];
   correctAnswer?: string;
   score: number;
+  timeLimit?: number;
   audioContent?: string;
   createdAt: string;
   __v: number;
@@ -130,6 +131,7 @@ export interface QuestionFormData {
   options?: string[];
   correctAnswer?: string;
   score: number;
+  timeLimit: number;
 }
 
 export interface LessonFormData {
@@ -147,6 +149,7 @@ export interface CreateLessonData {
     skill: string;
     type: "multiple_choice" | "text_input" | "audio_input";
     content: string;
+    timeLimit: number;
     options?: string[];
     correctAnswer?: string;
     score: number;

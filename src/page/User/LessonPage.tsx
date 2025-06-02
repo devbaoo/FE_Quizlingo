@@ -183,11 +183,18 @@ const LessonPage = () => {
 
     useEffect(() => {
         if (currentLesson) {
-            setTimeLeft(currentLesson.level?.timeLimit || 0);
             const shuffled = shuffleArray(shuffleQuestionsAndOptions(currentLesson.questions));
             setShuffledQuestions(shuffled);
         }
     }, [currentLesson]);
+
+    // Update the timer when the current question changes
+    useEffect(() => {
+        if (shuffledQuestions.length > 0 && currentQuestionIndex < shuffledQuestions.length) {
+            const currentQuestion = shuffledQuestions[currentQuestionIndex];
+            setTimeLeft(currentQuestion.timeLimit || 30); // Default to 30 seconds if timeLimit not set
+        }
+    }, [currentQuestionIndex, shuffledQuestions]);
 
     useEffect(() => {
         if (timeLeft > 0) {
@@ -286,7 +293,6 @@ const LessonPage = () => {
             setQuestionResults([...questionResults, result]);
             setSelectedAnswer("");
             setTextInput("");
-            setTimeLeft(currentLesson.timeLimit);
             setIsPlaying(false);
             audio.pause();
             setAudioBlob(null);

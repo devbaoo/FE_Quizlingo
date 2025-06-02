@@ -73,6 +73,7 @@ const LessonsPage = () => {
           options: q.type === 'multiple_choice' ? q.options : undefined,
           correctAnswer: q.type === 'multiple_choice' ? q.correctAnswer : undefined,
           score: Number(q.score) || 0,
+          timeLimit: Number(q.timeLimit) || 0,
           audioContent: undefined
         }))
       };
@@ -141,6 +142,7 @@ const LessonsPage = () => {
                   options: q.options || [],
                   correctAnswer: q.correctAnswer,
                   score: q.score || 0,
+                  timeLimit: q.timeLimit || 0,
                   skill: q.skill || record.skills?.[0]?._id || '',
                   type: q.type || 'multiple_choice'
                 })) || []
@@ -333,6 +335,15 @@ const LessonsPage = () => {
                         name={[name, 'score']}
                         label="Điểm"
                         rules={[{ required: true, message: 'Vui lòng nhập điểm!' }]}
+                      >
+                        <InputNumber min={0} />
+                      </Form.Item>
+
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'timeLimit']}
+                        label="Thời gian làm bài (giây)"
+                        rules={[{ required: true, message: 'Vui lòng nhập thời gian làm bài!' }]}
                       >
                         <InputNumber min={0} />
                       </Form.Item>
