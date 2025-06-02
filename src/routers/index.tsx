@@ -38,6 +38,7 @@ import StaffDashboard from "@/page/Staff/StaffDashboard";
 import StaffLayout from "@/components/Layout/StaffLayout";
 import Package from "@/page/User/Package";
 import PaymentReturn from "@/page/Payment/PaymentReturn";
+import PaymentCancel from "@/page/Payment/PaymentCancel";
 
 
 const AppRouter = () => {
@@ -90,6 +91,7 @@ const AppRouter = () => {
 
                 {/* Payment Routes */}
                 <Route path="/payment/return" element={<PaymentReturn />} />
+                <Route path="/payment/cancel" element={<PaymentCancel />} />
 
                 {/* Choose Process Routes */}
                 <Route path="/choose-topic" element={<Process currentStep={1} Page={<TopicPage />} />} />
