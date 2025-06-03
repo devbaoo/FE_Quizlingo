@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/services/store/store";
-import { loginUser } from "@/services/features/auth/authSlice";
+import { loginUser, loginWithGoogle } from "@/services/features/auth/authSlice";
 import { fetchUserProfile } from "@/services/features/user/userSlice";
 import { Link } from "react-router-dom";
 import { Spin } from "antd";
+import { auth, googleProvider } from "@/services/constant/firebase";
+import { signInWithPopup } from "firebase/auth";
+import axiosInstance from "@/services/constant/axiosInstance";
 
-const LoginForm = () => {
+const LoginForm = forwardRef((_, ref) => {
     const [credentials, setCredentials] = useState({
         email: "",
         password: "",
@@ -23,41 +26,89 @@ const LoginForm = () => {
         }));
     };
 
+    // Helper để lưu token
+    const saveTokens = (accessToken: string, refreshToken: string) => {
+        localStorage.setItem("token", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+    };
+
+    // Helper để điều hướng sau login
+    const handleNavigateAfterLogin = (user: unknown, profileResult?: unknown) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const u = user as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const p = profileResult as any;
+        if (u?.role === "admin") {
+            navigate("/admin");
+        } else if (u?.role === "staff") {
+            navigate("/staff");
+        } else if (p && (!p.level || !p.preferredSkills || p.preferredSkills.length === 0)) {
+            navigate("/choose-topic");
+        } else {
+            navigate("/learn");
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-
         try {
             const result = await dispatch(loginUser(credentials)).unwrap();
             if (result.success) {
                 if (result.needVerification) {
                     navigate("/resend-verification", { state: { email: credentials.email } });
                 } else {
-                    // Fetch user profile after successful login
                     const profileResult = await dispatch(fetchUserProfile()).unwrap();
-
-                    // Add delay before navigation
-                    setTimeout(() => {
-                        if (result.user?.role === "admin") {
-                            navigate("/admin");
-                        } else if (result.user?.role === "staff") {
-                            navigate("/staff");
-                        } else {
-                            // Check if user needs to complete profile setup
-                            if (!profileResult.level || !profileResult.preferredSkills || profileResult.preferredSkills.length === 0) {
-                                navigate("/choose-topic");
-                            } else {
-                                navigate("/learn");
-                            }
-                        }
-                    }, 1500);
+                    setTimeout(() => handleNavigateAfterLogin(result.user, profileResult), 1500);
                 }
             }
         } catch (error) {
             console.error("Login failed:", error);
+        } finally {
             setIsLoading(false);
         }
     };
+
+    const handleGoogleLogin = async () => {
+        setIsLoading(true);
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            // Lấy thông tin user từ Firebase user object
+            const { email, displayName, photoURL } = result.user;
+            // Gửi thông tin này lên backend
+            const response = await axiosInstance.post("/auth/google-login", {
+                email,
+                name: displayName,
+                picture: photoURL,
+            });
+            const data = response.data;
+            if (data.success) {
+                saveTokens(data.accessToken, data.refreshToken);
+                dispatch(loginWithGoogle({
+                    user: data.user,
+                    accessToken: data.accessToken,
+                    refreshToken: data.refreshToken,
+                }));
+                let profileResult = undefined;
+                try {
+                    profileResult = await dispatch(fetchUserProfile()).unwrap();
+                } catch {
+                    // ignore
+                }
+                handleNavigateAfterLogin(data.user, profileResult);
+            } else {
+                alert(data.message || "Đăng nhập Google thất bại");
+            }
+        } catch {
+            alert("Đăng nhập Google thất bại");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useImperativeHandle(ref, () => ({
+        handleGoogleLogin,
+    }));
 
     return (
         <>
@@ -106,9 +157,10 @@ const LoginForm = () => {
                 >
                     {isLoading ? "Đang xử lý..." : "Đăng nhập"}
                 </button>
+                {/* Nút Google đã được chuyển ra ngoài LoginPage */}
             </form>
         </>
     );
-};
+});
 
 export default LoginForm;
