@@ -6,7 +6,6 @@ import {
     purchasePackage,
     clearPurchaseState,
     checkActivePackage,
-    getPackageDetails,
     checkPaymentStatus,
     cancelPayment,
     clearPackageDetails,
@@ -34,7 +33,6 @@ import {
     InfoCircleOutlined,
     ClockCircleOutlined,
     CloseCircleOutlined,
-    EyeOutlined
 } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -167,10 +165,6 @@ function Package() {
             cancelText: 'Hủy',
             onOk: () => dispatch(purchasePackage(packageId)),
         });
-    };
-
-    const handleViewDetails = (packageId: string) => {
-        dispatch(getPackageDetails(packageId));
     };
 
     const handleCancelPayment = (transactionId: string) => {
@@ -374,10 +368,6 @@ function Package() {
                                                     )}
                                                 </Button>
                                             </Tooltip>
-                                            <Button
-                                                icon={<EyeOutlined />}
-                                                onClick={() => handleViewDetails(pkg._id)}
-                                            />
                                         </div>
                                     </Card>
                                 </Badge.Ribbon>
