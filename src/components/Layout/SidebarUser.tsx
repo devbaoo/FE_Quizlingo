@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "@/services/features/auth/authSlice";
 import { Link } from "react-router-dom";
-import { SettingOutlined, TrophyOutlined } from "@ant-design/icons";
+import { SettingOutlined, TrophyOutlined, GiftOutlined, UserOutlined } from "@ant-design/icons";
 
 const menuItems = [
     {
@@ -17,10 +17,14 @@ const menuItems = [
         href: "/rank",
     },
     {
-        icon: null,
+        iconElement: <GiftOutlined />,
+        label: "Gói đăng ký",
+        href: "/packages",
+    },
+    {
+        iconElement: <UserOutlined style={{ fontSize: '24px', color: '#666' }} />,
         label: "Hồ sơ",
         href: "/profile",
-        profileInitial: "P",
     },
     {
         iconElement: <SettingOutlined />,
@@ -125,7 +129,6 @@ export default function Sidebar() {
                                         <div className="text-lg text-gray-600">{item.iconElement}</div>
                                     ) : (
                                         <div className="bg-gray-200 text-gray-600 font-bold rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                                            {item.profileInitial}
                                         </div>
                                     )}
                                 </div>
