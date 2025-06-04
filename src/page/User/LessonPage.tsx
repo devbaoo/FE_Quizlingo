@@ -458,12 +458,11 @@ const LessonPage = () => {
                         </div>
                     ) : isTextInputQuestion ? (
                         <div className="space-y-4">
-                            <input
-                                type="text"
+                            <textarea
                                 value={textInput}
                                 onChange={(e) => handleTextInputChange(e.target.value)}
                                 placeholder="Type your answer here..."
-                                className="w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all duration-200"
+                                className="w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all duration-200 resize-none min-h-[120px] sm:min-h-[180px] text-base"
                             />
                         </div>
                     ) : (
