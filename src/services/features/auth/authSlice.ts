@@ -221,6 +221,16 @@ const authSlice = createSlice({
         state.user.avatar = action.payload;
       }
     },
+    loginWithGoogle: (state, action) => {
+      state.user = action.payload.user;
+      state.token = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
+      state.isAuthenticated = true;
+      state.loading = false;
+      state.error = null;
+      localStorage.setItem("token", action.payload.accessToken);
+      localStorage.setItem("refreshToken", action.payload.refreshToken);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -379,5 +389,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, setAvatar } = authSlice.actions;
+export const { logout, setAvatar, loginWithGoogle } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,4 +1,4 @@
-import { Typography, Dropdown, Avatar } from "antd";
+import { Typography, Dropdown, Avatar, Progress } from "antd";
 import { useSelector } from "react-redux";
 import { RootState } from "@/services/store/store";
 import { logout, changePassword } from "@/services/features/auth/authSlice";
@@ -10,6 +10,7 @@ import { useAppDispatch } from "@/services/store/store";
 import ChangePasswordModal from "@/components/Modal/ChangePasswordModal";
 import { FaFire, FaHeart, FaCrown } from "react-icons/fa";
 import NotificationButton from "@/components/Notification/NotificationButton";
+import LevelUpModal from "@/components/Modal/LevelUpModal";
 
 function getStreakColor(streak: number) {
   if (streak >= 25) return "#b16cff";      // tím
@@ -20,6 +21,22 @@ function getStreakColor(streak: number) {
   return "#bdbdbd";                         // xám (chưa có streak)
 }
 
+function getRequiredXpForLevel(level: number) {
+  return Math.floor(100 * Math.pow(1.3, level - 1));
+}
+
+function calculateLevelProgress(userLevel: number, xp: number) {
+  const xpForCurrentLevel = getRequiredXpForLevel(userLevel);
+  const progress = Math.min(Math.floor((xp / xpForCurrentLevel) * 100), 100);
+
+  return {
+    level: userLevel,
+    progress,
+    currentLevelXp: xp,
+    xpForCurrentLevel
+  };
+}
+
 const Header = () => {
   const { isAuthenticated, user: authUser } = useSelector((state: RootState) => state.auth);
   const { profile: userProfile } = useSelector((state: RootState) => state.user);
@@ -27,14 +44,27 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-
-  const isInLesson = location.pathname.startsWith('/lesson/') && !location.pathname.startsWith('/lesson/submit');
+  const [isLevelUpModalOpen, setIsLevelUpModalOpen] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(fetchUserProfile());
     }
   }, [isAuthenticated, dispatch]);
+
+  useEffect(() => {
+    if (userProfile?.userLevel && userProfile?.xp === 0) {
+      const lastShownLevel = localStorage.getItem('lastShownLevel');
+      const currentLevel = userProfile.userLevel.toString();
+
+      if (!lastShownLevel || parseInt(lastShownLevel) < userProfile.userLevel) {
+        setIsLevelUpModalOpen(true);
+        localStorage.setItem('lastShownLevel', currentLevel);
+      }
+    }
+  }, [userProfile?.userLevel, userProfile?.xp]);
+
+  const isInLesson = location.pathname.startsWith('/lesson/') && !location.pathname.startsWith('/lesson/submit');
 
   const handleNavigation = (path: string) => {
     if (isInLesson) {
@@ -68,6 +98,7 @@ const Header = () => {
     }
   };
 
+  const levelProgress = calculateLevelProgress(userProfile?.userLevel || 1, userProfile?.xp || 0);
 
   const items: MenuProps["items"] = [
     {
@@ -111,11 +142,24 @@ const Header = () => {
           {isAuthenticated ? (
             <>
               <div className="hidden md:flex gap-6 items-center">
-                <div className="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  <span className="font-baloo text-gray-600">XP: {userProfile?.xp || 0}</span>
+                <div className="flex items-center gap-2 min-w-[200px]">
+                  <div className="flex flex-col w-full">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-baloo text-gray-600">Level {levelProgress.level}</span>
+                      <span className="font-baloo text-xs text-gray-500">
+                        {levelProgress.currentLevelXp}/{levelProgress.xpForCurrentLevel} XP
+                      </span>
+                    </div>
+                    <Progress
+                      percent={levelProgress.progress}
+                      size="small"
+                      strokeColor={{
+                        '0%': '#108ee9',
+                        '100%': '#87d068',
+                      }}
+                      showInfo={false}
+                    />
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-2">
@@ -181,6 +225,11 @@ const Header = () => {
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
         onSubmit={handlePasswordChange}
+      />
+      <LevelUpModal
+        isOpen={isLevelUpModalOpen}
+        onClose={() => setIsLevelUpModalOpen(false)}
+        newLevel={userProfile?.userLevel || 1}
       />
     </>
   );
