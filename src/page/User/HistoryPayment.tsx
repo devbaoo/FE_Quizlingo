@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Table, Tag, Button, Modal, Descriptions } from "antd";
+import { Table, Tag, Modal, Descriptions, Button } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { GET_PAYMENT_HISTORY_ENDPOINT } from "@/services/constant/apiConfig";
 import { apiMethods } from "@/services/constant/axiosInstance";
+import { EyeOutlined } from "@ant-design/icons"; 
 
-
-
-// Actual data type returned in `data`
 interface IUserPaymentHistoryResponse {
   success: boolean;
   statusCode: number;
   message: string;
   paymentHistory: PaymentManager[];
 }
-
 
 export interface PaymentManager {
   _id: string;
@@ -45,27 +42,26 @@ const HistoryPaymentPage: React.FC = () => {
   const [paymentHistory, setPaymentHistory] = useState<PaymentManager[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const response = await apiMethods.get<IUserPaymentHistoryResponse>(GET_PAYMENT_HISTORY_ENDPOINT);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiMethods.get<IUserPaymentHistoryResponse>(
+          GET_PAYMENT_HISTORY_ENDPOINT
+        );
 
-      const history = response.data.paymentHistory;
-      if (history) {
-        setPaymentHistory(history);
+        const history = response.data.paymentHistory;
+        if (history) {
+          setPaymentHistory(history);
+        }
+      } catch (error) {
+        console.error("Failed to fetch payment history", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch payment history", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchData();
-}, []);
-
-
-
+    fetchData();
+  }, []);
 
   const showDetail = (record: PaymentManager) => {
     setSelected(record);
@@ -91,12 +87,19 @@ useEffect(() => {
       dataIndex: "paymentStatus",
       key: "paymentStatus",
       align: "center",
-      render: (status) =>
-        status === "completed" ? (
-          <Tag color="green">Hoàn tất</Tag>
-        ) : (
-          <Tag color="orange">Thất bại</Tag>
-        ),
+      render: (status) => {
+        const normalized = status?.trim().toLowerCase();
+        switch (normalized) {
+          case "completed":
+            return <Tag color="green">Hoàn tất</Tag>;
+          case "failed":
+            return <Tag color="red">Thất bại</Tag>;
+          case "pending":
+            return <Tag color="blue">Đang xử lý</Tag>;
+          default:
+            return <Tag color="gray">Không xác định</Tag>;
+        }
+      },
     },
     {
       title: "Ngày tạo",
@@ -110,8 +113,13 @@ useEffect(() => {
       key: "action",
       align: "center",
       render: (_, record) => (
-        <Button type="link" onClick={() => showDetail(record)}>
-          Chi tiết
+        <Button
+          type="default"
+          size="small"
+          icon={<EyeOutlined />}
+          onClick={() => showDetail(record)}
+          className="text-sky-600 border border-sky-300 hover:bg-sky-100 rounded-md shadow-sm"
+        >
         </Button>
       ),
     },
@@ -152,7 +160,11 @@ useEffect(() => {
             <Descriptions.Item label="Trạng thái">
               {selected.paymentStatus === "completed"
                 ? "Hoàn tất"
-                : "Đang xử lý"}
+                : selected.paymentStatus === "failed"
+                ? "Thất bại"
+                : selected.paymentStatus === "pending"
+                ? "Đang xử lý"
+                : "Không xác định"}
             </Descriptions.Item>
             <Descriptions.Item label="Phương thức">
               {selected.paymentMethod}
