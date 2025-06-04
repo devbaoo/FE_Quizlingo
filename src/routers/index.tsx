@@ -39,6 +39,7 @@ import StaffLayout from "@/components/Layout/StaffLayout";
 import Package from "@/page/User/Package";
 import PaymentReturn from "@/page/Payment/PaymentReturn";
 import PaymentCancel from "@/page/Payment/PaymentCancel";
+import HistoryPaymentPage from "@/page/User/HistoryPayment";
 
 
 const AppRouter = () => {
@@ -84,6 +85,7 @@ const AppRouter = () => {
                     <Route path="/lesson/:id" element={<LessonPage />} />
                     <Route path="/lesson/submit" element={<LessonSubmitPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/history-payment" element={<HistoryPaymentPage />} />
                     <Route path="/setting" element={<NotificationSettings />} />
                     <Route path="/rank" element={<Rank />} />
                     <Route path="/packages" element={<Package />} />

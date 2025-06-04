@@ -108,16 +108,22 @@ const Header = () => {
     },
     {
       key: "2",
+      label: <span className="font-baloo">Lịch sử giao dịch</span>,
+      onClick: () => handleNavigation("/history-payment"),
+    },
+    {
+      key: "3",
       label: <span className="font-baloo">Đổi mật khẩu</span>,
       onClick: () => setIsPasswordModalOpen(true),
     },
+    
     ...(authUser?.role === "admin" ? [{
-      key: "3",
+      key: "4",
       label: <span className="font-baloo">Admin Dashboard</span>,
       onClick: () => handleNavigation("/admin"),
     }] : []),
     {
-      key: "4",
+      key: "5",
       label: <span className="font-baloo text-red-500">Đăng xuất</span>,
       onClick: handleLogout,
     },
