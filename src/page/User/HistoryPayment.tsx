@@ -95,7 +95,7 @@ useEffect(() => {
         status === "completed" ? (
           <Tag color="green">Hoàn tất</Tag>
         ) : (
-          <Tag color="orange">Đang xử lý</Tag>
+          <Tag color="orange">Thất bại</Tag>
         ),
     },
     {
