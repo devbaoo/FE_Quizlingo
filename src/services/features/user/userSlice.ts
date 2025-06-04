@@ -5,7 +5,7 @@ import {
   UPDATE_AVATAR_PROFILE_ENDPOINT,
   UPDATE_PROFILE_ENDPOINT,
 } from "@/services/constant/apiConfig";
-import { UserProfile } from "@/interfaces/IUser";
+import {  UserProfile } from "@/interfaces/IUser";
 
 interface UserState {
   profile: UserProfile | null;
@@ -70,6 +70,7 @@ export const updateProfile = createAsyncThunk(
     }
   }
 );
+
 
 const userSlice = createSlice({
   name: "user",

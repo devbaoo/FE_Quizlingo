@@ -8,11 +8,15 @@ import { BASE_URL } from "./apiConfig";
 import { message } from "antd";
 import { store } from "../store/store";
 import { refreshToken } from "../features/auth/authSlice";
+import { PaymentManager } from "@/page/User/HistoryPayment";
+
+
 
 // ========================
 // Type Definitions
 // ========================
 export interface ApiResponse<T = unknown> {
+  paymentHistory: PaymentManager[];
   user: T;
   success: boolean;
   message: string;
