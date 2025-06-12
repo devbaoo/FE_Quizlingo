@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/services/store/store";
-import { completeLesson, retryLesson } from "@/services/features/lesson/lessonSlice";
+import { completeLesson, retryLesson, fetchLessons } from "@/services/features/lesson/lessonSlice";
 import { CheckmarkSvg, StarSvg, CloseSvg, ChevronDownSvg } from "@/components/ui/Svgs";
 import { Modal, Spin } from 'antd';
 import { fetchUserProfile } from "@/services/features/user/userSlice";
@@ -53,6 +53,8 @@ const LessonSubmitPage = () => {
                     setShowConfetti(true);
                 }
                 await dispatch(fetchUserProfile());
+                // Refresh lessons after completion
+                await dispatch(fetchLessons({ page: 1, limit: 5 }));
             } catch (error: unknown) {
                 console.error("Failed to submit lesson:", error);
             } finally {
@@ -65,16 +67,17 @@ const LessonSubmitPage = () => {
 
     useEffect(() => {
         if (lessons.length > 0 && state) {
-            const currentLesson = lessons.find(lesson => lesson._id === state.lessonId);
+            const currentLesson = lessons.find(lesson => lesson.lessonId === state.lessonId);
             if (!currentLesson) return;
 
-            const lessonsInTopic = lessons.filter(lesson => lesson.topic._id === currentLesson.topic._id);
+            const lessonsInTopic = lessons.filter(lesson => lesson.topic === currentLesson.topic);
             lessonsInTopic.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-            const currentIndex = lessonsInTopic.findIndex(lesson => lesson._id === state.lessonId);
+            const currentIndex = lessonsInTopic.findIndex(lesson => lesson.lessonId === state.lessonId);
 
             if (currentIndex !== -1 && currentIndex < lessonsInTopic.length - 1 &&
-                serverResults?.progress?.score && serverResults?.progress?.score >= (currentLesson.level?.minScoreRequired ?? 0)) {
-                setNextLessonId(lessonsInTopic[currentIndex + 1]._id);
+                serverResults?.status === "COMPLETE" && 
+                lessonsInTopic[currentIndex + 1].status !== "LOCKED") {
+                setNextLessonId(lessonsInTopic[currentIndex + 1].lessonId);
             }
         }
     }, [lessons, state, serverResults]);
@@ -83,6 +86,12 @@ const LessonSubmitPage = () => {
         if (nextLessonId) {
             navigate(`/lesson/${nextLessonId}`);
         }
+    };
+
+    const handleBackToLessons = async () => {
+        // Refresh lessons before navigating back
+        await dispatch(fetchLessons({ page: 1, limit: 5 }));
+        navigate("/learn");
     };
 
     const handleRetry = async () => {
@@ -237,7 +246,7 @@ const LessonSubmitPage = () => {
 
                     <div className="mt-6 sm:mt-8 flex justify-center gap-3 sm:gap-4">
                         <button
-                            onClick={() => navigate("/learn")}
+                            onClick={handleBackToLessons}
                             className="px-4 sm:px-6 py-2 sm:py-3 bg-gray-200 rounded-lg sm:rounded-xl hover:bg-gray-300 transition-colors text-sm sm:text-base font-baloo"
                         >
                             Back to Lessons

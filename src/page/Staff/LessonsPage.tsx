@@ -27,10 +27,11 @@ import {
   LessonFormData,
   CreateLessonData
 } from '@/interfaces/ILesson';
+import { ColumnsType } from 'antd/es/table';
 
 const LessonsPage = () => {
   const dispatch = useAppDispatch();
-  const { lessons, loading } = useAppSelector((state) => state.lesson);
+  const { lessons, loading, pagination } = useAppSelector((state) => state.lesson);
   const { topics } = useAppSelector((state) => state.topic);
   const { levels } = useAppSelector((state) => state.level);
   const { skills } = useAppSelector((state) => state.skill);
@@ -38,13 +39,56 @@ const LessonsPage = () => {
   const [editingLesson, setEditingLesson] = useState<ILesson | null>(null);
   const [form] = Form.useForm();
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
-    dispatch(fetchLessons({ page: currentPage, limit: 10 }));
+    dispatch(fetchLessons({ page: currentPage, limit: pageSize }));
     dispatch(fetchTopics());
     dispatch(fetchLevels());
     dispatch(fetchSkills());
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage, pageSize]);
+
+  // Convert ILearningPathItem[] to ILesson[]
+  const convertedLessons: ILesson[] = lessons.map(lesson => ({
+    _id: lesson.lessonId,
+    title: lesson.title,
+    type: "lesson",
+    topic: {
+      _id: "",
+      name: lesson.topic,
+      description: "",
+      isActive: true,
+      createdAt: "",
+      __v: 0
+    },
+    level: {
+      _id: "",
+      name: lesson.level,
+      maxScore: 100,
+      timeLimit: 300,
+      minUserLevel: 1,
+      minLessonPassed: 0,
+      minScoreRequired: 70,
+      order: 1,
+      isActive: true,
+      createdAt: lesson.createdAt,
+      __v: 0
+    },
+    skills: lesson.focusSkills.map(skill => ({
+      _id: "",
+      name: skill,
+      description: "",
+      supportedTypes: [],
+      isActive: true,
+      createdAt: "",
+      __v: 0
+    })),
+    maxScore: 100,
+    timeLimit: 300,
+    questions: [],
+    createdAt: lesson.createdAt,
+    status: lesson.status === "ACTIVE" ? "LOCKED" : lesson.status
+  }));
 
   const handleDelete = async (id: string) => {
     try {
@@ -88,7 +132,7 @@ const LessonsPage = () => {
       }
 
       // Refresh lessons data
-      dispatch(fetchLessons({ page: currentPage, limit: 10 }));
+      dispatch(fetchLessons({ page: currentPage, limit: pageSize }));
       setIsModalVisible(false);
       form.resetFields();
       setEditingLesson(null);
@@ -98,7 +142,7 @@ const LessonsPage = () => {
     }
   };
 
-  const columns = [
+  const columns: ColumnsType<ILesson> = [
     {
       title: 'Tiêu đề',
       dataIndex: 'title',
@@ -165,7 +209,7 @@ const LessonsPage = () => {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div className="p-4 sm:p-6 md:p-8">
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
         <h1 style={{ fontSize: 24, fontWeight: 'bold' }}>Quản lý Bài học</h1>
         <Button
@@ -181,16 +225,19 @@ const LessonsPage = () => {
         </Button>
       </div>
 
-      <Table
+      <Table<ILesson>
         columns={columns}
-        dataSource={lessons}
-        rowKey="_id"
+        dataSource={convertedLessons}
         loading={loading}
+        rowKey="_id"
         pagination={{
-          current: currentPage,
-          pageSize: 10,
-          total: lessons.length,
-          onChange: (page) => setCurrentPage(page),
+          current: pagination?.currentPage || 1,
+          pageSize: pagination?.pageSize || 10,
+          total: pagination?.totalItems || 0,
+          onChange: (page, pageSize) => {
+            setCurrentPage(page);
+            setPageSize(pageSize);
+          }
         }}
       />
 
