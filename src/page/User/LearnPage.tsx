@@ -159,10 +159,12 @@ const getTileTooltipLeftOffset = ({
 const getTileColors = ({
     tileType,
     status,
+    isCompleted,
     defaultColors,
 }: {
     tileType: TileType;
     status: TileStatus;
+    isCompleted: boolean;
     defaultColors: `border-${string} bg-${string}`;
 }): `border-${string} bg-${string}` => {
     switch (status) {
@@ -170,8 +172,11 @@ const getTileColors = ({
             if (tileType === "fast-forward") return defaultColors;
             return "border-[#b7b7b7] bg-[#e5e5e5]";
         case "COMPLETE":
-            return "border-yellow-500 bg-yellow-400";
+            return "border-[#FFD175] bg-[#FFB020]";
         case "ACTIVE":
+            if (isCompleted) {
+                return "border-[#FFD175] bg-[#FFB020]";
+            }
             return defaultColors;
     }
 };
@@ -220,70 +225,66 @@ const TileTooltip = ({
         return () => window.removeEventListener("click", containsTileTooltip, true);
     }, [selectedTile, tileTooltipRef, closeTooltip, index]);
 
-    const handleStart = (e: React.MouseEvent) => {
+    const handleStart = async (e: React.MouseEvent) => {
         e.preventDefault();
         if (!lessonId) return;
 
-        if (userProfile?.lives === 0) {
-            Modal.info({
-                title: <span className="font-baloo text-xl">Out of Lives</span>,
-                content: <span className="font-baloo text-lg">Hiện tại số tim của bạn là 0, bạn không thể bắt đầu bài học này. Hãy chờ hoặc mua thêm tim để tiếp tục!</span>,
+        if (isCompleted) {
+            // Nếu bài học đã hoàn thành, kiểm tra lives
+            if (userProfile?.lives === 0) {
+                Modal.info({
+                    title: <span className="font-baloo text-xl">Out of Lives</span>,
+                    content: <span className="font-baloo text-lg">Hiện tại số tim của bạn là 0, bạn không thể làm lại bài này. Hãy chờ hoặc mua thêm tim để tiếp tục!</span>,
+                    centered: true,
+                    okText: <span className="font-baloo">OK</span>,
+                });
+                return;
+            }
+
+            Modal.confirm({
+                title: <span className="font-baloo text-xl">Try this lesson again?</span>,
+                content: <span className="font-baloo text-lg">Your previous result will be reset.</span>,
+                okText: <span className="font-baloo">Yes, try again</span>,
+                cancelText: <span className="font-baloo">Cancel</span>,
                 centered: true,
-                okText: <span className="font-baloo">OK</span>,
+                onOk: async () => {
+                    try {
+                        await dispatch(retryLesson({
+                            lessonId: lessonId,
+                        })).unwrap();
+                        await dispatch(fetchUserProfile());
+                        navigate(`/lesson/${lessonId}`);
+                    } catch (error) {
+                        console.error("Failed to retry lesson:", error);
+                        Modal.error({
+                            title: <span className="font-baloo text-xl">Error</span>,
+                            content: <span className="font-baloo text-lg">Không thể làm lại bài học. Vui lòng thử lại sau!</span>,
+                            centered: true,
+                            okText: <span className="font-baloo">OK</span>,
+                        });
+                    }
+                },
             });
-            return;
+        } else {
+            // Nếu bài học chưa hoàn thành, kiểm tra lives
+            if (userProfile?.lives === 0) {
+                Modal.info({
+                    title: <span className="font-baloo text-xl">Out of Lives</span>,
+                    content: <span className="font-baloo text-lg">Hiện tại số tim của bạn là 0, bạn không thể bắt đầu bài học này. Hãy chờ hoặc mua thêm tim để tiếp tục!</span>,
+                    centered: true,
+                    okText: <span className="font-baloo">OK</span>,
+                });
+                return;
+            }
+            navigate(`/lesson/${lessonId}`);
         }
-
-        navigate(`/lesson/${lessonId}`);
-    };
-
-    const handlePractice = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        if (!lessonId) return;
-
-        if (userProfile?.lives === 0) {
-            Modal.info({
-                title: <span className="font-baloo text-xl">Out of Lives</span>,
-                content: <span className="font-baloo text-lg">Hiện tại số tim của bạn là 0, bạn không thể làm lại bài này. Hãy chờ hoặc mua thêm tim để tiếp tục!</span>,
-                centered: true,
-                okText: <span className="font-baloo">OK</span>,
-            });
-            return;
-        }
-
-        Modal.confirm({
-            title: <span className="font-baloo text-xl">Try this lesson again?</span>,
-            content: <span className="font-baloo text-lg">Your previous result will be reset.</span>,
-            okText: <span className="font-baloo">Yes, try again</span>,
-            cancelText: <span className="font-baloo">Cancel</span>,
-            centered: true,
-            onOk: async () => {
-                try {
-                    // Gọi API retry trước
-                    await dispatch(retryLesson({
-                        lessonId: lessonId,
-                    })).unwrap();
-
-                    // Cập nhật profile sau khi retry thành công
-                    await dispatch(fetchUserProfile());
-
-                    // Chỉ chuyển hướng sau khi retry thành công
-                    navigate(`/lesson/${lessonId}`);
-                } catch (error) {
-                    console.error("Failed to retry lesson:", error);
-                    Modal.error({
-                        title: <span className="font-baloo text-xl">Error</span>,
-                        content: <span className="font-baloo text-lg">Không thể làm lại bài học. Vui lòng thử lại sau!</span>,
-                        centered: true,
-                        okText: <span className="font-baloo">OK</span>,
-                    });
-                }
-            },
-        });
     };
 
     const activeBackgroundColor = backgroundColor ?? "bg-green-500";
     const activeTextColor = textColor ?? "text-green-500";
+    const completedBackgroundColor = "bg-[#FFB020]";
+    const completedTextColor = "text-[#975D07]";
+    const completedBorderColor = "border-[#FFD175]";
 
     return (
         <div
@@ -300,7 +301,7 @@ const TileTooltip = ({
                         ? activeBackgroundColor
                         : status === "LOCKED"
                             ? "border-2 border-gray-200 bg-gray-100"
-                            : "bg-yellow-400",
+                            : completedBackgroundColor,
                     index === selectedTile ? "top-4 scale-100" : "-top-14 scale-0",
                 ].join(" ")}
                 style={{ left: "calc(50% - 150px)" }}
@@ -312,7 +313,7 @@ const TileTooltip = ({
                             ? activeBackgroundColor
                             : status === "LOCKED"
                                 ? "border-l-2 border-t-2 border-gray-200 bg-gray-100"
-                                : "bg-yellow-400",
+                                : completedBackgroundColor,
                     ].join(" ")}
                     style={{
                         left: getTileTooltipLeftOffset({ index, unitNumber, tilesLength }),
@@ -325,40 +326,22 @@ const TileTooltip = ({
                             ? "text-white"
                             : status === "LOCKED"
                                 ? "text-gray-400"
-                                : "text-yellow-600",
+                                : completedTextColor,
                     ].join(" ")}
                 >
                     {description}
                 </div>
                 <div className="flex gap-2">
                     {status === "ACTIVE" ? (
-                        <>
-                            {!isCompleted && (
-                                <button
-                                    onClick={handleStart}
-                                    className={[
-                                        "flex flex-1 items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
-                                        activeTextColor,
-                                    ].join(" ")}
-                                >
-                                    Start
-                                </button>
-                            )}
-                            {isCompleted && (
-                                <button
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        handlePractice(e);
-                                    }}
-                                    className={[
-                                        "flex flex-1 items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
-                                        activeTextColor,
-                                    ].join(" ")}
-                                >
-                                    Practice
-                                </button>
-                            )}
-                        </>
+                        <button
+                            onClick={handleStart}
+                            className={[
+                                "flex flex-1 items-center justify-center rounded-xl border-b-4 border-gray-200 bg-white p-3 uppercase",
+                                isCompleted ? completedTextColor : activeTextColor,
+                            ].join(" ")}
+                        >
+                            {isCompleted ? "Practice +5 XP" : "Start"}
+                        </button>
                     ) : status === "LOCKED" ? (
                         <button
                             className="w-full rounded-xl bg-gray-200 p-3 uppercase text-gray-400"
@@ -368,11 +351,8 @@ const TileTooltip = ({
                         </button>
                     ) : (
                         <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handlePractice(e);
-                            }}
-                            className="flex w-full items-center justify-center rounded-xl border-b-4 border-yellow-200 bg-white p-3 uppercase text-yellow-400"
+                            onClick={handleStart}
+                            className={`flex w-full items-center justify-center rounded-xl border-b-4 ${completedBorderColor} bg-white p-3 uppercase ${completedTextColor}`}
                         >
                             Practice +5 XP
                         </button>
@@ -383,9 +363,10 @@ const TileTooltip = ({
     );
 };
 
-const UnitSection = ({ unit, completedLessons, prevUnitCompleted }: { unit: Unit; completedLessons: { [key: string]: boolean }; prevUnitCompleted: boolean }): JSX.Element => {
+const UnitSection = ({ unit, prevUnitCompleted }: { unit: Unit; prevUnitCompleted: boolean }): JSX.Element => {
     const [selectedTile, setSelectedTile] = useState<null | number>(null);
     const closeTooltip = useCallback(() => setSelectedTile(null), []);
+    const { lessons } = useAppSelector((state) => state.lesson);
 
     return (
         <>
@@ -396,22 +377,23 @@ const UnitSection = ({ unit, completedLessons, prevUnitCompleted }: { unit: Unit
             />
             <div className="relative mb-8 mt-2 flex max-w-2xl flex-col items-center gap-4">
                 {unit.tiles.map((tile, i): JSX.Element => {
-                    // Kiểm tra bài trước đã hoàn thành chưa
-                    const prevTile = unit.tiles[i - 1];
-                    const prevCompleted = prevTile && prevTile.lessonId
-                        ? !!(completedLessons && Object.prototype.hasOwnProperty.call(completedLessons, prevTile.lessonId) && completedLessons[prevTile.lessonId])
-                        : true; // Bài đầu tiên luôn true
-
-                    const isCompleted = tile.lessonId
-                        ? !!(completedLessons && Object.prototype.hasOwnProperty.call(completedLessons, tile.lessonId) && completedLessons[tile.lessonId])
-                        : false;
+                    const currentLesson = lessons.find(l => l.lessonId === tile.lessonId);
+                    const isCompleted = currentLesson?.completed || false;
+                    const lessonStatus = currentLesson?.status || "LOCKED";
 
                     let status: TileStatus = "LOCKED";
-                    if (!prevUnitCompleted) {
+                    
+                    // Kiểm tra nếu là bài học đầu tiên của unit đầu tiên
+                    const isFirstLesson = unit.unitNumber === 1 && i === 0;
+                    
+                    if (isFirstLesson) {
+                        // Bài học đầu tiên luôn ACTIVE
+                        status = "ACTIVE";
+                    } else if (!prevUnitCompleted) {
                         status = "LOCKED";
                     } else if (isCompleted) {
                         status = "COMPLETE";
-                    } else if (i === 0 || prevCompleted) {
+                    } else if (lessonStatus !== "LOCKED") {
                         status = "ACTIVE";
                     }
 
@@ -450,12 +432,13 @@ const UnitSection = ({ unit, completedLessons, prevUnitCompleted }: { unit: Unit
                                                         text="Jump here?"
                                                         textColor={unit.textColor}
                                                     />
-                                                ) : selectedTile !== i && status === "ACTIVE" ? (
+                                                ) : selectedTile !== i && status === "ACTIVE" && !isCompleted ? (
                                                     <HoverLabel text="Start" textColor={unit.textColor} />
                                                 ) : null}
                                                 <LessonCompletionSvg
                                                     lessonsCompleted={i}
                                                     status={status}
+                                                    isCompleted={isCompleted}
                                                 />
                                                 <button
                                                     className={[
@@ -463,6 +446,7 @@ const UnitSection = ({ unit, completedLessons, prevUnitCompleted }: { unit: Unit
                                                         getTileColors({
                                                             tileType: tile.type,
                                                             status,
+                                                            isCompleted,
                                                             defaultColors: `${unit.borderColor} ${unit.backgroundColor}`,
                                                         }),
                                                     ].join(" ")}
@@ -549,13 +533,15 @@ const UnitSection = ({ unit, completedLessons, prevUnitCompleted }: { unit: Unit
 const LessonCompletionSvg = ({
     lessonsCompleted,
     status,
+    isCompleted,
     style = {},
 }: {
     lessonsCompleted: number;
     status: TileStatus;
+    isCompleted: boolean;
     style?: React.HTMLAttributes<SVGElement>["style"];
 }) => {
-    if (status !== "ACTIVE") {
+    if (status !== "ACTIVE" || isCompleted) {
         return null;
     }
     switch (lessonsCompleted % 4) {
@@ -644,22 +630,21 @@ const LearnPage = () => {
             return;
         }
 
-        dispatch(fetchLessons({ page: currentPage, limit: 3 }));
+        dispatch(fetchLessons({ page: currentPage, limit: 5 }));
     }, [dispatch, profile, navigate, currentPage]);
 
-    // Map lessons to units, using topics from lessons
-    const units: Unit[] = Array.from(new Set(lessons.map(lesson => lesson.topic._id)))
-        .map((topicId, idx) => {
-            const topicLessons = lessons.filter(lesson => lesson.topic._id === topicId);
-            const topic = topicLessons[0].topic; // Get topic info from first lesson
+    // Map learning path items to units
+    const units: Unit[] = Array.from(new Set(lessons.map(lesson => lesson.topic)))
+        .map((topic, idx) => {
+            const topicLessons = lessons.filter(lesson => lesson.topic === topic);
             const tiles: Tile[] = topicLessons.map(lesson => ({
                 type: "book",
                 description: lesson.title,
-                lessonId: lesson._id,
+                lessonId: lesson.lessonId,
             }));
             return {
                 unitNumber: idx + 1,
-                description: topic.description,
+                description: `${topic} - ${topicLessons[0].level}`,
                 backgroundColor: "bg-blue-500",
                 textColor: "text-blue-500",
                 borderColor: "border-blue-500",
@@ -679,8 +664,8 @@ const LearnPage = () => {
         return <div className="text-red-500 text-center p-4 sm:p-10">Lỗi: {lessonsError}</div>;
     }
 
-    if (!lessons) {
-        return <div className="text-center p-4 sm:p-10">No data available</div>;
+    if (!lessons || lessons.length === 0) {
+        return <div className="text-center p-4 sm:p-10">No lessons available in your learning path</div>;
     }
 
     return (
@@ -692,16 +677,13 @@ const LearnPage = () => {
                     if (unitIdx > 0) {
                         const prevUnit = units[unitIdx - 1];
                         prevUnitCompleted = prevUnit.tiles.every(
-                            tile => tile.lessonId && lessons?.find(l => l._id === tile.lessonId)?.status === "COMPLETE"
+                            tile => tile.lessonId && lessons?.find(l => l.lessonId === tile.lessonId)?.completed
                         );
                     }
                     return (
                         <UnitSection
                             unit={unit}
                             key={unit.unitNumber}
-                            completedLessons={Object.fromEntries(
-                                (lessons || []).map(lesson => [lesson._id, lesson.status === "COMPLETE"])
-                            )}
                             prevUnitCompleted={prevUnitCompleted}
                         />
                     );

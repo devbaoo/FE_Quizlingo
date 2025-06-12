@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance, { ApiError } from "@/services/constant/axiosInstance";
 import {
-  GET_LESSONS_ENDPOINT,
+  GET_USER_LEARNING_PATH_ENDPOINT,
   GET_LESSON_BY_ID_ENDPOINT,
   COMPLETE_LESSON_ENDPOINT,
   RETRY_LESSON_ENDPOINT,
@@ -12,15 +12,15 @@ import {
 import {
   ILesson,
   QuestionResult,
-  ILessonResponse,
   LessonProgress,
   UserProgress,
   CreateLessonData,
+  ILearningPathItem,
 } from "@/interfaces/ILesson";
 import { message as antMessage } from "antd";
 
 interface LessonState {
-  lessons: ILesson[];
+  lessons: ILearningPathItem[];
   currentLesson: ILesson | null;
   loading: boolean;
   error: string | null;
@@ -30,7 +30,7 @@ interface LessonState {
   pagination: {
     currentPage: number;
     pageSize: number;
-    totalTopics: number;
+    totalItems: number;
     totalPages: number;
   } | null;
 }
@@ -47,20 +47,20 @@ const initialState: LessonState = {
 };
 
 export const fetchLessons = createAsyncThunk<
-  ILessonResponse,
+  { learningPath: ILearningPathItem[]; pagination: LessonState['pagination'] },
   { page?: number; limit?: number },
   { rejectValue: { message: string } }
 >(
   "lesson/fetchLessons",
-  async ({ page = 1, limit = 3 }, { rejectWithValue }) => {
+  async ({ page = 1, limit = 5 }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `${GET_LESSONS_ENDPOINT}?page=${page}&limit=${limit}`
+        `${GET_USER_LEARNING_PATH_ENDPOINT}?page=${page}&limit=${limit}`
       );
       return response.data;
     } catch (err: unknown) {
       const error = err as ApiError;
-      const message = error.message || "Failed to fetch lessons";
+      const message = error.message || "Failed to fetch learning path";
       return rejectWithValue({ message });
     }
   }
@@ -123,7 +123,7 @@ export const retryLesson = createAsyncThunk<
 });
 
 export const createLesson = createAsyncThunk<
-  { lesson: ILesson },
+  { lesson: ILesson & { pathId: string } },
   CreateLessonData,
   { rejectValue: { message: string } }
 >("lesson/createLesson", async (lessonData, { rejectWithValue }) => {
@@ -141,7 +141,7 @@ export const createLesson = createAsyncThunk<
 });
 
 export const updateLesson = createAsyncThunk<
-  { lesson: ILesson },
+  { lesson: ILesson & { pathId: string } },
   { id: string; data: CreateLessonData },
   { rejectValue: { message: string } }
 >("lesson/updateLesson", async ({ id, data }, { rejectWithValue }) => {
@@ -188,18 +188,28 @@ const lessonSlice = createSlice({
       })
       .addCase(fetchLessons.fulfilled, (state, action) => {
         state.loading = false;
-        // Extract lessons from the nested topics structure
-        const allLessons = action.payload.topics.flatMap((topicWithLessons) => {
-          // Each lesson already has its topic information, so we don't need to map it
-          return topicWithLessons.lessons;
+        // Process lessons to update status
+        const processedLessons = action.payload.learningPath.map((lesson, index, array) => {
+          // If this is not the first lesson and the previous lesson is complete,
+          // or if this is the first lesson, set status to ACTIVE
+          if (
+            (index === 0) || 
+            (index > 0 && array[index - 1].status === "COMPLETE")
+          ) {
+            return {
+              ...lesson,
+              status: lesson.status === "LOCKED" ? "ACTIVE" : lesson.status
+            };
+          }
+          return lesson;
         });
-        state.lessons = allLessons;
+        state.lessons = processedLessons;
         state.pagination = action.payload.pagination;
         state.error = null;
       })
       .addCase(fetchLessons.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload?.message || "Failed to fetch lessons";
+        state.error = action.payload?.message || "Failed to fetch learning path";
       })
       // Fetch Lesson By Id
       .addCase(fetchLessonById.pending, (state) => {
@@ -252,7 +262,22 @@ const lessonSlice = createSlice({
       })
       .addCase(createLesson.fulfilled, (state, action) => {
         state.loading = false;
-        state.lessons.push(action.payload.lesson);
+        // Convert ILesson to ILearningPathItem
+        const newLearningPathItem: ILearningPathItem = {
+          pathId: action.payload.lesson.pathId,
+          lessonId: action.payload.lesson._id,
+          title: action.payload.lesson.title,
+          topic: action.payload.lesson.topic.name,
+          level: action.payload.lesson.level?.name || 'Beginner',
+          focusSkills: action.payload.lesson.skills.map(skill => skill.name),
+          recommendedReason: "Newly created lesson",
+          accuracyBefore: 0,
+          order: state.lessons.length + 1,
+          completed: false,
+          createdAt: action.payload.lesson.createdAt,
+          status: action.payload.lesson.status || "LOCKED"
+        };
+        state.lessons.push(newLearningPathItem);
         state.error = null;
       })
       .addCase(createLesson.rejected, (state, action) => {
@@ -267,10 +292,25 @@ const lessonSlice = createSlice({
       .addCase(updateLesson.fulfilled, (state, action) => {
         state.loading = false;
         const index = state.lessons.findIndex(
-          (lesson) => lesson._id === action.payload.lesson._id
+          (lesson) => lesson.lessonId === action.payload.lesson._id
         );
         if (index !== -1) {
-          state.lessons[index] = action.payload.lesson;
+          // Convert ILesson to ILearningPathItem
+          const updatedLearningPathItem: ILearningPathItem = {
+            pathId: action.payload.lesson.pathId,
+            lessonId: action.payload.lesson._id,
+            title: action.payload.lesson.title,
+            topic: action.payload.lesson.topic.name,
+            level: action.payload.lesson.level?.name || 'Beginner',
+            focusSkills: action.payload.lesson.skills.map(skill => skill.name),
+            recommendedReason: state.lessons[index].recommendedReason,
+            accuracyBefore: state.lessons[index].accuracyBefore,
+            order: state.lessons[index].order,
+            completed: state.lessons[index].completed,
+            createdAt: action.payload.lesson.createdAt,
+            status: action.payload.lesson.status || state.lessons[index].status
+          };
+          state.lessons[index] = updatedLearningPathItem;
         }
         state.error = null;
       })
@@ -286,7 +326,7 @@ const lessonSlice = createSlice({
       .addCase(deleteLesson.fulfilled, (state, action) => {
         state.loading = false;
         state.lessons = state.lessons.filter(
-          (lesson) => lesson._id !== action.meta.arg
+          (lesson) => lesson.lessonId !== action.meta.arg
         );
         state.error = null;
       })

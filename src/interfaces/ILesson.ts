@@ -155,3 +155,18 @@ export interface CreateLessonData {
     score: number;
   }[];
 }
+
+export interface ILearningPathItem {
+    pathId: string;
+    lessonId: string;
+    title: string;
+    topic: string;
+    level: string;
+    focusSkills: string[];
+    recommendedReason: string;
+    accuracyBefore: number;
+    order: number;
+    completed: boolean;
+    createdAt: string;
+    status: "LOCKED" | "ACTIVE" | "COMPLETE";
+}

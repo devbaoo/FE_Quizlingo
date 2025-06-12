@@ -20,6 +20,7 @@ export const CHOOSE_SKILLS_ENDPOINT = `${BASE_URL}/user/skill`;
 
 //lesson
 export const GET_LESSONS_ENDPOINT = `${BASE_URL}/lessons`;
+export const GET_USER_LEARNING_PATH_ENDPOINT = `${BASE_URL}/user-lessons-learning-path`;
 export const GET_LESSON_BY_ID_ENDPOINT = (id: string) =>
   `${BASE_URL}/lessons/${id}`;
 export const COMPLETE_LESSON_ENDPOINT = `${BASE_URL}/progress`;
