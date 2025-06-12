@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/services/store/store";
 import { registerUser } from "@/services/features/auth/authSlice";
 import { EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
+import ReCAPTCHA from "react-google-recaptcha";
+import { message } from "antd";
 
 const RegisterForm = () => {
     const [formData, setFormData] = useState({
@@ -15,6 +17,7 @@ const RegisterForm = () => {
     const [showPassword, setShowPassword] = useState(false);
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const recaptchaRef = useRef<ReCAPTCHA>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -30,17 +33,36 @@ const RegisterForm = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        const recaptchaToken = recaptchaRef.current?.getValue();
+        if (!recaptchaToken) {
+            message.error("Vui lòng xác nhận bạn không phải robot");
+            return;
+        }
+
+        console.log("Register - reCAPTCHA Token Length:", recaptchaToken.length);
+        console.log("Register - reCAPTCHA Token First 10 chars:", recaptchaToken.substring(0, 10));
+
         setIsLoading(true);
 
         try {
-            const result = await dispatch(registerUser(formData)).unwrap();
+            const result = await dispatch(registerUser({
+                ...formData,
+                recaptchaToken
+            })).unwrap();
+            
             if (result.success) {
                 navigate("/login");
             }
-        } catch {
-            //error
+        } catch (error) {
+            console.error("Register failed:", error);
+            if (error && typeof error === 'object') {
+                console.log("Register error details:", JSON.stringify(error, null, 2));
+            }
+            message.error("Đăng ký thất bại. Vui lòng thử lại.");
         } finally {
             setIsLoading(false);
+            recaptchaRef.current?.reset();
         }
     };
 
@@ -100,6 +122,13 @@ const RegisterForm = () => {
                 >
                     {showPassword ? <EyeInvisibleOutlined /> : <EyeOutlined />}
                 </div>
+            </div>
+
+            <div className="flex justify-center">
+                <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey="6LfwkVkrAAAAALC3Ayznv0qxjpAz61XKtza0DuPb"
+                />
             </div>
 
             <button

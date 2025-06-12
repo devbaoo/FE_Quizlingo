@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAppDispatch } from "@/services/store/store";
 import { forgotPassword } from "@/services/features/auth/authSlice";
 import { Link } from "react-router-dom";
 import { message } from "antd";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const ForgotPasswordForm = () => {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const dispatch = useAppDispatch();
+    const recaptchaRef = useRef<ReCAPTCHA>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
@@ -15,17 +17,50 @@ const ForgotPasswordForm = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        const recaptchaToken = recaptchaRef.current?.getValue();
+        if (!recaptchaToken) {
+            message.error("Vui lòng xác nhận bạn không phải robot");
+            return;
+        }
+
+        console.log("Forgot Password - reCAPTCHA Token Length:", recaptchaToken.length);
+        console.log("Forgot Password - reCAPTCHA Token First 10 chars:", recaptchaToken.substring(0, 10));
+
         setIsLoading(true);
 
         try {
-            const result = await dispatch(forgotPassword({ email })).unwrap();
+            // Chỉ gửi email và recaptchaToken
+            const requestPayload = {
+                email,
+                recaptchaToken
+            };
+            console.log("Forgot Password - Request Payload:", {
+                ...requestPayload,
+                recaptchaToken: `${recaptchaToken.substring(0, 20)}...`
+            });
+
+            const result = await dispatch(forgotPassword(requestPayload)).unwrap();
+            
             if (result.success) {
-                message.success("Email đã được gửi thành công!");
+                message.success(result.message || "Email đã được gửi thành công!");
+                setEmail(""); // Clear email after successful submission
+            } else {
+                message.warning(result.message || "Không thể gửi email. Vui lòng thử lại sau.");
             }
-        } catch {
-            // error
+        } catch (error) {
+            console.error("Forgot password failed:", error);
+            if (error && typeof error === 'object') {
+                console.log("Error details:", JSON.stringify(error, null, 2));
+                console.log("Last request details:", {
+                    email,
+                    tokenLength: recaptchaToken.length
+                });
+            }
+            message.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
         } finally {
             setIsLoading(false);
+            recaptchaRef.current?.reset();
         }
     };
 
@@ -46,6 +81,13 @@ const ForgotPasswordForm = () => {
                     placeholder="Email"
                     className="my-3 w-full border-none bg-transparent outline-none focus:outline-none text-sm sm:text-base font-baloo"
                     required
+                />
+            </div>
+
+            <div className="flex justify-center">
+                <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey="6LfwkVkrAAAAALC3Ayznv0qxjpAz61XKtza0DuPb"
                 />
             </div>
 

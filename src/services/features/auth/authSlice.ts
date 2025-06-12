@@ -20,6 +20,8 @@ export interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  loginAttempts: number;
+  lastFailedAttempt: number | null;
 }
 
 const initialState: AuthState = {
@@ -29,6 +31,8 @@ const initialState: AuthState = {
   isAuthenticated: false,
   loading: false,
   error: null,
+  loginAttempts: 0,
+  lastFailedAttempt: null,
 };
 
 interface LoginCredentials {
@@ -41,10 +45,7 @@ interface RegisterCredentials {
   lastName: string;
   email: string;
   password: string;
-}
-
-interface ForgotPasswordRequest {
-  email: string;
+  recaptchaToken: string;
 }
 
 interface ResetPasswordRequest {
@@ -94,18 +95,29 @@ export const registerUser = createAsyncThunk<
 
 export const forgotPassword = createAsyncThunk<
   { success: boolean; message: string },
-  ForgotPasswordRequest,
+  { email: string; recaptchaToken: string },
   { rejectValue: { message: string } }
 >("auth/forgotPassword", async (request, { rejectWithValue }) => {
   try {
+    console.log("Sending forgot password request:", {
+      email: request.email,
+      recaptchaToken: request.recaptchaToken ? `${request.recaptchaToken.substring(0, 10)}...` : 'missing'
+    });
+
     const response = await axiosInstance.post(
       FORGOT_PASSWORD_ENDPOINT,
-      request
+      {
+        email: request.email,
+        recaptchaToken: request.recaptchaToken
+      }
     );
+
+    console.log("Forgot password response:", response.data);
     return response.data;
   } catch (err: unknown) {
     const error = err as ApiError;
     const message = error.message || "Yêu cầu đặt lại mật khẩu thất bại";
+    console.error("Forgot password error:", error);
     return rejectWithValue({ message });
   }
 });
@@ -213,6 +225,8 @@ const authSlice = createSlice({
       state.refreshToken = null;
       state.isAuthenticated = false;
       state.error = null;
+      state.loginAttempts = 0;
+      state.lastFailedAttempt = null;
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
     },
@@ -231,6 +245,20 @@ const authSlice = createSlice({
       localStorage.setItem("token", action.payload.accessToken);
       localStorage.setItem("refreshToken", action.payload.refreshToken);
     },
+    resetLoginAttempts: (state) => {
+      state.loginAttempts = 0;
+      state.lastFailedAttempt = null;
+    },
+    incrementLoginAttempts: (state) => {
+      const now = Date.now();
+      // Reset attempts if last failure was more than 15 minutes ago
+      if (state.lastFailedAttempt && now - state.lastFailedAttempt > 15 * 60 * 1000) {
+        state.loginAttempts = 1;
+      } else {
+        state.loginAttempts += 1;
+      }
+      state.lastFailedAttempt = now;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -245,6 +273,8 @@ const authSlice = createSlice({
         state.refreshToken = action.payload.refreshToken;
         state.isAuthenticated = true;
         state.error = null;
+        state.loginAttempts = 0;
+        state.lastFailedAttempt = null;
         localStorage.setItem("token", action.payload.accessToken);
         localStorage.setItem("refreshToken", action.payload.refreshToken);
 
@@ -254,7 +284,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = false;
         state.error = action.payload?.message || "Đăng nhập thất bại";
-
         message.error(state.error);
       })
       // Register cases
@@ -389,5 +418,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, setAvatar, loginWithGoogle } = authSlice.actions;
+export const { logout, setAvatar, loginWithGoogle, resetLoginAttempts, incrementLoginAttempts } = authSlice.actions;
 export default authSlice.reducer;
