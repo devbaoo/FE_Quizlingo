@@ -52,8 +52,10 @@ const LoginForm = forwardRef((_, ref) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
+        
         try {
             const result = await dispatch(loginUser(credentials)).unwrap();
+            
             if (result.success) {
                 if (result.needVerification) {
                     navigate("/resend-verification", { state: { email: credentials.email } });
@@ -64,6 +66,9 @@ const LoginForm = forwardRef((_, ref) => {
             }
         } catch (error) {
             console.error("Login failed:", error);
+            if (error && typeof error === 'object') {
+                console.log("Error details:", JSON.stringify(error, null, 2));
+            }
         } finally {
             setIsLoading(false);
         }
@@ -157,7 +162,6 @@ const LoginForm = forwardRef((_, ref) => {
                 >
                     {isLoading ? "Đang xử lý..." : "Đăng nhập"}
                 </button>
-                {/* Nút Google đã được chuyển ra ngoài LoginPage */}
             </form>
         </>
     );
