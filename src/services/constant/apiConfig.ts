@@ -1,5 +1,5 @@
-export const BASE_URL = "https://quizlingo-mb7fv.ondigitalocean.app/api";
-// export const BASE_URL = "http://localhost:8080/api";
+// export const BASE_URL = "https://quizlingo-mb7fv.ondigitalocean.app/api";
+ export const BASE_URL = "http://localhost:8080/api";
 //auth
 export const LOGIN_ENDPOINT = `${BASE_URL}/auth/login`;
 export const REGISTER_ENDPOINT = `${BASE_URL}/auth/register`;
@@ -40,6 +40,15 @@ export const NOTIFICATIONS_ALL_ENDPOINT = `${BASE_URL}/admin/notifications/all`;
 export const GET_ALL_LESSONS_ENDPOINT = `${BASE_URL}/admin/lessons`;
 export const UPDATE_USER_ROLE_ENDPOINT = (id: string) =>
   `${BASE_URL}/users/${id}/role`;
+export const GET_TOTAL_USERS_ENDPOINT = `${BASE_URL}/total-user`;
+export const GET_TOTAL_LESSONS_ENDPOINT = `${BASE_URL}/total-lessons`;
+export const GET_TOTAL_LEVELS_ENDPOINT = `${BASE_URL}/total-levels`;
+export const GET_TOTAL_SKILLS_ENDPOINT = `${BASE_URL}/total-skills`;
+export const GET_TOTAL_USERS_BY_LEVEL_ENDPOINT = `${BASE_URL}/total-user-by-level`;
+export const GET_TOTAL_USERS_BY_SKILL_ENDPOINT = `${BASE_URL}/total-user-by-skill`;
+export const GET_TOTAL_USERS_BY_MONTH_ENDPOINT = `${BASE_URL}/total-user-by-month`;
+export const GET_TOTAL_USERS_BY_YEAR_ENDPOINT = `${BASE_URL}/total-user-by-year`;
+
 
 //package
 export const GET_PACKAGES_ENDPOINT = `${BASE_URL}/admin/packages`;

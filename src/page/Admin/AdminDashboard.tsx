@@ -1,5 +1,5 @@
-// import { useSelector } from 'react-redux';
-import { Card, Col, Row, Typography, Statistic } from 'antd';
+import { useSelector } from 'react-redux';
+import { Card, Col, Row, Typography, Statistic, Spin } from 'antd';
 import { Pie, Column } from '@ant-design/plots';
 import {
   UserOutlined,
@@ -7,49 +7,62 @@ import {
   TrophyOutlined,
   AppstoreOutlined,
 } from '@ant-design/icons';
-// import { RootState } from '@/services/store/store';
+import { useEffect } from 'react';
+import { RootState, useAppDispatch } from '@/services/store/store';
+import {
+  fetchDashboardStats,
+  fetchUsersByLevel,
+  fetchUsersBySkill,
+  fetchUsersByMonth,
+} from '@/services/features/admin/adminSlice';
 
 const { Title, Text } = Typography;
 
 const AdminDashboard = () => {
-  // const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useAppDispatch();
+  const { 
+    dashboardStats, 
+    usersByLevel, 
+    usersBySkill, 
+    usersByMonth, 
+    dashboardLoading 
+  } = useSelector((state: RootState) => state.admin);
 
-  // Fake data - Pie chart: Tỷ lệ cấp độ người dùng
-  const roleData = [
-    { type: 'Level 1', value: 2 },
-    { type: 'Level 2', value: 12 },
-    { type: 'Level 3', value: 12 },
-    { type: 'Level 4', value: 12 },
-    { type: 'Level 5', value: 12 },
-  ];
+  useEffect(() => {
+    dispatch(fetchDashboardStats());
+    dispatch(fetchUsersByLevel());
+    dispatch(fetchUsersBySkill());
+    dispatch(fetchUsersByMonth());
+  }, [dispatch]);
 
-  const pieConfig = {
-    appendPadding: 10,
-    data: roleData,
-    angleField: 'value',
-    colorField: 'type',
-    radius: 1,
-    label: {
-      type: 'inner',
-      offset: '-30%',
-      content: '{value}',
-      style: { fontSize: 14, textAlign: 'center' },
-    },
-    interactions: [{ type: 'element-active' }],
-  };
+  // Transform data for charts
+  const roleData = Array.isArray(usersByLevel)
+    ? usersByLevel.map(item => ({
+        type: item.type,
+        value: item.value,
+      }))
+    : [];
 
-  // Fake data - Column chart: Người đăng ký theo tháng
-  const monthlyUserData = [
-    { month: 'Tháng 1', value: 120 },
-    { month: 'Tháng 2', value: 98 },
-    { month: 'Tháng 3', value: 150 },
-    { month: 'Tháng 4', value: 180 },
-    { month: 'Tháng 5', value: 130 },
-    { month: 'Tháng 6', value: 165 },
+  const skillDistribution = Array.isArray(usersBySkill)
+    ? usersBySkill.map(item => ({
+        type: item.type,
+        value: item.value,
+      }))
+    : [];
+
+  const monthlyUserData = Array.isArray(usersByMonth) ? usersByMonth : [];
+
+  const defaultMonthlyData = [
+    { month: 'Tháng 1', value: 0 },
+    { month: 'Tháng 2', value: 0 },
+    { month: 'Tháng 3', value: 0 },
+    { month: 'Tháng 4', value: 0 },
+    { month: 'Tháng 5', value: 0 },
+    { month: 'Tháng 6', value: 0 },
   ];
 
   const columnConfig = {
-    data: monthlyUserData,
+    data: monthlyUserData.length > 0 ? monthlyUserData : defaultMonthlyData,
     xField: 'month',
     yField: 'value',
     color: '#1890ff',
@@ -71,16 +84,31 @@ const AdminDashboard = () => {
       value: { alias: 'Số người đăng ký' },
     },
   };
-  const skillDistribution = [
-    { type: 'Listening', value: 25 },
-    { type: 'Reading', value: 20 },
-    { type: 'Writing', value: 15 },
-    { type: 'Speaking', value: 40 },
+
+  // Fallback data cho pieConfig
+  const defaultRoleData = [
+    { type: 'Level 1', value: 0 },
+    { type: 'Level 2', value: 0 },
+    { type: 'Level 3', value: 0 },
+    { type: 'Level 4', value: 0 },
+    { type: 'Level 5', value: 0 },
   ];
 
-  const pieSkillConfig = {
+  const defaultSkillData = [
+    { type: 'Grammar', value: 0 },
+    { type: 'Vocabulary', value: 0 },
+    { type: 'Listening', value: 0 },
+    { type: 'Reading', value: 0 },
+    { type: 'Speaking', value: 0 },
+    { type: 'Writing', value: 0 },
+  
+  ];
+
+ 
+
+  const pieConfig = {
     appendPadding: 10,
-    data: skillDistribution,
+    data: roleData.length > 0 ? roleData : defaultRoleData,
     angleField: 'value',
     colorField: 'type',
     radius: 1,
@@ -93,6 +121,28 @@ const AdminDashboard = () => {
     interactions: [{ type: 'element-active' }],
   };
 
+  const pieSkillConfig = {
+    appendPadding: 10,
+    data: skillDistribution.length > 0 ? skillDistribution : defaultSkillData,
+    angleField: 'value',
+    colorField: 'type',
+    radius: 1,
+    label: {
+      type: 'inner',
+      offset: '-30%',
+      content: '{value}',
+      style: { fontSize: 14, textAlign: 'center' },
+    },
+    interactions: [{ type: 'element-active' }],
+  };
+
+  if (dashboardLoading) {
+    return (
+      <div style={{ padding: 24, textAlign: 'center' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 24 }}>
@@ -101,28 +151,28 @@ const AdminDashboard = () => {
       <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
         <SummaryCard
           title="Người dùng"
-          count={1234}
+          count={dashboardStats?.totalUsers || 0}
           icon={<UserOutlined />}
           color="blue"
           subtitle="Tổng số người dùng"
         />
         <SummaryCard
           title="Bài học"
-          count={320}
+          count={dashboardStats?.totalLessons || 0}
           icon={<BookOutlined />}
           color="purple"
           subtitle="Tổng số bài học"
         />
         <SummaryCard
           title="Cấp độ"
-          count={6}
+          count={dashboardStats?.totalLevels || 0}
           icon={<TrophyOutlined />}
           color="red"
           subtitle="Tổng số cấp độ"
         />
         <SummaryCard
           title="Kỹ năng"
-          count={4}
+          count={dashboardStats?.totalSkills || 0}
           icon={<AppstoreOutlined />}
           color="green"
           subtitle="Tổng số kỹ năng"
@@ -144,8 +194,6 @@ const AdminDashboard = () => {
           </Card>
         </Col>
       </Row>
-
-
     </div>
   );
 };
