@@ -67,7 +67,8 @@ interface IActivePackage {
     updatedAt: string;
 }
 
-const getDisplayPackageName = (name: string) => {
+const getDisplayPackageName = (name?: string) => {
+    if (!name) return '';
     const lowercaseName = name.toLowerCase();
     if (lowercaseName.includes('silver')) return 'Gói Bạc';
     if (lowercaseName.includes('premium')) return 'Gói Premium';
