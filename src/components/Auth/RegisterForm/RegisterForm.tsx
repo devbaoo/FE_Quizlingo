@@ -33,7 +33,7 @@ const RegisterForm = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         const recaptchaToken = recaptchaRef.current?.getValue();
         if (!recaptchaToken) {
             message.error("Vui lòng xác nhận bạn không phải robot");
@@ -50,7 +50,7 @@ const RegisterForm = () => {
                 ...formData,
                 recaptchaToken
             })).unwrap();
-            
+
             if (result.success) {
                 navigate("/login");
             }
@@ -59,7 +59,7 @@ const RegisterForm = () => {
             if (error && typeof error === 'object') {
                 console.log("Register error details:", JSON.stringify(error, null, 2));
             }
-            message.error("Đăng ký thất bại. Vui lòng thử lại.");
+            // authSlice đã hiển thị message error, không cần hiển thị thêm
         } finally {
             setIsLoading(false);
             recaptchaRef.current?.reset();

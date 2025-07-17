@@ -57,10 +57,9 @@ const ResetPasswordForm = ({ token }: ResetPasswordFormProps) => {
                 }, 3000);
             }
         } catch (error) {
+            // authSlice đã hiển thị message error, chỉ set local error cho form validation
             if (error && typeof error === "object" && "message" in error) {
                 setError((error as { message: string }).message);
-            } else {
-                setError("Đặt lại mật khẩu thất bại");
             }
         } finally {
             setIsLoading(false);
