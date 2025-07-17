@@ -17,7 +17,7 @@ const ForgotPasswordForm = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         const recaptchaToken = recaptchaRef.current?.getValue();
         if (!recaptchaToken) {
             message.error("Vui lòng xác nhận bạn không phải robot");
@@ -41,12 +41,9 @@ const ForgotPasswordForm = () => {
             });
 
             const result = await dispatch(forgotPassword(requestPayload)).unwrap();
-            
+
             if (result.success) {
-                message.success(result.message || "Email đã được gửi thành công!");
                 setEmail(""); // Clear email after successful submission
-            } else {
-                message.warning(result.message || "Không thể gửi email. Vui lòng thử lại sau.");
             }
         } catch (error) {
             console.error("Forgot password failed:", error);
@@ -57,7 +54,7 @@ const ForgotPasswordForm = () => {
                     tokenLength: recaptchaToken.length
                 });
             }
-            message.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
+            // authSlice đã hiển thị message error, không cần hiển thị thêm
         } finally {
             setIsLoading(false);
             recaptchaRef.current?.reset();
