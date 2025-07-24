@@ -11,8 +11,8 @@ export const CHANGE_PASSWORD_ENDPOINT = `${BASE_URL}/auth/change-password`;
 export const REFRESH_TOKEN_ENDPOINT = `${BASE_URL}/auth/refresh-token`;
 //user
 export const GET_PAYMENT_HISTORY_ENDPOINT = `${BASE_URL}/user/payment-history`;
-export const GET_PROFILE_TOKEN_ENDPOINT = `${BASE_URL}/users/profile`;
-export const UPDATE_PROFILE_ENDPOINT = `${BASE_URL}/users/profile`;
+export const GET_PROFILE_TOKEN_ENDPOINT = `${BASE_URL}/user/profile`;
+export const UPDATE_PROFILE_ENDPOINT = `${BASE_URL}/user/profile`;
 export const UPDATE_AVATAR_PROFILE_ENDPOINT = `${BASE_URL}/users/avatar`;
 export const CHOOSE_TOPICS_ENDPOINT = `${BASE_URL}/user/topic`;
 export const CHOOSE_LEVELS_ENDPOINT = `${BASE_URL}/user/level`;
